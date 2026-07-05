@@ -36,7 +36,11 @@
 - Keep opening braces on the same line for classes, methods, and namespaces.
 - Do not use `using namespace`; always qualify names such as `std::`.
 - Keep project headers before system headers in include lists.
-- Header files must start with `#pragma once`; if an include guard is also used, prefer a `LOGIT_*_HPP_INCLUDED` style guard that matches the file.
+- Header files must start with `#pragma once` and a non-reserved include guard
+  derived from the project prefix and header path:
+  `LOGIT_CPP_HEADER_<PATH>_<FILE>_<EXT>_INCLUDED`.
+- Do not use guard names that start with an underscore, start with an
+  underscore followed by an uppercase letter, or contain a double underscore.
 - Keep source and documentation files in UTF-8.
 - Write non-ASCII C++ string literals as `u8"..."`.
 - Preserve existing public API names unless the task explicitly requires renaming them.

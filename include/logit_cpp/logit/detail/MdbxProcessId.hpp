@@ -1,4 +1,6 @@
 #pragma once
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_MDBXPROCESSID_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_MDBXPROCESSID_HPP_INCLUDED
 
 /// \file MdbxProcessId.hpp
 /// \brief Cross-platform current process id helper for MdbxLogger.
@@ -24,3 +26,5 @@ inline uint64_t current_process_id() {
 
 } // namespace detail
 } // namespace logit
+
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_MDBXPROCESSID_HPP_INCLUDED

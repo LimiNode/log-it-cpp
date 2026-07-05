@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _LOGIT_ILOG_READER_HPP_INCLUDED
-#define _LOGIT_ILOG_READER_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_ILOGREADER_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_ILOGREADER_HPP_INCLUDED
 
 /// \file ILogReader.hpp
 /// \brief Optional read-only interface for log backends that support querying stored records.
@@ -119,4 +119,4 @@ namespace logit {
 
 } // namespace logit
 
-#endif // _LOGIT_ILOG_READER_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_ILOGREADER_HPP_INCLUDED

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _LOGIT_LOGGERS_HPP_INCLUDED
-#define _LOGIT_LOGGERS_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_HPP_INCLUDED
 
 /// \file loggers.hpp
 /// \brief Aggregates all public logger backends.
@@ -60,4 +60,4 @@
 #include "loggers/MdbxLogger.hpp"
 #endif
 
-#endif // _LOGIT_LOGGERS_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_HPP_INCLUDED

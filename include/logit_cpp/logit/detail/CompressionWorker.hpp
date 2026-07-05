@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _LOGIT_COMPRESSION_WORKER_HPP_INCLUDED
-#define _LOGIT_COMPRESSION_WORKER_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_COMPRESSIONWORKER_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_COMPRESSIONWORKER_HPP_INCLUDED
 
 /// \file CompressionWorker.hpp
 /// \brief Background worker that compresses rotated log files.
@@ -253,5 +253,4 @@ namespace logit { namespace detail {
 
 }} // namespace logit::detail
 
-#endif // _LOGIT_COMPRESSION_WORKER_HPP_INCLUDED
-
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_COMPRESSIONWORKER_HPP_INCLUDED

@@ -1,13 +1,13 @@
 #pragma once
-#ifndef LOGIT_CPP_LOGIT_HPP
-#define LOGIT_CPP_LOGIT_HPP
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_HPP_INCLUDED
 
 /// \file logit.hpp
 /// \brief Unified umbrella header for the LogIt++ library.
 ///
 /// Including this header provides a fully self-contained entry point that
 /// aggregates configuration, utilities, formatters, loggers and the logging
-/// façade. No additional includes are required to start using the library.
+/// faГ§ade. No additional includes are required to start using the library.
 
 #include "logit/config.hpp"
 #include "logit/enums.hpp"
@@ -21,4 +21,4 @@
 /// \brief The primary namespace for the LogIt++ library.
 namespace logit {};
 
-#endif // LOGIT_CPP_LOGIT_HPP
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_HPP_INCLUDED

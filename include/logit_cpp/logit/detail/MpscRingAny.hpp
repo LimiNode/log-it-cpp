@@ -1,6 +1,6 @@
-// detail/MpscRingAny.hpp
-#ifndef _LOGIT_DETAIL_MPSC_RING_ANY_HPP_INCLUDED
-#define _LOGIT_DETAIL_MPSC_RING_ANY_HPP_INCLUDED
+#pragma once
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_MPSCRINGANY_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_MPSCRINGANY_HPP_INCLUDED
 
 #include <atomic>
 #include <cstddef>
@@ -175,4 +175,4 @@ namespace logit { namespace detail {
 
 }} // namespace logit::detail
 
-#endif // _LOGIT_DETAIL_MPSC_RING_ANY_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_MPSCRINGANY_HPP_INCLUDED

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef LOGIT_LOG_MACROS_HPP_INCLUDED
-#define LOGIT_LOG_MACROS_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOG_MACROS_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOG_MACROS_HPP_INCLUDED
 
 #ifdef LOGIT_WITH_FMT
 #include <fmt/format.h>
@@ -68,7 +68,7 @@
 #define LOGIT_NDC_GUARD(value)         do { } while (0)
 #endif
 
-#ifdef _LOGIT_ENUMS_HPP_INCLUDED
+#ifdef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_ENUMS_HPP_INCLUDED
 static_assert(LOGIT_LEVEL_TRACE == static_cast<int>(logit::LogLevel::LOG_LVL_TRACE),
               "LOGIT_LEVEL_TRACE mismatch");
 static_assert(LOGIT_LEVEL_DEBUG == static_cast<int>(logit::LogLevel::LOG_LVL_DEBUG),
@@ -81,7 +81,7 @@ static_assert(LOGIT_LEVEL_ERROR == static_cast<int>(logit::LogLevel::LOG_LVL_ERR
               "LOGIT_LEVEL_ERROR mismatch");
 static_assert(LOGIT_LEVEL_FATAL == static_cast<int>(logit::LogLevel::LOG_LVL_FATAL),
               "LOGIT_LEVEL_FATAL mismatch");
-#endif // _LOGIT_ENUMS_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_ENUMS_HPP_INCLUDED
 
 #ifndef LOGIT_COMPILED_LEVEL
 #    define LOGIT_COMPILED_LEVEL LOGIT_LEVEL_TRACE
@@ -3066,4 +3066,4 @@ static_assert(LOGIT_LEVEL_FATAL == static_cast<int>(logit::LogLevel::LOG_LVL_FAT
 
 /// \}
 
-#endif // LOGIT_LOG_MACROS_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOG_MACROS_HPP_INCLUDED

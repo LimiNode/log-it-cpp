@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _LOGIT_ARGUMENT_UTILS_HPP_INCLUDED
-#define _LOGIT_ARGUMENT_UTILS_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_ARGUMENT_UTILS_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_ARGUMENT_UTILS_HPP_INCLUDED
 
 /// \file argument_utils.hpp
 /// \brief Functions for working with arguments and converting them to value arrays.
@@ -10,7 +10,7 @@
 
 namespace logit {
 
-    /// \brief Base case of recursion for argument conversion — when there are no more arguments.
+    /// \brief Base case of recursion for argument conversion вЂ” when there are no more arguments.
     /// \param name_iter Iterator for the argument name list.
     /// \return An empty vector, as there are no more arguments to process.
     inline std::vector<VariableValue> args_to_array(std::vector<std::string>::const_iterator /*name_iter*/) {
@@ -145,4 +145,4 @@ namespace logit {
 
 }; // namespace logit
 
-#endif // _LOGIT_ARGUMENT_UTILS_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_ARGUMENT_UTILS_HPP_INCLUDED

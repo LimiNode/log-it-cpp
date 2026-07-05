@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _LOGIT_FORMAT_HPP_INCLUDED
-#define _LOGIT_FORMAT_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_FORMAT_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_FORMAT_HPP_INCLUDED
 
 /// \file format.hpp
 /// \brief Function for formatting strings according to a specified format.
@@ -43,4 +43,4 @@ namespace logit {
 
 }; // namespace logit
 
-#endif // _LOGIT_FORMAT_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_FORMAT_HPP_INCLUDED

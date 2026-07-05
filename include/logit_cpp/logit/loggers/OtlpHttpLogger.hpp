@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _LOGIT_OTLP_HTTP_LOGGER_HPP_INCLUDED
-#define _LOGIT_OTLP_HTTP_LOGGER_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_OTLPHTTPLOGGER_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_OTLPHTTPLOGGER_HPP_INCLUDED
 
 /// \file OtlpHttpLogger.hpp
 /// \brief OTLP/HTTP logger backend for exporting logs to OpenTelemetry collectors.
@@ -489,4 +489,4 @@ namespace logit {
 
 } // namespace logit
 
-#endif // _LOGIT_OTLP_HTTP_LOGGER_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_OTLPHTTPLOGGER_HPP_INCLUDED

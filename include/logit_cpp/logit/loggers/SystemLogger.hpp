@@ -1,4 +1,7 @@
 #pragma once
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_SYSTEMLOGGER_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_SYSTEMLOGGER_HPP_INCLUDED
+
 #include "SyslogLogger.hpp"
 #include "EventLogLogger.hpp"
 
@@ -15,3 +18,4 @@ namespace logit {
 #   endif
 }
 
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_SYSTEMLOGGER_HPP_INCLUDED

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _LOGIT_LOG_RECORD_HPP_INCLUDED
-#define _LOGIT_LOG_RECORD_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_LOGRECORD_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_LOGRECORD_HPP_INCLUDED
 
 /// \file LogRecord.hpp
 /// \brief Contains the definition of the LogRecord structure for storing log data.
@@ -78,4 +78,4 @@ namespace logit {
 
 }; // namespace logit
 
-#endif // _LOGIT_LOG_RECORD_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_LOGRECORD_HPP_INCLUDED

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _LOGIT_UTILS_HPP_INCLUDED
-#define _LOGIT_UTILS_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_HPP_INCLUDED
 
 /// \file utils.hpp
 /// \brief Aggregates the public utilities module.
@@ -24,4 +24,4 @@
 #include "utils/LogRecord.hpp"
 #include "utils/tag_utils.hpp"
 
-#endif // _LOGIT_UTILS_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_HPP_INCLUDED

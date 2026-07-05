@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _LOGIT_LOG_FILE_INFO_HPP_INCLUDED
-#define _LOGIT_LOG_FILE_INFO_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_LOGFILEINFO_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_LOGFILEINFO_HPP_INCLUDED
 
 /// \file LogFileInfo.hpp
 /// \brief Public DTO that describes a persisted log file exposed by a file-based backend.
@@ -21,4 +21,4 @@ namespace logit {
 
 } // namespace logit
 
-#endif // _LOGIT_LOG_FILE_INFO_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_LOGFILEINFO_HPP_INCLUDED

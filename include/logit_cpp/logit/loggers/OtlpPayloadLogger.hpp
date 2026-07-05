@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _LOGIT_OTLP_PAYLOAD_LOGGER_HPP_INCLUDED
-#define _LOGIT_OTLP_PAYLOAD_LOGGER_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_OTLPPAYLOADLOGGER_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_OTLPPAYLOADLOGGER_HPP_INCLUDED
 
 /// \file OtlpPayloadLogger.hpp
 /// \brief OTLP payload callback logger backend for exporting logs via user-provided callback.
@@ -342,4 +342,4 @@ namespace logit {
 
 } // namespace logit
 
-#endif // _LOGIT_OTLP_PAYLOAD_LOGGER_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_OTLPPAYLOADLOGGER_HPP_INCLUDED
