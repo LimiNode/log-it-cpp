@@ -7,7 +7,7 @@
 ///
 /// Including this header provides a fully self-contained entry point that
 /// aggregates configuration, utilities, formatters, loggers and the logging
-/// faГ§ade. No additional includes are required to start using the library.
+/// façade. No additional includes are required to start using the library.
 
 #include "logit/config.hpp"
 #include "logit/enums.hpp"
