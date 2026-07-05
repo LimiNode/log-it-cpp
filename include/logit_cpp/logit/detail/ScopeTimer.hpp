@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _LOGIT_DETAIL_SCOPE_TIMER_HPP_INCLUDED
-#define _LOGIT_DETAIL_SCOPE_TIMER_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_SCOPETIMER_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_SCOPETIMER_HPP_INCLUDED
 
 /// \file ScopeTimer.hpp
 /// \brief RAII timer that logs the duration of a scope.
@@ -62,4 +62,4 @@ namespace logit { namespace detail {
 
 }} // namespace logit::detail
 
-#endif // _LOGIT_DETAIL_SCOPE_TIMER_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_SCOPETIMER_HPP_INCLUDED

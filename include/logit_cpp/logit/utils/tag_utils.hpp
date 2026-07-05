@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _LOGIT_TAG_UTILS_HPP_INCLUDED
-#define _LOGIT_TAG_UTILS_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_TAG_UTILS_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_TAG_UTILS_HPP_INCLUDED
 
 #include <sstream>
 #include <string>
@@ -89,5 +89,4 @@ namespace logit { namespace detail {
 
 }} // namespace logit::detail
 
-#endif
-
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_TAG_UTILS_HPP_INCLUDED

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef LOGIT_CRASH_LOGGER_HPP_INCLUDED
-#define LOGIT_CRASH_LOGGER_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_CRASHLOGGER_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_CRASHLOGGER_HPP_INCLUDED
 
 /// \\file CrashLogger.hpp
 /// \\brief Platform-specific crash logger alias.
@@ -18,4 +18,4 @@ namespace logit {
 
 } // namespace logit
 
-#endif // LOGIT_CRASH_LOGGER_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_CRASHLOGGER_HPP_INCLUDED

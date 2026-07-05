@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _LOGIT_FORMATTER_HPP_INCLUDED
-#define _LOGIT_FORMATTER_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_FORMATTER_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_FORMATTER_HPP_INCLUDED
 
 /// \file formatter.hpp
 /// \brief Aggregates the formatter subsystem for convenient inclusion.
@@ -13,4 +13,4 @@
 #include "formatter/SimpleLogFormatter.hpp"
 #include "formatter/compiler/PatternCompiler.hpp"
 
-#endif // _LOGIT_FORMATTER_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_FORMATTER_HPP_INCLUDED

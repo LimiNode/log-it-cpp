@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _LOGIT_UNIQUE_FILE_LOGGER_HPP_INCLUDED
-#define _LOGIT_UNIQUE_FILE_LOGGER_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_UNIQUEFILELOGGER_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_UNIQUEFILELOGGER_HPP_INCLUDED
 
 /// \file UniqueFileLogger.hpp
 /// \brief Logger that writes each log message to a unique file with auto-deletion of old logs.
@@ -933,4 +933,4 @@ namespace logit {
 
 }; // namespace logit
 
-#endif // _LOGIT_UNIQUE_FILE_LOGGER_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_UNIQUEFILELOGGER_HPP_INCLUDED

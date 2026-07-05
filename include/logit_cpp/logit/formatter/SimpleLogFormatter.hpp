@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _LOGIT_SIMPLE_LOG_FORMATTER_HPP_INCLUDED
-#define _LOGIT_SIMPLE_LOG_FORMATTER_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_FORMATTER_SIMPLELOGFORMATTER_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_FORMATTER_SIMPLELOGFORMATTER_HPP_INCLUDED
 
 /// \file SimpleLogFormatter.hpp
 /// \brief Defines the SimpleLogFormatter class for formatting log messages according to a specified pattern or JSON format.
@@ -180,4 +180,4 @@ namespace logit {
 
 }; // namespace logit
 
-#endif // _LOGIT_SIMPLE_LOG_FORMATTER_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_FORMATTER_SIMPLELOGFORMATTER_HPP_INCLUDED

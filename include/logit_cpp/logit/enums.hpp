@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _LOGIT_ENUMS_HPP_INCLUDED
-#define _LOGIT_ENUMS_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_ENUMS_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_ENUMS_HPP_INCLUDED
 
 /// \file enums.hpp
 /// \brief Enumerations and utility functions for logging levels and text colors.
@@ -169,4 +169,4 @@ namespace logit {
 
 }; // namespace logit
 
-#endif // _LOGIT_ENUMS_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_ENUMS_HPP_INCLUDED

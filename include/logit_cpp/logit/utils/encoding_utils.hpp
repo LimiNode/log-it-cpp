@@ -1,7 +1,6 @@
 #pragma once
-
-#ifndef _LOGIT_ENCODING_UTILS_HPP_INCLUDED
-#define _LOGIT_ENCODING_UTILS_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_ENCODING_UTILS_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_ENCODING_UTILS_HPP_INCLUDED
 
 /// \file encoding_utils.hpp
 /// \brief Utilities for working with character encodings and string transformations.
@@ -59,4 +58,4 @@ namespace logit {
 } // namespace logit
 #endif // defined(_WIN32)
 
-#endif // _LOGIT_ENCODING_UTILS_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_ENCODING_UTILS_HPP_INCLUDED

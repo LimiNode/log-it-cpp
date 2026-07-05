@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _LOGIT_DETAIL_TASK_EXECUTOR_HPP_INCLUDED
-#define _LOGIT_DETAIL_TASK_EXECUTOR_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_TASKEXECUTOR_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_TASKEXECUTOR_HPP_INCLUDED
 
 /// \file TaskExecutor.hpp
 /// \brief Task executor used by asynchronous loggers.
@@ -576,4 +576,4 @@ namespace logit { namespace detail {
 
 }} // namespace logit::detail
 
-#endif // _LOGIT_DETAIL_TASK_EXECUTOR_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_TASKEXECUTOR_HPP_INCLUDED

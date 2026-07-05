@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _LOGIT_CONSOLE_LOGGER_HPP_INCLUDED
-#define _LOGIT_CONSOLE_LOGGER_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_CONSOLELOGGER_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_CONSOLELOGGER_HPP_INCLUDED
 
 /// \file ConsoleLogger.hpp
 /// \brief Console logger implementation that outputs logs to the console with color support.
@@ -643,4 +643,4 @@ namespace logit {
 
 }; // namespace logit
 
-#endif // _LOGIT_CONSOLE_LOGGER_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_CONSOLELOGGER_HPP_INCLUDED

@@ -1,5 +1,6 @@
-#ifndef _LOGIT_PATH_UTILS_HPP_INCLUDED
-#define _LOGIT_PATH_UTILS_HPP_INCLUDED
+#pragma once
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_PATH_UTILS_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_PATH_UTILS_HPP_INCLUDED
 
 /// \file path_utils.hpp
 /// \brief Utility functions for path manipulation, including relative path computation.
@@ -431,4 +432,4 @@ namespace logit {
 
 }; // namespace logit
 
-#endif // _LOGIT_PATH_UTILS_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_PATH_UTILS_HPP_INCLUDED

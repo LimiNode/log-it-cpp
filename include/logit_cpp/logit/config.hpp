@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _LOGIT_CONFIG_HPP_INCLUDED
-#define _LOGIT_CONFIG_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_CONFIG_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_CONFIG_HPP_INCLUDED
 
 /// \file config.hpp
 /// \brief Configuration macros for the LogIt logging system.
@@ -229,4 +229,4 @@
 
 /// \}
 
-#endif // _LOGIT_CONFIG_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_CONFIG_HPP_INCLUDED

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef LOGIT_CPP_LOGIT_HPP
-#define LOGIT_CPP_LOGIT_HPP
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_HPP_INCLUDED
 
 /// \file logit.hpp
 /// \brief Unified umbrella header for the LogIt++ library.
@@ -21,4 +21,4 @@
 /// \brief The primary namespace for the LogIt++ library.
 namespace logit {};
 
-#endif // LOGIT_CPP_LOGIT_HPP
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_HPP_INCLUDED

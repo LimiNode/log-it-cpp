@@ -134,7 +134,8 @@ Important project-specific points:
   `TextColor` and `RotationNaming` use `CamelCase`, and `CompressType` uses
   names such as `GZIP` and `EXTERNAL_CMD`. Preserve existing public names unless
   a task explicitly requires a breaking rename.
-- Headers begin with `#pragma once` and an include guard.
+- Headers begin with `#pragma once` and a non-reserved
+  `LOGIT_CPP_HEADER_*_INCLUDED` include guard.
 - Doxygen comments are English and usually use `/// \brief`.
 - Project headers appear before system headers when adding include lists.
 - Keep documentation and sources in UTF-8. Use `u8"..."` for non-ASCII C++
@@ -202,8 +203,8 @@ Compact style example:
 
 ```cpp
 #pragma once
-#ifndef _LOGIT_LOG_ARCHIVE_INFO_HPP_INCLUDED
-#define _LOGIT_LOG_ARCHIVE_INFO_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_LOG_ARCHIVE_INFO_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_LOG_ARCHIVE_INFO_HPP_INCLUDED
 
 #include <cstdint>
 #include <string>
@@ -219,7 +220,7 @@ namespace logit {
 
 } // namespace logit
 
-#endif // _LOGIT_LOG_ARCHIVE_INFO_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_LOG_ARCHIVE_INFO_HPP_INCLUDED
 ```
 
 ### Add a Logger Backend

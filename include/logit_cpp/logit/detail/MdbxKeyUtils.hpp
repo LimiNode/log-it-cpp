@@ -1,4 +1,6 @@
 #pragma once
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_MDBXKEYUTILS_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_MDBXKEYUTILS_HPP_INCLUDED
 
 /// \file MdbxKeyUtils.hpp
 /// \brief Key encoding helpers for MdbxLogger record ordering.
@@ -32,3 +34,5 @@ inline std::string make_mdbx_record_key(int64_t timestamp_ms, uint32_t sequence)
 
 } // namespace detail
 } // namespace logit
+
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_MDBXKEYUTILS_HPP_INCLUDED

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _LOGIT_BUFFERED_LOG_ENTRY_HPP_INCLUDED
-#define _LOGIT_BUFFERED_LOG_ENTRY_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_BUFFEREDLOGENTRY_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_BUFFEREDLOGENTRY_HPP_INCLUDED
 
 /// \file BufferedLogEntry.hpp
 /// \brief Structured snapshot entry used by in-memory log buffers.
@@ -25,4 +25,4 @@ namespace logit {
 
 } // namespace logit
 
-#endif // _LOGIT_BUFFERED_LOG_ENTRY_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_BUFFEREDLOGENTRY_HPP_INCLUDED

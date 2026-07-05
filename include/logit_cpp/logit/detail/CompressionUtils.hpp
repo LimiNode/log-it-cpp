@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _LOGIT_DETAIL_COMPRESSION_UTILS_HPP_INCLUDED
-#define _LOGIT_DETAIL_COMPRESSION_UTILS_HPP_INCLUDED
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_COMPRESSIONUTILS_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_COMPRESSIONUTILS_HPP_INCLUDED
 
 /// \file CompressionUtils.hpp
 /// \brief Shared gzip/zstd compression helpers used by OTLP and MDBX backends.
@@ -186,4 +186,4 @@ inline bool decompress_string_zstd(const std::string& input, std::string& output
 } // namespace detail
 } // namespace logit
 
-#endif // _LOGIT_DETAIL_COMPRESSION_UTILS_HPP_INCLUDED
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_COMPRESSIONUTILS_HPP_INCLUDED

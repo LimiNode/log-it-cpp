@@ -1,4 +1,6 @@
 #pragma once
+#ifndef LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_MDBXBYTEIO_HPP_INCLUDED
+#define LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_MDBXBYTEIO_HPP_INCLUDED
 
 /// \file MdbxByteIO.hpp
 /// \brief Byte serialization helpers for MdbxLogger.
@@ -121,3 +123,5 @@ private:
 
 } // namespace detail
 } // namespace logit
+
+#endif // LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_DETAIL_MDBXBYTEIO_HPP_INCLUDED
