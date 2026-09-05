@@ -16,6 +16,10 @@ namespace logit { namespace detail {
     /// \tparam T Stored type.
     template <class T>
     class MpscRingAny {
+        static_assert(std::is_nothrow_move_constructible<T>::value &&
+                      std::is_nothrow_move_assignable<T>::value,
+            "MpscRingAny requires a type with no-throw move operations");
+
     private:
         /// \brief Single cell storing sequence number and raw storage for T.
         struct Cell {
@@ -78,6 +82,8 @@ namespace logit { namespace detail {
         /// \return true on success; false if queue is full.
         template <class U>
         bool try_push(U&& v) noexcept {
+            static_assert(std::is_nothrow_constructible<T, U&&>::value,
+                "MpscRingAny::try_push requires no-throw construction; pass a movable value");
             std::size_t pos = m_enqueue_pos.load(std::memory_order_relaxed);
             for (;;) {
                 Cell& c = m_cells[pos % m_cap];

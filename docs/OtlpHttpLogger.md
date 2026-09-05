@@ -16,6 +16,10 @@ When `kurlyk` is placed at `external/kurlyk`, LogIt++ adds it only when `LOGIT_W
 
 For Windows MinGW builds, the CMake integration enables kurlyk fallback options for curl, OpenSSL, and Asio when `LOGIT_USE_SUBMODULES=ON`. This keeps OTLP optional while still allowing a ready-made MinGW dependency path through kurlyk.
 
+The bundled kurlyk revision requires CMake 3.21 or newer. On other platforms,
+install kurlyk (and its OpenSSL/curl prerequisites) separately and let
+`find_package(kurlyk)` provide the target.
+
 ## Usage
 
 For a runnable version with environment overrides, graceful shutdown, optional

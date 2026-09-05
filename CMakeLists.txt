@@ -118,6 +118,11 @@ if(LOGIT_WITH_OTLP)
 
     if(NOT TARGET kurlyk AND LOGIT_USE_SUBMODULES)
         if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/kurlyk/CMakeLists.txt")
+            if(CMAKE_VERSION VERSION_LESS 3.21)
+                message(FATAL_ERROR
+                    "Bundled kurlyk requires CMake 3.21 or newer; install kurlyk separately "
+                    "or upgrade CMake.")
+            endif()
             set(KURLYK_WEBSOCKET_SUPPORT OFF CACHE BOOL "Disable kurlyk WebSocket support for LogIt++ OTLP" FORCE)
             set(KURLYK_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
@@ -230,6 +235,7 @@ if(LOGIT_WITH_GZIP)
         find_package(ZLIB QUIET)
     endif()
     if(NOT TARGET ZLIB::ZLIB AND LOGIT_USE_SUBMODULES)
+        set(ZLIB_BUILD_EXAMPLES OFF CACHE BOOL "Disable bundled zlib examples" FORCE)
         add_subdirectory(external/zlib EXCLUDE_FROM_ALL)
         if(TARGET zlibstatic)
             add_library(ZLIB::ZLIB ALIAS zlibstatic)
@@ -314,6 +320,34 @@ if(LOGIT_WITH_MDBX AND TARGET mdbx_containers::mdbx_containers)
             message(FATAL_ERROR
                 "log-it-cpp: Installing with LOGIT_WITH_MDBX=ON and bundled mdbx-containers is not supported. "
                 "Install mdbx-containers separately and use find_package(mdbx_containers), or disable LOGIT_WITH_MDBX for install.")
+        ]])
+    endif()
+endif()
+
+# Bundled compression targets are implementation details of the build tree and
+# are not part of this package's export set.  Keep development builds working,
+# but fail at install time with an actionable message, just like the other
+# bundled optional dependencies above.
+if(LOGIT_WITH_GZIP AND TARGET zlibstatic)
+    get_target_property(_zlib_imported zlibstatic IMPORTED)
+    if(NOT _zlib_imported)
+        set(_logit_install_export_supported OFF)
+        install(CODE [[
+            message(FATAL_ERROR
+                "log-it-cpp: Installing with bundled zlib is not supported. "
+                "Install zlib separately and use find_package(ZLIB), or disable LOGIT_WITH_GZIP for install.")
+        ]])
+    endif()
+endif()
+
+if(LOGIT_WITH_ZSTD AND TARGET libzstd_static)
+    get_target_property(_zstd_imported libzstd_static IMPORTED)
+    if(NOT _zstd_imported)
+        set(_logit_install_export_supported OFF)
+        install(CODE [[
+            message(FATAL_ERROR
+                "log-it-cpp: Installing with bundled zstd is not supported. "
+                "Install zstd separately and use find_package(ZSTD), or disable LOGIT_WITH_ZSTD for install.")
         ]])
     endif()
 endif()

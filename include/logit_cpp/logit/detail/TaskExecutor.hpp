@@ -234,7 +234,11 @@ namespace logit { namespace detail {
                 }
     
                 // Try to push into the ring buffer.
-                if (m_mpsc_queue.try_push(local_task)) {
+                // Move into the ring: std::function's move construction is
+                // noexcept, while copying may allocate and throw.  The ring
+                // deliberately accepts only no-throw construction so a
+                // producer can never leave a claimed cell unpublished.
+                if (m_mpsc_queue.try_push(std::move(local_task))) {
                     m_cv.notify_one(); // wake the worker
                     break;
                 }

@@ -9,6 +9,9 @@ could compile differently across the supported matrix.
 - Check `cmake_minimum_required` before adding CMake syntax. This project
   currently declares CMake 3.18, so avoid commands, options, or policy-dependent
   behavior that require newer CMake unless the minimum is intentionally raised.
+- The bundled `external/kurlyk` submodule currently requires CMake 3.21. Keep
+  the root minimum at 3.18 for builds without OTLP, but guard the bundled OTLP
+  path with an explicit version check and document the requirement.
 - Keep the C++ standard matrix in mind. The default build supports C++11, while
   MDBX, OTLP, and Prometheus server paths may require C++17. Do not use C++17
   language/library features in C++11 paths.

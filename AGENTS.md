@@ -50,6 +50,37 @@ These headers prepare internal dependencies in the intended order.
 - If a header contains mixed declarations, helpers, macros, or multiple types,
   use a snake_case filename.
 
+## Scoped Instructions
+
+Read the nearest module guide before editing files in that tree. These guides
+keep public-header, test, example, documentation, and agent-workflow rules
+close to the code they govern:
+
+- [`include/logit_cpp/AGENTS.md`](include/logit_cpp/AGENTS.md) - public API and
+  header-only implementation contracts.
+- [`tests/AGENTS.md`](tests/AGENTS.md) - test design, registration, and
+  platform-sensitive test rules.
+- [`examples/AGENTS.md`](examples/AGENTS.md) - example portability and
+  dependency expectations.
+- [`docs/AGENTS.md`](docs/AGENTS.md) - documentation consistency and generated
+  output boundaries.
+- [`guides/AGENTS.md`](guides/AGENTS.md) - maintaining playbooks used by
+  humans and coding agents.
+
+When a change crosses module boundaries, follow all applicable guides and
+record the public contract in the narrowest relevant document. Do not copy
+the same rule into every guide.
+
+## Review Checklist
+
+Before submitting a change, inspect both enabled and disabled compile-time
+paths. In particular, check that `noexcept` functions cannot allocate, invoke
+user callbacks, or propagate exceptions; that conditions are reachable and
+not permanently true or false; that repeated logic has a single owner; and
+that optional dependencies do not break a default build or package export.
+Run the focused tests plus the relevant CMake configure/build flow and report
+platform-only failures explicitly.
+
 ## Header Guards
 
 For every project-owned C/C++ header, use `#pragma once` together with a
