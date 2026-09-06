@@ -320,6 +320,18 @@ if(LOGIT_WITH_MDBX AND TARGET mdbx_containers::mdbx_containers)
     endif()
 endif()
 
+if(LOGIT_WITH_FMT AND TARGET fmt::fmt)
+    get_target_property(_fmt_imported fmt::fmt IMPORTED)
+    if(NOT _fmt_imported)
+        set(_logit_install_export_supported OFF)
+        install(CODE [[
+            message(FATAL_ERROR
+                "log-it-cpp: Installing with bundled fmt is not supported. "
+                "Install fmt separately and use find_package(fmt), or disable LOGIT_WITH_FMT for install.")
+        ]])
+    endif()
+endif()
+
 # Bundled compression targets are implementation details of the build tree and
 # are not part of this package's export set.  Keep development builds working,
 # but fail at install time with an actionable message, just like the other

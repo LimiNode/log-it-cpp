@@ -43,6 +43,28 @@ jobs:
         run: cmake -S tests/install_consumer -B build-consumer -DCMAKE_PREFIX_PATH=${{ github.workspace }}/install -DCMAKE_CXX_STANDARD=${{ matrix.std }}
       - name: Build consumer project
         run: cmake --build build-consumer
+      - name: Configure and install fmt dependency
+        if: matrix.std == 17
+        run: cmake -S external/fmt -B build-fmt -DFMT_TEST=OFF -DFMT_DOC=OFF -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/install-fmt
+      - name: Build and install fmt dependency
+        if: matrix.std == 17
+        run: |
+          cmake --build build-fmt
+          cmake --install build-fmt
+      - name: Configure fmt-enabled package
+        if: matrix.std == 17
+        run: cmake -S . -B build-fmt-package -DLOGIT_CPP_BUILD_TESTS=OFF -DLOGIT_WITH_FMT=ON -DCMAKE_PREFIX_PATH=${{ github.workspace }}/install-fmt -DLOGIT_WITH_SYSLOG=OFF -DLOGIT_WITH_WIN_EVENT_LOG=OFF
+      - name: Install fmt-enabled package
+        if: matrix.std == 17
+        run: |
+          cmake --build build-fmt-package
+          cmake --install build-fmt-package --prefix install-fmt-package
+      - name: Configure fmt-enabled consumer project
+        if: matrix.std == 17
+        run: cmake -S tests/install_consumer -B build-fmt-consumer -DLOGIT_CONSUMER_REQUIRE_FMT=ON -DCMAKE_PREFIX_PATH="${{ github.workspace }}/install-fmt-package;${{ github.workspace }}/install-fmt"
+      - name: Build fmt-enabled consumer project
+        if: matrix.std == 17
+        run: cmake --build build-fmt-consumer
       - name: Upload logs
         if: failure()
         uses: actions/upload-artifact@v4

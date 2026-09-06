@@ -1,6 +1,12 @@
 #include <logit.hpp>
 
 int main() {
+#if defined(LOGIT_CONSUMER_REQUIRE_FMT)
+#  if !defined(LOGIT_WITH_FMT)
+#    error "The installed package did not propagate LOGIT_WITH_FMT"
+#  endif
+    LOGIT_FMT_INFO("consumer fmt {}", 42);
+#endif
 #if LOGIT_SYSLOG_ENABLED
     LOGIT_ADD_SYSLOG_DEFAULT();
     LOGIT_INFO("hello");
