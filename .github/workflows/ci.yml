@@ -65,6 +65,15 @@ jobs:
       - name: Build fmt-enabled consumer project
         if: matrix.std == 17
         run: cmake --build build-fmt-consumer
+      - name: Configure Prometheus server package
+        if: matrix.std == 17
+        run: cmake -S . -B build-prometheus-package -DLOGIT_CPP_BUILD_TESTS=OFF -DLOGIT_WITH_PROMETHEUS_SERVER=ON -DLOGIT_WITH_SYSLOG=OFF -DLOGIT_WITH_WIN_EVENT_LOG=OFF
+      - name: Build Prometheus server package
+        if: matrix.std == 17
+        run: cmake --build build-prometheus-package
+      - name: Verify Prometheus server install guard
+        if: matrix.std == 17
+        run: cmake -DBUILD_DIR=${{ github.workspace }}/build-prometheus-package -DINSTALL_PREFIX=${{ github.workspace }}/install-prometheus -P tests/check_prometheus_server_install_guard.cmake
       - name: Upload logs
         if: failure()
         uses: actions/upload-artifact@v4

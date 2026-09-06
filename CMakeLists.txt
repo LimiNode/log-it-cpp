@@ -332,6 +332,15 @@ if(LOGIT_WITH_FMT AND TARGET fmt::fmt)
     endif()
 endif()
 
+if(LOGIT_WITH_PROMETHEUS_SERVER)
+    set(_logit_install_export_supported OFF)
+    install(CODE [[
+        message(FATAL_ERROR
+            "log-it-cpp: Installing with LOGIT_WITH_PROMETHEUS_SERVER=ON is not currently supported. "
+            "Disable LOGIT_WITH_PROMETHEUS_SERVER for install.")
+    ]])
+endif()
+
 # Bundled compression targets are implementation details of the build tree and
 # are not part of this package's export set.  Keep development builds working,
 # but fail at install time with an actionable message, just like the other
