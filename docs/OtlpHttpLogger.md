@@ -2,7 +2,7 @@
 
 `OtlpHttpLogger` is an optional LogIt++ backend that exports log records to an OpenTelemetry-compatible OTLP/HTTP endpoint.
 
-The backend is disabled by default and requires the optional [`kurlyk`](https://github.com/NewYaroslav/kurlyk) dependency.
+The backend is disabled by default and requires the optional [`kurlyk`](https://github.com/LimiNode/kurlyk) dependency.
 
 ## CMake
 

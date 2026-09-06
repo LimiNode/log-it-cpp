@@ -14,11 +14,14 @@ namespace logit { namespace detail {
 
     /// \brief Bounded MPSC ring buffer with arbitrary capacity (C++11).
     /// \tparam T Stored type.
+    /// \note T must be nothrow move-constructible, nothrow move-assignable,
+    ///       and nothrow-destructible because cells are published lock-free.
     template <class T>
     class MpscRingAny {
         static_assert(std::is_nothrow_move_constructible<T>::value &&
-                      std::is_nothrow_move_assignable<T>::value,
-            "MpscRingAny requires a type with no-throw move operations");
+                      std::is_nothrow_move_assignable<T>::value &&
+                      std::is_nothrow_destructible<T>::value,
+            "MpscRingAny requires no-throw move and destruction operations");
 
     private:
         /// \brief Single cell storing sequence number and raw storage for T.
@@ -167,9 +170,19 @@ namespace logit { namespace detail {
             if (!m_cells || m_cap == 0) {
                 return;
             }
-            T tmp;
-            while (try_pop(tmp)) {
-                // Element destroyed via move-from tmp
+
+            // Destruction is called only after producers and the consumer have
+            // stopped.  Inspect the outstanding sequence range and destroy
+            // live objects in place; this keeps the ring usable with move-only
+            // or non-default-constructible payload types.
+            const std::size_t begin = m_dequeue_pos.load(std::memory_order_relaxed);
+            const std::size_t end = m_enqueue_pos.load(std::memory_order_relaxed);
+            for (std::size_t pos = begin; pos != end; ++pos) {
+                Cell& c = m_cells[pos % m_cap];
+                const std::size_t seq = c.m_seq.load(std::memory_order_relaxed);
+                if (seq == pos + 1) {
+                    reinterpret_cast<T*>(&c.m_storage)->~T();
+                }
             }
         }
 

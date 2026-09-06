@@ -289,10 +289,6 @@ endif()
 
 include(CMakePackageConfigHelpers)
 
-install(DIRECTORY include/ DESTINATION include)
-
-install(TARGETS log-it-cpp EXPORT log-it-cppTargets)
-
 set(_logit_install_export_supported ON)
 
 # install(EXPORT) requires all linked targets to be in an export set.
@@ -351,6 +347,13 @@ if(LOGIT_WITH_ZSTD AND TARGET libzstd_static)
         ]])
     endif()
 endif()
+
+# Register the guard rules before any file or target install rule.  If the
+# selected dependency targets cannot be exported, `cmake --install` fails
+# before writing a partial package tree.
+install(DIRECTORY include/ DESTINATION include)
+
+install(TARGETS log-it-cpp EXPORT log-it-cppTargets)
 
 if(_logit_install_export_supported)
     install(EXPORT log-it-cppTargets

@@ -4,6 +4,17 @@ This tree is the installed, header-only API. Keep changes source-compatible
 with the documented C++11 baseline; code behind MDBX, OTLP, and Prometheus
 server feature macros may use C++17 only when CMake selects that standard.
 
+For subsystem-specific work, also read the nearest guide:
+
+- [`logit/detail/AGENTS.md`](logit/detail/AGENTS.md) - queue, executor, and
+  signal-safety invariants.
+- [`logit/loggers/AGENTS.md`](logit/loggers/AGENTS.md) - backend lifecycle and
+  callback ownership.
+- [`logit/formatter/AGENTS.md`](logit/formatter/AGENTS.md) - token and
+  timestamp semantics.
+- [`logit/utils/AGENTS.md`](logit/utils/AGENTS.md) - validation and stable
+  serialization helpers.
+
 - Include the nearest umbrella (`logit.hpp`, `utils.hpp`, `formatter.hpp`, or
   `loggers.hpp`) in examples and integration tests.
 - Preserve the existing public names, overloads, macro expansion contracts,

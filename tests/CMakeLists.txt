@@ -53,6 +53,7 @@ else()
         memory_logger_integration_test.cpp
         mdbx_logger_test.cpp
         mdc_ndc_context_test.cpp
+        mpsc_ring_any_test.cpp
         os_error_macros_test.cpp
         otlp_http_logger_integration_test.cpp
         otlp_http_logger_callback_test.cpp
