@@ -1,3 +1,5 @@
+\page task_executor TaskExecutor Implementation Notes
+
 # TaskExecutor Implementation Notes
 
 The asynchronous task executor powers every non-blocking logger. It accepts

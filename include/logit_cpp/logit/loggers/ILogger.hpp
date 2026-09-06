@@ -5,7 +5,7 @@
 /// \file ILogger.hpp
 /// \brief Defines the interface for loggers used in the logging system.
 
-/// \ingroup LogBackends Logging Backends
+/// \ingroup LogBackends
 /// \{
 
 #include <cstddef>

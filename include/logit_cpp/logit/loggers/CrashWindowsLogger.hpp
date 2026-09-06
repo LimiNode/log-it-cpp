@@ -30,7 +30,7 @@ namespace logit {
 #if defined(_WIN32)
 
     /// \\class CrashWindowsLogger
-    /// \\ingroup LogBackends
+    /// \ingroup LogBackends
     /// \\brief Maintains an in-memory ring buffer of recent messages and dumps it on crashes.
     class CrashWindowsLogger : public ILogger {
     public:

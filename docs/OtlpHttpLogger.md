@@ -1,3 +1,5 @@
+\page otlp_http_logger OTLP/HTTP logger
+
 # OTLP/HTTP logger
 
 `OtlpHttpLogger` is an optional LogIt++ backend that exports log records to an OpenTelemetry-compatible OTLP/HTTP endpoint.

@@ -3,13 +3,24 @@
 
 ## Обзор
 
-**LogIt++** — макро-ориентированная библиотека логирования на C++ с поддержкой компиляторов начиная с `C++11`. Она сочетает лёгкие макросы инструментирования с настраиваемыми бэкендами (консоль, вращающиеся файлы, syslog, Windows Event Log или пользовательские приёмники) и направляет сообщения через асинхронную очередь, чтобы приложения оставались отзывчивыми даже при подробной диагностике. Библиотека объединяет удобство макросов, знакомое по **IceCream-Cpp**, и гибкость решений вроде **spdlog**.
+**LogIt++** — макро-ориентированная библиотека логирования на C++. Ядро и
+большинство встроенных бэкендов поддерживают `C++11`; интеграции OTLP,
+Prometheus HTTP server и MDBX требуют `C++17`. Библиотека сочетает лёгкие
+макросы инструментирования с настраиваемыми бэкендами (консоль, файлы,
+память, системные/crash-логгеры, OTLP, Prometheus, MDBX и пользовательские
+приёмники). Большинство обычных native-бэкендов асинхронны по умолчанию, но
+специализированные бэкенды могут быть синхронными или иметь собственную
+очередь и worker.
 
 Ключевые особенности:
 
 - **Макро-ориентированный API.** Единые семейства макросов (`LOGIT_<LEVEL>`, `LOGIT_PRINTF_<LEVEL>`, `LOGIT_STREAM_<LEVEL>` и др.) покрывают мгновенные сообщения, форматирование в стиле `printf`, потоковый вывод, ограничения частоты и работу с тегами. Определите `LOGIT_SHORT_NAME` перед подключением `<logit.hpp>`, чтобы включить компактные алиасы `LOG_I`, `LOG_WPF`, `LOG_S_INFO` и другие.
-- **Гибкое форматирование и маршрутизация.** Настраивайте шаблоны формата, комбинируйте консольные/файловые/системные бэкенды или подключайте собственные реализации логгеров.
-- **Асинхронность по умолчанию.** Каждый бэкенд обслуживается исполнителем задач с настраиваемыми размерами очереди и политиками переполнения, а макросы вроде `LOGIT_WARN_ONCE` или `LOGIT_ERROR_THROTTLE` помогают упорядочить повторяющиеся сообщения.
+- **Гибкое форматирование и маршрутизация.** Настраивайте шаблоны формата,
+  комбинируйте консольные, файловые, системные, telemetry- и storage-бэкенды
+  или подключайте собственные реализации логгеров.
+- **Настраиваемая доставка.** Обычные native-бэкенды используют асинхронные
+  очереди по умолчанию; размер очереди, политика переполнения, dedicated
+  executor и синхронный режим настраиваются для поддерживаемых бэкендов.
 
 Обычное использование библиотеки строится вокруг публичных семейств макросов
 `LOGIT_*` / `LOG_*`. Выбирайте семейство под нужный стиль логирования:
@@ -37,6 +48,13 @@ scope-замер.
 Внутренние файлы из `logit/detail/` предназначены только для реализации и не должны подключаться напрямую пользователями.
 
 Ниже приведены примеры макросов; также загляните в каталог `examples/` с отдельными сценариями, включая настройку очереди и обработку аварийного завершения.
+
+Дополнительные руководства:
+
+- [`docs/OtlpHttpLogger.md`](docs/OtlpHttpLogger.md) — OTLP/HTTP, callback-экспорт, атрибуты, retries, разбиение payload и сжатие.
+- [`docs/PrometheusLogger.md`](docs/PrometheusLogger.md) — payload/server-бэкенды, registry, scrape и ограничения.
+- [`docs/TaskExecutor.md`](docs/TaskExecutor.md) — варианты очереди, политики переполнения, hot resize и lifecycle.
+- [`docs/backpressure.md`](docs/backpressure.md) — настройка очереди и счётчики отброшенных задач.
 
 ## Примеры макросов
 
@@ -93,6 +111,20 @@ void short_names_demo() {
 ```
 
 Самодостаточный пример, который объединяет настройки и намеренно завершает работу после fatal-сообщения, расположен в `examples/example_logit_minimal_crash.cpp`.
+
+### Диагностический контекст (MDC/NDC)
+
+При `LOGIT_WITH_CONTEXT=ON` можно хранить thread-local пары MDC и вложенный
+стек NDC. Эти значения доступны в форматтере через `%K`, `%K{key}` и `%J`.
+
+```cpp
+LOGIT_MDC_PUT("request_id", "req-42");
+{
+    LOGIT_NDC_GUARD("checkout");
+    LOGIT_INFO("обработка заказа");
+}
+LOGIT_MDC_CLEAR();
+```
 
 ### Макросы системных ошибок
 
@@ -188,6 +220,20 @@ int main() {
 почти real-time снимков, а файловые API — для операционного чтения логов за
 сегодня или предыдущие дни.
 
+### Структурированные и telemetry-бэкенды
+
+Опциональный `LOGIT_WITH_MDBX` сохраняет структурированные записи и большие
+payload в MDBX через `mdbx-containers`. `LOGIT_WITH_OTLP` экспортирует записи в
+OTLP/HTTP через kurlyk. `LOGIT_WITH_PROMETHEUS` предоставляет callback с
+Prometheus text payload, а `LOGIT_WITH_PROMETHEUS_SERVER` — встроенный endpoint
+`/metrics`. Подробные настройки и ограничения install-сценария описаны в
+английских руководствах `docs/`.
+
+`ConsoleLogger::Config::routes` позволяет направлять диапазоны уровней в
+`std::cout`, `std::cerr` или пользовательский поток. Макросы
+`LOGIT_CLEAR_LOGGER` и `LOGIT_CLEAR_ALL_LOGGERS` очищают поддерживаемые
+буферы/хранилища и возвращают `LogClearResult`.
+
 ## Обратное давление и горячее изменение размера
 
 Асинхронный `TaskExecutor` поддерживает как очередь на основе `std::deque` под мьютексом, так и опциональный lock-free MPSC ring
@@ -268,7 +314,10 @@ LOGIT_ADD_UNIQUE_FILE_LOGGER_DEFAULT_SINGLE_MODE();
 
 - **Асинхронное логирование**:
 
-Улучшите производительность приложения с помощью асинхронного логирования. Все логгеры по умолчанию обрабатывают сообщения в отдельном потоке.
+Большинство обычных native-бэкендов по умолчанию работают асинхронно.
+Crash- и payload callback-бэкенды синхронны, OTLP использует собственную
+очередь экспортёра, dedicated executor создаёт worker для выбранного бэкенда,
+а Emscripten без pthreads работает кооперативно без OS-потока.
 
 - **Потоковое логирование**: 
 
@@ -323,6 +372,7 @@ LOGIT_ADD_LOGGER(CustomLogger, (), logit::SimpleLogFormatter, ("%v"));
 | `LOGIT_SCOPE_<LEVEL>(phase)` / `LOGIT_SCOPE_<LEVEL>_T(threshold_ms, phase)` | RAII-макросы для логирования длительности scope, опционально только при превышении порога. |
 | `LOGIT_SCOPE_PRINTF_<LEVEL>(...)` / `LOGIT_SCOPE_PRINTF_<LEVEL>_T(...)` | Scope-таймеры с форматированием в стиле `printf`. |
 | `LOGIT_SCOPE_FMT_<LEVEL>(...)` / `LOGIT_SCOPE_FMT_<LEVEL>_T(...)` | Scope-таймеры с форматированием через `fmt`. |
+| `LOGIT_CLEAR_LOGGER(index)` / `LOGIT_CLEAR_ALL_LOGGERS()` | Очищают поддерживаемые записи/буферы и возвращают `LogClearResult`; варианты `_EX` принимают `LogClearOptions`. |
 | `LOGIT_PERROR_<LEVEL>(msg)`, `LOGIT_WINERR_<LEVEL>(msg)`, `LOGIT_SYSERR_<LEVEL>(msg)` | Добавляют к сообщению расшифрованную платформенную ошибку. |
 | `LOGIT_ADD_LOGGER(...)` и backend-макросы семейства `LOGIT_ADD_*` | Регистрируют консольные, memory, файловые, unique-file, crash, syslog, event-log и пользовательские бэкенды. |
 | `LOGIT_GET_*`, `LOGIT_SET_*`, `LOGIT_IS_*`, `LOGIT_WAIT()`, `LOGIT_SHUTDOWN()` | Управление состоянием логгеров и исполнителя задач. |
@@ -439,7 +489,9 @@ int main() {
 
 ### Уровень логирования на этапе компиляции
 
-Можно исключить сообщения низких уровней из итогового бинарного файла, указав максимальный уровень для компиляции. Задайте макрос `LOGIT_COMPILED_LEVEL` при компиляции:
+Можно исключить сообщения низких уровней из итогового бинарного файла,
+задав минимальный уровень, включаемый в компиляцию. Задайте макрос
+`LOGIT_COMPILED_LEVEL` при компиляции:
 
 ```bash
 g++ -DLOGIT_COMPILED_LEVEL=logit::LogLevel::LOG_LVL_WARN ...
@@ -734,10 +786,29 @@ public:
 
 	void wait() override {}
 
+	std::string get_string_param(const logit::LoggerParam& param) const override {
+		(void)param;
+		return std::string();
+	}
+
+	int64_t get_int_param(const logit::LoggerParam& param) const override {
+		(void)param;
+		return 0;
+	}
+
+	double get_float_param(const logit::LoggerParam& param) const override {
+		(void)param;
+		return 0.0;
+	}
+
+	void set_log_level(logit::LogLevel level) override { m_log_level = level; }
+	logit::LogLevel get_log_level() const override { return m_log_level; }
+
 private:
 	std::string m_file_name;
 	std::ofstream m_log_file;
 	std::mutex m_mutex;
+	logit::LogLevel m_log_level = logit::LogLevel::LOG_LVL_TRACE;
 };
 ```
 
@@ -749,6 +820,10 @@ private:
 
 class JsonLogFormatter : public logit::ILogFormatter {
 public:
+	void set_timestamp_offset(int64_t offset_ms) override {
+		(void)offset_ms;
+	}
+
 	std::string format(const logit::LogRecord& record) const override {
 		Json::Value log_entry;
 		log_entry["level"] = static_cast<int>(record.log_level);
@@ -768,7 +843,9 @@ public:
 
 ## Установка
 
-LogIt++ — это библиотека, работающая только с заголовками. Чтобы интегрировать её в ваш проект, выполните следующие шаги:
+Сам LogIt++ является header-only библиотекой, но CMake-target может добавить
+транзитивные compile/link-зависимости для включённых опциональных функций.
+Чтобы интегрировать библиотеку в проект, выполните следующие шаги:
 
 1. Клонируйте репозиторий с его подмодулями:
 
@@ -785,7 +862,40 @@ git clone --recurse-submodules https://github.com/LimiNode/log-it-cpp.git
 
 При CMake-сборке LogIt++ сначала ищет обязательный пакет **TimeShield**, а затем использует вложенный подмодуль `external/time-shield-cpp`, если он есть в этом репозитории. Если вы размещаете зависимости внутри своего проекта, используйте свои install- или vendor-пути; каталог не обязан называться `external`.
 
-Опциональные зависимости нужны только для включённых возможностей: **fmt** для `LOGIT_WITH_FMT`, **zlib** для `LOGIT_WITH_GZIP` и **zstd** для `LOGIT_WITH_ZSTD`. Их можно установить как пакеты, подключить из собственной структуры зависимостей или включить `LOGIT_USE_SUBMODULES=ON`, чтобы CMake использовал вложенные копии из этого репозитория.
+Опциональные зависимости нужны только для включённых возможностей: **fmt** для
+`LOGIT_WITH_FMT`, **zlib** для `LOGIT_WITH_GZIP`, **zstd** для
+`LOGIT_WITH_ZSTD`, **kurlyk** для `LOGIT_WITH_OTLP` и
+**mdbx-containers** для `LOGIT_WITH_MDBX`. Их можно установить как пакеты,
+подключить из собственной структуры зависимостей или включить
+`LOGIT_USE_SUBMODULES=ON` для development-сборки. Для install/export нужны
+внешние установленные/imported targets.
+
+### CMake subdirectory или vendored checkout
+
+```cmake
+add_subdirectory(external/log-it-cpp)
+target_link_libraries(my_app PRIVATE log-it-cpp::log-it-cpp)
+```
+
+### Установленный CMake-пакет
+
+```cmake
+find_package(log-it-cpp CONFIG REQUIRED)
+target_link_libraries(my_app PRIVATE log-it-cpp::log-it-cpp)
+```
+
+Сборка и установка:
+
+```bash
+cmake -S . -B build -DLOGIT_CPP_BUILD_TESTS=OFF
+cmake --build build
+cmake --install build --prefix ./install
+```
+
+Для consumer-проекта добавьте `-DCMAKE_PREFIX_PATH=/path/to/install`.
+`LOGIT_WITH_PROMETHEUS_SERVER=ON` и bundled optional dependencies пока
+поддерживаются только в source/build-tree; install намеренно завершается
+ошибкой вместо создания неработающего package.
 
 4. (Необязательно) Включите макросы fmt:
 
@@ -800,6 +910,11 @@ LogIt++ включает библиотеку *fmt* для форматиров�
 - `LOGIT_BENCH_ENABLE` (по умолчанию: OFF) — сборка бенчмарков; `LOGIT_BENCH_WITH_SPDLOG` (по умолчанию: OFF) добавляет сравнение со spdlog.
 - `LOGIT_WITH_GZIP` / `LOGIT_WITH_ZSTD` (по умолчанию: OFF) — поддержка gzip или zstd для ротируемых файлов.
 - `LOGIT_WITH_FMT` (по умолчанию: OFF) — подключить макросы в стиле `{}`; `LOGIT_USE_SUBMODULES` (по умолчанию: OFF) разрешает использовать вложенные опциональные зависимости, такие как fmt, zlib и zstd, при отсутствии системных пакетов.
+- `LOGIT_WITH_CONTEXT` (по умолчанию: OFF) — включить MDC/NDC и context-токены форматтера.
+- `LOGIT_WITH_OTLP` (по умолчанию: OFF, C++17) — OTLP/HTTP через kurlyk; не поддерживается в Emscripten.
+- `LOGIT_WITH_PROMETHEUS` (по умолчанию: OFF) — Prometheus text payload; не поддерживается в Emscripten.
+- `LOGIT_WITH_PROMETHEUS_SERVER` (по умолчанию: OFF, C++17) — встроенный Prometheus HTTP server; не поддерживается в Emscripten, install сейчас запрещён.
+- `LOGIT_WITH_MDBX` (по умолчанию: OFF, C++17) — структурированное MDBX-хранилище через mdbx-containers; не поддерживается в Emscripten и MSVC.
 - `LOGIT_WITH_SYSLOG` (по умолчанию: ON на Unix-подобных системах) — сборка бэкенда syslog.
 - `LOGIT_WITH_WIN_EVENT_LOG` (по умолчанию: ON в Windows) — сборка бэкенда Windows Event Log.
 - `LOGIT_FORCE_ASYNC_OFF` (по умолчанию: OFF) — принудительно отключить асинхронное выполнение даже в многопоточных сборках.
@@ -846,6 +961,18 @@ LogIt++ включает библиотеку *fmt* для форматиров�
 - Адаптер LogIt кладёт номер слота в `LogRecord::line` (см. `bench/adapters/LogItAdapter.cpp`). Приёмник вызывает `LatencyRecorder::complete_slot()`, когда видит неотрицательный номер строки; никаких дополнительных полей в записи не требуется.
 
 
+## Матрица бэкендов
+
+| Бэкенд | Включение | Standard | Зависимость | Ограничения |
+|---|---|---:|---|---|
+| Console, file, unique file, memory, crash | встроены | C++11 | TimeShield | Native и документированные Emscripten stubs |
+| Syslog | `LOGIT_WITH_SYSLOG=ON` | C++11 | POSIX syslog | Unix-подобные системы |
+| Windows Event Log | `LOGIT_WITH_WIN_EVENT_LOG=ON` | C++11 | Windows SDK | Только Windows |
+| OTLP/HTTP | `LOGIT_WITH_OTLP=ON` | C++17 | kurlyk | Не Emscripten; для install нужен внешний kurlyk |
+| Prometheus payload | `LOGIT_WITH_PROMETHEUS=ON` | C++11 | нет | Не Emscripten |
+| Prometheus HTTP server | `LOGIT_WITH_PROMETHEUS_SERVER=ON` | C++17 | Simple-Web-Server/Asio | Только build-tree; install запрещён |
+| MDBX | `LOGIT_WITH_MDBX=ON` | C++17 | mdbx-containers | Не Emscripten и не MSVC |
+
 ## Системные бэкенды
 
 LogIt++ может отправлять сообщения в системные журналы.
@@ -880,7 +1007,7 @@ LOGIT_ERROR("Что-то пошло не так");
 
 ## Документация
 
-Подробную документацию для LogIt++, включая описание API и примеры использования, можно найти [здесь](https://newyaroslav.github.io/log-it-cpp/).
+Подробную документацию для LogIt++, включая описание API и примеры использования, можно найти [здесь](https://liminode.github.io/log-it-cpp/).
 
 ---
 

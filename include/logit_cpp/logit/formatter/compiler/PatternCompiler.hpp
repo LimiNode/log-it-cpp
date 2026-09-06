@@ -111,6 +111,7 @@ namespace logit {
         /// \param center Center alignment flag.
         /// \param trunc Truncation flag.
         /// \param strip_ansi If true, removes ANSI escape codes (e.g., colors).
+        /// \param context_key Optional MDC key for context formatting.
         explicit FormatInstruction(
                 CompileContext context,
                 FormatType type,
