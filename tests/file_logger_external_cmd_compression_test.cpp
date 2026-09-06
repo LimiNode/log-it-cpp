@@ -5,6 +5,12 @@
 #include <cstdlib>
 
 int main() {
+#ifdef _WIN32
+    // The test exercises the platform's external `gzip` command.  Windows
+    // CI does not promise a POSIX shell or gzip executable, so let CTest mark
+    // this environment-only case as skipped.
+    return 77;
+#else
     std::system("rm -rf ext_cmd_test");
     logit::FileLogger::Config cfg;
     cfg.directory = "ext_cmd_test";
@@ -36,6 +42,7 @@ int main() {
     while ((n = gzread(gzfile, buf, sizeof(buf))) > 0) out.append(buf, n);
     gzclose(gzfile);
     return out.find(msg) != std::string::npos ? 0 : 1;
+#endif
 }
 #else
 int main() { return 0; }

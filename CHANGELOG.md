@@ -2,21 +2,42 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v1.0.2] - 2026-04-25
-- Added raw and section logging macros for unformatted diagnostic snapshots that bypass level filters while still using configured backends, queues, routing, and file rotation.
-- Added in-memory snapshot logging APIs, buffered entry retrieval, runtime logger snapshots, and examples for control-plane style diagnostics.
-- Added persisted file access APIs for listing and reading current and rotated file logs.
-- Added system logging backends for POSIX syslog and Windows Event Log, plus POSIX/Windows crash logger backends and registration macros.
-- Added compile-time log-level filtering, runtime log-level controls, conditional logging helpers, frequency controls, tagging macros, stream/printf/scope macro coverage, and default no-op handling for disabled macro families.
-- Added file logger size-based rotation, rotation naming policies, retention coverage, gzip/zstd/external-command compression support, and idempotent rotation tests.
-- Added configurable async backpressure controls, queue policies, lock-free MPSC task execution, hot queue resizing, and TSAN-oriented regression coverage.
-- Added Emscripten build support, CMake package installation metadata, pkg-config generation, vcpkg overlay updates, and install-consumer coverage.
-- Added benchmark coverage and refreshed benchmark adapters, latency snapshots, and CI benchmark gating.
-- Expanded CI coverage with sanitizer, Emscripten, ODR, install-consumer, compression, and platform-specific regression checks.
-- Reorganized public include entry points, moved internal helpers under `detail`, hardened header-only ODR behavior, and fixed utility/header dependency issues.
-- Refreshed README, README-RU, Doxygen, agent guidance, macro references, examples, and architecture/task-executor documentation.
-- Updated bundled dependency pins, including TimeShield through `v1.0.5` and compression dependency pins.
-- Fixed Windows crash-filter naming collisions, FileLogger rotation ordering and error handling, benchmark async flushing, MPSC/drop-policy accounting, fmt-disabled macro handling, and `LOGIT_SCOPE_*` duration logging with unnamed messages.
+## [Unreleased]
+
+Target release: **v1.0.2**
+
+### Added
+
+- Raw and section logging macros for unformatted diagnostic snapshots, plus in-memory and persisted snapshot/file access APIs.
+- POSIX syslog, Windows Event Log, POSIX/Windows crash logger, Prometheus payload/registry/HTTP server, OTLP/HTTP, and MDBX logger backends.
+- Structured OTLP attributes, callback-based exporting, payload splitting, compression, export counters, and MDC/NDC context support.
+- Compile-time and runtime log-level controls, conditional/frequency/tagging helpers, stream/printf/fmt/scope macro families, and configurable console output.
+- File rotation by size and timestamp with retention policies and gzip/zstd/external-command compression.
+- Configurable asynchronous backpressure, queue policies, lock-free MPSC execution, hot queue resizing, and dedicated executor controls.
+- Emscripten support, CMake/pkg-config package metadata, vcpkg integration, install-consumer coverage, and latency benchmarks.
+
+### Changed
+
+- Reorganized public umbrella headers and moved implementation helpers under `detail` while preserving header-only ODR safety.
+- Made logger configuration, shutdown, queue resizing, and single-thread executor lifecycle behavior explicit and consistent across backends.
+
+### Fixed
+
+- Corrected file rotation ordering/error handling, async shutdown and flushing, queue drop accounting, MPSC lifecycle handling, and benchmark synchronization.
+- Fixed platform portability issues, crash-filter naming collisions, disabled-fmt macro behavior, scope duration logging, and missing/self-contained header dependencies.
+
+### Packaging / Build
+
+- Refreshed bundled dependency revisions and canonical repository URLs.
+- Added fail-closed installation checks for unsupported bundled optional dependencies and source-tree-only Prometheus server headers.
+
+### CI / Testing
+
+- Expanded regression coverage for sanitizers, TSAN, ODR, Emscripten, optional compression/backends, package consumers, and platform-specific behavior.
+
+### Documentation
+
+- Refreshed README, README-RU, Doxygen, examples, macro references, task-executor guidance, and scoped `AGENTS.md` instructions.
 
 ## [v1.0.1] - 2025-08-05
 - Added initial CMake integration for building, installing, and consuming the header-only package.

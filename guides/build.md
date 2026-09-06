@@ -41,6 +41,11 @@ From `CMakeLists.txt` and `README.md`, the most relevant toggles are:
 - `LOGIT_ENABLE_DROP_OLDEST_SLOWPATH` - compile the ring slow-path for
   `DropOldest`.
 
+When zlib, zstd, kurlyk, or mdbx-containers are supplied from submodules,
+they are suitable for development and tests. Package installation must use
+installed/imported dependency targets; the CMake export deliberately stops
+with an explanatory error instead of producing a broken package.
+
 ## Typical flows
 
 ### Configure tests

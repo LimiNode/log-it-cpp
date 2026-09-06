@@ -1,6 +1,6 @@
 [submodule "external/time-shield-cpp"]
 	path = external/time-shield-cpp
-	url = https://github.com/NewYaroslav/time-shield-cpp.git
+	url = https://github.com/LimiNode/time-shield-cpp.git
 [submodule "external/fmt"]
 	path = external/fmt
 	url = https://github.com/fmtlib/fmt.git
@@ -15,7 +15,7 @@
 	url = https://github.com/madler/zlib
 [submodule "external/mdbx-containers"]
 	path = external/mdbx-containers
-	url = https://github.com/NewYaroslav/mdbx-containers.git
+	url = https://github.com/LimiNode/mdbx-containers.git
 [submodule "external/kurlyk"]
 	path = external/kurlyk
-	url = https://github.com/NewYaroslav/kurlyk.git
+	url = https://github.com/LimiNode/kurlyk.git

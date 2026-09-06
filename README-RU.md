@@ -773,7 +773,7 @@ LogIt++ — это библиотека, работающая только с з
 1. Клонируйте репозиторий с его подмодулями:
 
 ```bash
-git clone --recurse-submodules https://github.com/NewYaroslav/log-it-cpp.git
+git clone --recurse-submodules https://github.com/LimiNode/log-it-cpp.git
 ```
 2. Включите заголовочные файлы LogIt++ в ваш проект:
 
@@ -885,4 +885,4 @@ LOGIT_ERROR("Что-то пошло не так");
 ---
 
 ## Лицензия
-Эта библиотека распространяется под лицензией MIT. Подробности смотрите в файле [LICENSE](https://github.com/NewYaroslav/log-it-cpp/blob/main/LICENSE) в репозитории.
+Эта библиотека распространяется под лицензией MIT. Подробности смотрите в файле [LICENSE](https://github.com/LimiNode/log-it-cpp/blob/main/LICENSE) в репозитории.

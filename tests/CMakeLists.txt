@@ -53,6 +53,7 @@ else()
         memory_logger_integration_test.cpp
         mdbx_logger_test.cpp
         mdc_ndc_context_test.cpp
+        mpsc_ring_any_test.cpp
         os_error_macros_test.cpp
         otlp_http_logger_integration_test.cpp
         otlp_http_logger_callback_test.cpp
@@ -124,6 +125,9 @@ else()
         add_executable(${test_name} ${test_src})
         target_link_libraries(${test_name} PRIVATE log-it-cpp)
         add_test(NAME ${test_name} COMMAND ${test_name})
+        if(test_name STREQUAL "file_logger_external_cmd_compression_test")
+            set_tests_properties(${test_name} PROPERTIES SKIP_RETURN_CODE 77)
+        endif()
         if(LOGIT_WITH_OTLP AND test_name MATCHES "^otlp_http_logger_(integration|callback|gzip|zstd)_test$")
             target_include_directories(${test_name} PRIVATE
                 "${CMAKE_CURRENT_SOURCE_DIR}/../external/kurlyk/external/Simple-Web-Server")
