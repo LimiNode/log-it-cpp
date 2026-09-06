@@ -903,7 +903,7 @@ First, clone the LogIt++ repository from GitHub along with its submodules. The r
 To clone the repository with submodules, use the following command:
 
 \code{bash}
-git clone --recurse-submodules https://github.com/NewYaroslav/log-it-cpp.git
+git clone --recurse-submodules https://github.com/LimiNode/log-it-cpp.git
 \endcode
 
 If you have already cloned the repository without submodules, you can initialize and update the submodules by running the following commands:
@@ -992,9 +992,9 @@ After adding the necessary include paths, you can proceed to build and run your 
 \section repo_sec Repository
 
 The LogIt++ library is open-source and hosted on GitHub:
-[LogIt++ GitHub Repository](https://github.com/NewYaroslav/log-it-cpp).
+[LogIt++ GitHub Repository](https://github.com/LimiNode/log-it-cpp).
 
 \section license_sec License
 
-This library is licensed under the **MIT License**. See the [LICENSE](https://github.com/NewYaroslav/log-it-cpp/blob/main/LICENSE) file in the repository for more details.
+This library is licensed under the **MIT License**. See the [LICENSE](https://github.com/LimiNode/log-it-cpp/blob/main/LICENSE) file in the repository for more details.
 */

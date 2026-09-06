@@ -1,6 +1,6 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
-    REPO NewYaroslav/log-it-cpp
+    REPO LimiNode/log-it-cpp
     REF 9ba0ce1212de3b1f60e22801cca0dc17277e27a3
     SHA512 0094708c32a77aeee4a6de9e99b29f4cd1c7f41bbf69a65c5aad4254bd238e2effb6e669c0b1a035bd242cecf5ef6d048ab5c548dde52450b0b4bc9df371a2b8
     HEAD_REF main

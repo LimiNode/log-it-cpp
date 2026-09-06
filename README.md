@@ -4,9 +4,9 @@
 [![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS%20%7C%20Emscripten-blue)
 ![C++ Standard](https://img.shields.io/badge/C++-11--17-orange)
-![CI Windows](https://img.shields.io/github/actions/workflow/status/NewYaroslav/log-it-cpp/ci.yml?branch=main&label=Windows&logo=windows)
-![CI Linux](https://img.shields.io/github/actions/workflow/status/NewYaroslav/log-it-cpp/ci.yml?branch=main&label=Linux&logo=linux)
-![CI macOS](https://img.shields.io/github/actions/workflow/status/NewYaroslav/log-it-cpp/ci.yml?branch=main&label=macOS&logo=apple)
+![CI Windows](https://img.shields.io/github/actions/workflow/status/LimiNode/log-it-cpp/ci.yml?branch=main&label=Windows&logo=windows)
+![CI Linux](https://img.shields.io/github/actions/workflow/status/LimiNode/log-it-cpp/ci.yml?branch=main&label=Linux&logo=linux)
+![CI macOS](https://img.shields.io/github/actions/workflow/status/LimiNode/log-it-cpp/ci.yml?branch=main&label=macOS&logo=apple)
 
 [Читать на русском](README-RU.md)
 
@@ -956,7 +956,7 @@ LogIt++ is a header-only library. To integrate it into your project, follow thes
 1. Clone the repository with its submodules:
 
 ```bash
-git clone --recurse-submodules https://github.com/NewYaroslav/log-it-cpp.git
+git clone --recurse-submodules https://github.com/LimiNode/log-it-cpp.git
 ```
 2. Include the LogIt++ headers in your project:
 
@@ -1093,4 +1093,4 @@ Detailed documentation for LogIt++, including API reference and usage examples, 
 ---
 
 ## License
-This library is licensed under the MIT License. See the [LICENSE](https://github.com/NewYaroslav/log-it-cpp/blob/main/LICENSE) file in the repository for more details.
+This library is licensed under the MIT License. See the [LICENSE](https://github.com/LimiNode/log-it-cpp/blob/main/LICENSE) file in the repository for more details.
