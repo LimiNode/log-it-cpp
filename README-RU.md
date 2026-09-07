@@ -956,7 +956,7 @@ LogIt++ включает библиотеку *fmt* для форматиров�
 | Windows Event Log | `LOGIT_WITH_WIN_EVENT_LOG=ON` | C++11 | Windows SDK | Только Windows |
 | Windows debugger | встроен | C++11 | Windows API | `OutputDebugStringW` в Windows; в остальных системах fallback в stderr |
 | OTLP/HTTP | `LOGIT_WITH_OTLP=ON` | C++17 | kurlyk | Не Emscripten; для install нужен внешний kurlyk |
-| OTLP payload callback | `LOGIT_WITH_OTLP=ON` | C++11 | Для callback не нужен; общая OTLP-функция | JSON-сериализация и callback вызывающей стороны |
+| OTLP payload callback | `LOGIT_WITH_OTLP=ON` | C++17 | Для callback не нужен; общая OTLP-функция | JSON-сериализация и callback вызывающей стороны |
 | Prometheus payload | `LOGIT_WITH_PROMETHEUS=ON` | C++11 | нет | Не Emscripten |
 | Prometheus HTTP server | `LOGIT_WITH_PROMETHEUS_SERVER=ON` | C++17 | Simple-Web-Server/Asio | Только build-tree; install запрещён |
 | MDBX | `LOGIT_WITH_MDBX=ON` | C++17 | mdbx-containers | Не Emscripten и не MSVC |

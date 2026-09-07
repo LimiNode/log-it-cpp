@@ -1098,7 +1098,7 @@ The following toggles cover all build-time features:
 | Windows Event Log | `LOGIT_WITH_WIN_EVENT_LOG=ON` | C++11 | Windows SDK | Windows only |
 | Windows debugger | built in | C++11 | Windows API | Windows `OutputDebugStringW`; stderr fallback elsewhere |
 | OTLP/HTTP | `LOGIT_WITH_OTLP=ON` | C++17 | kurlyk | Not supported on Emscripten; installed exports need external kurlyk |
-| OTLP payload callback | `LOGIT_WITH_OTLP=ON` | C++11 | None for callback; shared OTLP feature | Serializes JSON and invokes the caller callback |
+| OTLP payload callback | `LOGIT_WITH_OTLP=ON` | C++17 | None for callback; shared OTLP feature | Serializes JSON and invokes the caller callback |
 | Prometheus payload | `LOGIT_WITH_PROMETHEUS=ON` | C++11 | None | Not supported on Emscripten |
 | Prometheus HTTP server | `LOGIT_WITH_PROMETHEUS_SERVER=ON` | C++17 | Simple-Web-Server/Asio | Build-tree only; install currently rejected |
 | MDBX structured storage | `LOGIT_WITH_MDBX=ON` | C++17 | mdbx-containers | Not supported on Emscripten or MSVC |
