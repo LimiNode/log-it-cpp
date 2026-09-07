@@ -65,7 +65,11 @@ Recent focused examples include:
 - `examples/example_logit_prometheus_server.cpp` - embedded `/metrics` endpoint with built-in and application metrics.
 - `examples/example_logit_mdc_ndc.cpp` - mapped and nested diagnostic context across scopes and threads.
 
-Detailed backend and executor guides:
+Detailed guides and documentation map:
+
+- [`docs/quickstart.md`](docs/quickstart.md) — quick start and documentation map.
+- [`docs/backends.md`](docs/backends.md) — backend, platform, dependency, and packaging matrix.
+- [`docs/benchmarks.md`](docs/benchmarks.md) — benchmark methodology and historical snapshot.
 
 - [`docs/OtlpHttpLogger.md`](docs/OtlpHttpLogger.md) — OTLP/HTTP and callback exporters, structured attributes, retries, splitting, and compression.
 - [`docs/PrometheusLogger.md`](docs/PrometheusLogger.md) — payload/server backends, registry metrics, scrape configuration, and limitations.
@@ -1135,6 +1139,10 @@ used.
 
 ## Benchmarks
 
+The canonical benchmark guide is [docs/benchmarks.md](docs/benchmarks.md).
+It contains the methodology, interpretation rules, historical snapshot, and
+`LatencyRecorder` notes referenced by the detailed material below.
+
 Latency and throughput benchmarks live under `bench/`. Enable them during configuration and optionally pull in the spdlog
 adapters:
 
@@ -1149,50 +1157,17 @@ and `LOGIT_BENCH_WARMUP` environment variables if you need a lighter run.
 
 ### What this benchmark measures
 
-The harness times end-to-end latency (*log call → delivery into the sink*) and aggregate throughput. It is great for spotting
-regressions and comparing pipeline designs, but it is **not** a perfect “fastest logger wins” contest. LogIt++ intentionally does
-extra work inspired by Python’s `icecream`: a single `LOGIT_*` call can extract argument names, build `args_array` with
-`VariableValue`, and optionally format those structured values. Classic printf-style loggers such as spdlog focus on fast string
-formatting and queueing instead of this metadata path. In this harness LogIt++ travels the “record → formatter → sink/queue” path
-with IceCream-inspired metadata (argument names/values), while the spdlog adapter receives an already formatted string and measures “string → queue → sink.”
-If you want an apples-to-apples view, keep the comparison within the same
-mode:
+See the canonical [benchmark guide](docs/benchmarks.md) for the measurement
+model, comparison caveats, and interpretation rules.
 
-- *Text-only/passthrough* shows dispatch/queue/sink cost and is the closest to spdlog’s default path.
-- *Metadata-heavy* (`LOGIT_*` with argument capture) includes parsing and packing the structured arguments; LogIt++ will do more
-  work per call here by design.
+### Latest snapshot
 
-Async numbers also include enqueue + worker wakeup/scheduling + sink time; file sinks add I/O variance from buffering and flush
-policies. Async latencies depend heavily on thread pool size/overflow policy and sink behavior; the values below reflect the
-adapter in this repository rather than spdlog at large.
+The historical snapshot and full comparison table are maintained in the
+[benchmark guide](docs/benchmarks.md).
 
-### Latest snapshot (Dec 05, 2025)
+### Benchmark harness notes
 
-- Build: `Release`, `LOGIT_BENCH_ENABLE=ON`, `LOGIT_BENCH_WITH_SPDLOG=ON`, `LOGIT_USE_MPSC_RING=ON` (default).
-- Workload: `LOGIT_BENCH_TOTAL=10000`, 4 producers, message size 200 bytes for the comparison table (all other sizes/counts
-  are in `bench/results/latency-2025-12-05-10k.csv`).
-- Metrics: median (`p50`) latency in nanoseconds and achieved throughput (messages/sec).
-- Hardware: 3 vCPU VM (Intel Xeon E5-2673 v4 @ 2.30GHz), single NUMA node.
-- Data: refreshed from `bench/results/latency-2025-12-05-10k.csv` (Dec 05, 2025 @ 03:18 UTC).
-- The table captures that single scenario; see the CSV for the full matrix.
-
-| Mode | Sink | LogIt++ p50 | LogIt++ throughput | spdlog p50 | spdlog throughput |
-|------|------|-------------|--------------------|------------|-------------------|
-| Sync | Null | 119 ns | 2,127,704 msg/s | 86 ns | 5,803,783 msg/s |
-| Sync | File | 130 ns | 1,035,690 msg/s | 87 ns | 1,593,987 msg/s |
-| Async | Null | 20,916 ns | 1,846,272 msg/s | 1,248,779 ns | 1,303,573 msg/s |
-| Async | File | 255,323 ns | 651,384 msg/s | 5,001,140 ns | 1,153,976 msg/s |
-
-**Takeaways:** In synchronous modes LogIt++ shows p50 ~120–130 ns while carrying the IceCream-inspired metadata path; the spdlog adapter receives preformatted strings, so it remains faster on the null/file sinks in this scenario. Asynchronously, both sides measure enqueue + worker wakeups + sink work and are sensitive to thread-pool/overflow/sink configuration; here LogIt++ stays in the tens-to-hundreds of microseconds, while the spdlog adapter lands in low-to-mid milliseconds and would need tuning/profiling for other setups. Passthrough/fmt-only modes remain available if you want to trim the metadata cost.
-
-### Benchmark harness notes (LatencyRecorder)
-
-- `bench/LatencyRecorder.hpp` preallocates slots and tracks `Token {slot, t0_ns, active}` → `Summary {p50, p99, p999}` with per-
-slot deduplication (duplicate `complete()` calls are ignored). It exposes `recorded()`, `wait_for_all()`, and `finalize()` for
-end-to-end timing across producers/consumers.
-- The LogIt adapter stores the benchmark slot in `LogRecord::line` (see `bench/adapters/LogItAdapter.cpp`). Sinks call
-  `LatencyRecorder::complete_slot()` when they observe a non-negative line number, so no extra payload is needed inside the log
-  record.
+See the [benchmark guide](docs/benchmarks.md) for `LatencyRecorder` details.
 
 
 ---

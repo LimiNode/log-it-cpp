@@ -952,6 +952,10 @@ WARN_LOGFILE           =
 INPUT                  = ./include \
                          ./examples \
                          ./docs/mainpage.dox \
+                         ./docs/quickstart.md \
+                         ./docs/backends.md \
+                         ./docs/reference.dox \
+                         ./docs/benchmarks.md \
                          ./docs/groups.dox \
                          ./docs/OtlpHttpLogger.md \
                          ./docs/PrometheusLogger.md \
