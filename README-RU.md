@@ -954,7 +954,7 @@ LogIt++ включает библиотеку *fmt* для форматиров�
 | Console, file, unique file, memory, crash | встроены | C++11 | TimeShield | Native и документированные Emscripten stubs |
 | Syslog | `LOGIT_WITH_SYSLOG=ON` | C++11 | POSIX syslog | Unix-подобные системы |
 | Windows Event Log | `LOGIT_WITH_WIN_EVENT_LOG=ON` | C++11 | Windows SDK | Только Windows |
-| Windows debugger | встроен | C++11 | Windows API | `OutputDebugStringW` в Windows; в остальных системах fallback в stderr |
+| `WindowsDebugLogger` | встроен | C++11 | Windows API | `OutputDebugStringW` в Windows; в остальных системах fallback в stderr |
 | OTLP/HTTP | `LOGIT_WITH_OTLP=ON` | C++17 | kurlyk | Не Emscripten; для install нужен внешний kurlyk |
 | OTLP payload callback | `LOGIT_WITH_OTLP=ON` | C++17 | Для callback не нужен; общая OTLP-функция | JSON-сериализация и callback вызывающей стороны |
 | Prometheus payload | `LOGIT_WITH_PROMETHEUS=ON` | C++11 | нет | Не Emscripten |

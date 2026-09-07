@@ -1096,7 +1096,7 @@ The following toggles cover all build-time features:
 | Console, file, unique file, memory, crash | built in | C++11 | TimeShield | Native and Emscripten stubs where documented |
 | Syslog | `LOGIT_WITH_SYSLOG=ON` | C++11 | POSIX syslog | Unix-like platforms |
 | Windows Event Log | `LOGIT_WITH_WIN_EVENT_LOG=ON` | C++11 | Windows SDK | Windows only |
-| Windows debugger | built in | C++11 | Windows API | Windows `OutputDebugStringW`; stderr fallback elsewhere |
+| `WindowsDebugLogger` | built in | C++11 | Windows API | Windows `OutputDebugStringW`; stderr fallback elsewhere |
 | OTLP/HTTP | `LOGIT_WITH_OTLP=ON` | C++17 | kurlyk | Not supported on Emscripten; installed exports need external kurlyk |
 | OTLP payload callback | `LOGIT_WITH_OTLP=ON` | C++17 | None for callback; shared OTLP feature | Serializes JSON and invokes the caller callback |
 | Prometheus payload | `LOGIT_WITH_PROMETHEUS=ON` | C++11 | None | Not supported on Emscripten |
