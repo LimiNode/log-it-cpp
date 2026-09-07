@@ -449,10 +449,12 @@ LOGIT_INFO("processing order");
 - **Structured and telemetry backends**:
 
 Optional `LOGIT_WITH_MDBX` persists structured records and payloads through
-`mdbx-containers`. `LOGIT_WITH_OTLP` exports OTLP/HTTP payloads through kurlyk,
-and `LOGIT_WITH_PROMETHEUS` / `LOGIT_WITH_PROMETHEUS_SERVER` provide callback
-and embedded `/metrics` backends. See the dedicated guides above for setup and
-platform/package limitations.
+`mdbx-containers`. `LOGIT_WITH_OTLP` enables OTLP exporters: `OtlpHttpLogger`
+sends HTTP requests through kurlyk, while `OtlpPayloadLogger` delivers serialized
+payloads through a callback. `LOGIT_WITH_PROMETHEUS` /
+`LOGIT_WITH_PROMETHEUS_SERVER` provide callback and embedded `/metrics`
+backends. See the dedicated guides above for setup and platform/package
+limitations.
 
 - **Console stream routing and cleanup**:
 
@@ -497,25 +499,9 @@ LOGIT_STREAM_INFO() << "Stream-based info logging with short macro. Integer valu
 
 - **Extensibility**: 
 
-Create custom loggers and formatters to meet your specific requirements.
-
-```
-class CustomLogger : public logit::ILogger {
-public:
-    CustomLogger() = default;
-
-    /// brief Logs a message by formatting the log record and message.
-    /// \param record The log record containing event details.
-    /// \param message The formatted log message to log.
-    void log(const logit::LogRecord& record, const std::string& message) override {
-        // Implementation for sending logs...
-    }
-
-    ~CustomLogger() override = default;
-};
-
-LOGIT_ADD_LOGGER(CustomLogger, (), logit::SimpleLogFormatter, ("%v"));
-```
+Create custom loggers and formatters to meet your specific requirements. See
+[Custom Logger Backend and Formatter](#custom-logger-backend-and-formatter)
+below for a complete implementation that matches the current interfaces.
 
 ---
 
@@ -582,7 +568,7 @@ severity compiled into the program. Define the `LOGIT_COMPILED_LEVEL` macro
 during compilation:
 
 ```bash
-g++ -DLOGIT_COMPILED_LEVEL=logit::LogLevel::LOG_LVL_WARN ...
+g++ -DLOGIT_COMPILED_LEVEL=LOGIT_LEVEL_WARN ...
 ```
 
 With the example above, `TRACE`, `DEBUG`, and `INFO` macros are turned into no-ops at compile time.
@@ -1110,7 +1096,9 @@ The following toggles cover all build-time features:
 | Console, file, unique file, memory, crash | built in | C++11 | TimeShield | Native and Emscripten stubs where documented |
 | Syslog | `LOGIT_WITH_SYSLOG=ON` | C++11 | POSIX syslog | Unix-like platforms |
 | Windows Event Log | `LOGIT_WITH_WIN_EVENT_LOG=ON` | C++11 | Windows SDK | Windows only |
+| Windows debugger | built in | C++11 | Windows API | Windows `OutputDebugStringW`; stderr fallback elsewhere |
 | OTLP/HTTP | `LOGIT_WITH_OTLP=ON` | C++17 | kurlyk | Not supported on Emscripten; installed exports need external kurlyk |
+| OTLP payload callback | `LOGIT_WITH_OTLP=ON` | C++11 | None for callback; shared OTLP feature | Serializes JSON and invokes the caller callback |
 | Prometheus payload | `LOGIT_WITH_PROMETHEUS=ON` | C++11 | None | Not supported on Emscripten |
 | Prometheus HTTP server | `LOGIT_WITH_PROMETHEUS_SERVER=ON` | C++17 | Simple-Web-Server/Asio | Build-tree only; install currently rejected |
 | MDBX structured storage | `LOGIT_WITH_MDBX=ON` | C++17 | mdbx-containers | Not supported on Emscripten or MSVC |

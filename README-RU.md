@@ -223,8 +223,9 @@ int main() {
 ### Структурированные и telemetry-бэкенды
 
 Опциональный `LOGIT_WITH_MDBX` сохраняет структурированные записи и большие
-payload в MDBX через `mdbx-containers`. `LOGIT_WITH_OTLP` экспортирует записи в
-OTLP/HTTP через kurlyk. `LOGIT_WITH_PROMETHEUS` предоставляет callback с
+payload в MDBX через `mdbx-containers`. `LOGIT_WITH_OTLP` включает OTLP-экспортёры:
+`OtlpHttpLogger` отправляет HTTP через kurlyk, а `OtlpPayloadLogger` передаёт
+сериализованные payload через callback. `LOGIT_WITH_PROMETHEUS` предоставляет callback с
 Prometheus text payload, а `LOGIT_WITH_PROMETHEUS_SERVER` — встроенный endpoint
 `/metrics`. Подробные настройки и ограничения install-сценария описаны в
 английских руководствах `docs/`.
@@ -329,25 +330,10 @@ LOGIT_STREAM_INFO() << "Stream-based info logging with short macro. Integer valu
 
 - **Расширяемость**: 
 
-Создавайте собственные логгеры и форматтеры для удовлетворения ваших специфических потребностей.
-
-```
-class CustomLogger : public logit::ILogger {
-public:
-    CustomLogger() = default;
-
-    /// \brief Логирует сообщение, форматируя запись и сообщение.
-    /// \param record Лог-запись с деталями события.
-    /// \param message Отформатированное сообщение лога.
-    void log(const logit::LogRecord& record, const std::string& message) override {
-        // Реализация отправки логов...
-    }
-
-    ~CustomLogger() override = default;
-};
-
-LOGIT_ADD_LOGGER(CustomLogger, (), logit::SimpleLogFormatter, ("%v"));
-```
+Создавайте собственные логгеры и форматтеры для специфических требований.
+Полная реализация, соответствующая текущим интерфейсам, приведена в разделе
+[«Пользовательский логгер и форматтер»](#пример-пользовательского-логгера-и-форматтера)
+ниже.
 
 ## Справочник макросов
 
@@ -494,7 +480,7 @@ int main() {
 `LOGIT_COMPILED_LEVEL` при компиляции:
 
 ```bash
-g++ -DLOGIT_COMPILED_LEVEL=logit::LogLevel::LOG_LVL_WARN ...
+g++ -DLOGIT_COMPILED_LEVEL=LOGIT_LEVEL_WARN ...
 ```
 
 В этом примере макросы `TRACE`, `DEBUG` и `INFO` будут отключены на этапе компиляции.
@@ -968,7 +954,9 @@ LogIt++ включает библиотеку *fmt* для форматиров�
 | Console, file, unique file, memory, crash | встроены | C++11 | TimeShield | Native и документированные Emscripten stubs |
 | Syslog | `LOGIT_WITH_SYSLOG=ON` | C++11 | POSIX syslog | Unix-подобные системы |
 | Windows Event Log | `LOGIT_WITH_WIN_EVENT_LOG=ON` | C++11 | Windows SDK | Только Windows |
+| Windows debugger | встроен | C++11 | Windows API | `OutputDebugStringW` в Windows; в остальных системах fallback в stderr |
 | OTLP/HTTP | `LOGIT_WITH_OTLP=ON` | C++17 | kurlyk | Не Emscripten; для install нужен внешний kurlyk |
+| OTLP payload callback | `LOGIT_WITH_OTLP=ON` | C++11 | Для callback не нужен; общая OTLP-функция | JSON-сериализация и callback вызывающей стороны |
 | Prometheus payload | `LOGIT_WITH_PROMETHEUS=ON` | C++11 | нет | Не Emscripten |
 | Prometheus HTTP server | `LOGIT_WITH_PROMETHEUS_SERVER=ON` | C++17 | Simple-Web-Server/Asio | Только build-tree; install запрещён |
 | MDBX | `LOGIT_WITH_MDBX=ON` | C++17 | mdbx-containers | Не Emscripten и не MSVC |

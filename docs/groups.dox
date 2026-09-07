@@ -94,6 +94,7 @@ log messages are processed and stored:
 - \b PrometheusPayloadLogger: Emits Prometheus text payloads through a callback when enabled.
 - \b PrometheusHttpServerLogger: Serves Prometheus metrics over HTTP when enabled.
 - \b CrashLogger: Provides platform-specific crash-time logging backends.
+- \b WindowsDebugLogger: Writes to the Windows debugger output or stderr fallback.
 - \b SyslogLogger: Sends log messages to the POSIX syslog service.
 - \b EventLogLogger: Writes logs to the Windows Event Log.
 - \b SystemLogger: Alias that maps to the platform's system logger.

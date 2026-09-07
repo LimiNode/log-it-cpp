@@ -34,11 +34,15 @@ jobs:
       - name: Validate generated documentation
         run: |
           test -s docs/html/index.html
+          test -s docs/html/pages.html
           test -s docs/html/classes.html
-          grep -q "MemoryLogger" docs/html/classes.html
-          grep -q "MdbxLogger" docs/html/classes.html
-          grep -q "Prometheus" docs/html/classes.html
-          grep -q "Otlp" docs/html/classes.html
+          grep -q "1.0.2-dev" docs/html/index.html
+          grep -R -q "MemoryLogger" docs/html
+          grep -R -q "MdbxLogger" docs/html
+          grep -R -q "PrometheusHttpServerLogger" docs/html
+          grep -R -q "OtlpHttpLogger" docs/html
+          ! grep -R -q "AGENTS.md" docs/html
+          ! grep -R -q "NewYaroslav" docs/html
       - name: Publish generated content to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:

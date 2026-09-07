@@ -364,7 +364,7 @@ severity compiled into the program. Set the `LOGIT_COMPILED_LEVEL` macro during
 compilation:
 
 \code{.bash}
-g++ -DLOGIT_COMPILED_LEVEL=logit::LogLevel::LOG_LVL_WARN ...
+g++ -DLOGIT_COMPILED_LEVEL=LOGIT_LEVEL_WARN ...
 \endcode
 
 With this configuration, `TRACE`, `DEBUG`, and `INFO` macros are disabled at compile time.
@@ -376,24 +376,8 @@ cannot re-enable macros removed earlier by `LOGIT_COMPILED_LEVEL`.
 \subsection extensibility Extensibility
 
 Create custom loggers and formatters to meet your specific requirements.
-
-\code{.cpp}
-class CustomLogger : public logit::ILogger {
-public:
-    CustomLogger() = default;
-
-    /// \brief Logs a message by formatting the log record and message.
-    /// \param record The log record containing event details.
-    /// \param message The formatted log message to log.
-    void log(const logit::LogRecord& record, const std::string& message) override {
-        // Implementation for sending logs...
-    }
-
-    ~CustomLogger() override = default;
-};
-
-LOGIT_ADD_LOGGER(CustomLogger, (), logit::SimpleLogFormatter, ("%v"));
-\endcode
+See the complete implementation in `\ref custom_backend_sec` below; it matches
+the current `ILogger` and `ILogFormatter` interfaces.
 
 \section usage_sec Usage
 
@@ -832,7 +816,10 @@ other infrastructure code that intentionally works below the macro layer.
 
 \subsection custom_logger Custom Logger Example
 
-To create a custom logger backend, you need to implement the `ILogger` interface, which requires defining the `log()` and `wait()` methods. Here's an example of a simple custom logger that logs messages to a text file:
+To create a custom logger backend, implement all pure virtual methods of the
+`ILogger` interface (`log()`, parameter accessors, log-level accessors, and
+`wait()`). The complete example below logs messages to a text file and matches
+the current interface:
 
 \code{.cpp}
 #include <fstream>

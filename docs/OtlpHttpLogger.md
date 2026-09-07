@@ -53,6 +53,39 @@ int main() {
 }
 ```
 
+## `OtlpPayloadLogger` callback exporter
+
+`OtlpPayloadLogger` shares the OTLP JSON serializer and structured-attribute
+configuration with `OtlpHttpLogger`, but does not create an HTTP client. It
+passes each serialized payload chunk to `Config::on_payload`, so applications
+can use their own HTTP transport, message broker, or collector adapter.
+
+```cpp
+#include <logit.hpp>
+
+logit::OtlpPayloadLogger::Config config;
+config.format.service_name = "trade-bot";
+config.max_batch_size = 128;
+config.max_payload_bytes = 512 * 1024;
+config.on_payload = [](std::string payload) {
+    // Forward the payload through the application's transport.
+};
+
+LOGIT_ADD_LOGGER(
+    logit::OtlpPayloadLogger,
+    (config),
+    logit::SimpleLogFormatter,
+    ("%v")
+);
+```
+
+The callback exporter is asynchronous by default and owns a bounded queue.
+Set `async = false` for synchronous callback delivery, or set
+`drop_on_overflow = false` to apply producer-side backpressure. Large batches
+are split at `max_payload_bytes`; each chunk is delivered independently. The
+logger does not retry callback failures, but counts them in
+`LoggerParam::FailedExportCount`.
+
 ## Export model
 
 The backend sends OTLP/HTTP JSON requests:

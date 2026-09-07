@@ -2,11 +2,13 @@
 
 # TaskExecutor Implementation Notes
 
-The asynchronous task executor powers every non-blocking logger. It accepts
-work from multiple producer threads and drains it on a dedicated worker. This
-document describes how the executor behaves across build configurations,
-provides guidance on tuning the backpressure policies, and explains the
-lifetime guarantees that logger integrations rely on.
+The global `TaskExecutor` powers backends that use LogIt++'s shared
+asynchronous executor. Some backends are synchronous, dedicated-executor
+configurations use per-backend `SingleThreadExecutor` instances, and OTLP
+backends maintain their own exporter queues. This document describes how the
+shared executor behaves across build configurations, provides guidance on
+tuning backpressure policies, and explains the lifetime guarantees that logger
+integrations rely on.
 
 ## 1. Implementation variants
 
