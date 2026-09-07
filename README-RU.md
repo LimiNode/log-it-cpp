@@ -52,6 +52,7 @@ scope-замер.
 Дополнительные руководства и карта документации:
 
 - [`docs/quickstart.md`](docs/quickstart.md) — краткий старт и карта документации.
+- [`docs/installation.md`](docs/installation.md) — установка через CMake, vendored и installed package сценарии.
 - [`docs/backends.md`](docs/backends.md) — матрица бэкендов, платформ, зависимостей и packaging.
 - [`docs/benchmarks.md`](docs/benchmarks.md) — методика benchmark и исторический snapshot.
 
@@ -242,8 +243,8 @@ Prometheus text payload, а `LOGIT_WITH_PROMETHEUS_SERVER` — встроенн�
 ## Обратное давление и горячее изменение размера
 
 Асинхронный `TaskExecutor` поддерживает как очередь на основе `std::deque` под мьютексом, так и опциональный lock-free MPSC ring
- (включается флагом `LOGIT_USE_MPSC_RING`). Политики переполнения (`Block`, `DropNewest`, `DropOldest`) ведут себя одинаково в
- обеих конфигурациях; в MPSC-режиме `DropOldest` намеренно отбрасывает **входящую** задачу, чтобы не нарушать порядок уже приня
+ (включается флагом `LOGIT_USE_MPSC_RING`). Имена политик переполнения (`Block`, `DropNewest`, `DropOldest`) доступны в обеих
+ конфигурациях, но семантика `DropOldest` различается: deque удаляет старую принятую задачу, а MPSC намеренно отбрасывает **входящую**, чтобы не нарушать порядок уже приня
 тых. Кольцевой буфер по умолчанию вмещает `LOGIT_TASK_EXECUTOR_DEFAULT_RING_CAPACITY` задач (1024) и может быть перенастроен ком
 бинацией `LOGIT_SET_MAX_QUEUE(...)` с этим макросом, если приложению требуется другой базовый объём. В сборках с MPSC допускаетс
 я "горячее" изменение размера очереди без потери принятых задач — продюсеры кратковременно ждут, пока поток-воркер пересобирает
@@ -320,9 +321,10 @@ LOGIT_ADD_UNIQUE_FILE_LOGGER_DEFAULT_SINGLE_MODE();
 - **Асинхронное логирование**:
 
 Большинство обычных native-бэкендов по умолчанию работают асинхронно.
-Crash- и payload callback-бэкенды синхронны, OTLP использует собственную
-очередь экспортёра, dedicated executor создаёт worker для выбранного бэкенда,
-а Emscripten без pthreads работает кооперативно без OS-потока.
+Crash-бэкенды и `PrometheusPayloadLogger` синхронны. OTLP HTTP и payload-
+экспортёры владеют собственными очередями и worker-потоками и могут работать
+синхронно или асинхронно. Dedicated executor создаёт worker для выбранного
+бэкенда, а Emscripten без pthreads работает кооперативно без OS-потока.
 
 - **Потоковое логирование**: 
 
@@ -909,7 +911,6 @@ LogIt++ включает библиотеку *fmt* для форматиров�
 - `LOGIT_WITH_WIN_EVENT_LOG` (по умолчанию: ON в Windows) — сборка бэкенда Windows Event Log.
 - `LOGIT_FORCE_ASYNC_OFF` (по умолчанию: OFF) — принудительно отключить асинхронное выполнение даже в многопоточных сборках.
 - `LOGIT_USE_MPSC_RING` (по умолчанию: ON) — использовать lock-free очередь вместо варианта на `std::deque`.
-- `LOGIT_ENABLE_DROP_OLDEST_SLOWPATH` (по умолчанию: ON) — скомпилировать медленный путь для `DropOldest`, когда кольцо заполнено.
 - `LOGIT_EMSCRIPTEN` (по умолчанию: ON при сборке Emscripten) — подстройка под однопоточные среды WebAssembly.
 
 ## Бенчмарки
@@ -937,17 +938,9 @@ LogIt++ включает библиотеку *fmt* для форматиров�
 
 ## Матрица бэкендов
 
-| Бэкенд | Включение | Standard | Зависимость | Ограничения |
-|---|---|---:|---|---|
-| Console, file, unique file, memory, crash | встроены | C++11 | TimeShield | Native и документированные Emscripten stubs |
-| Syslog | `LOGIT_WITH_SYSLOG=ON` | C++11 | POSIX syslog | Unix-подобные системы |
-| Windows Event Log | `LOGIT_WITH_WIN_EVENT_LOG=ON` | C++11 | Windows SDK | Только Windows |
-| `WindowsDebugLogger` | встроен | C++11 | Windows API | `OutputDebugStringW` в Windows; в остальных системах fallback в stderr |
-| OTLP/HTTP | `LOGIT_WITH_OTLP=ON` | C++17 | kurlyk | Не Emscripten; для install нужен внешний kurlyk |
-| OTLP payload callback | `LOGIT_WITH_OTLP=ON` | C++17 | Для callback не нужен; общая OTLP-функция | JSON-сериализация и callback вызывающей стороны |
-| Prometheus payload | `LOGIT_WITH_PROMETHEUS=ON` | C++11 | нет | Не Emscripten |
-| Prometheus HTTP server | `LOGIT_WITH_PROMETHEUS_SERVER=ON` | C++17 | Simple-Web-Server/Asio | Только build-tree; install запрещён |
-| MDBX | `LOGIT_WITH_MDBX=ON` | C++17 | mdbx-containers | Не Emscripten и не MSVC |
+Поддерживаются консольные, файловые, системные, OTLP, Prometheus и MDBX-
+бэкенды. Каноническая [матрица бэкендов](docs/backends.md) содержит стандарты,
+feature-specific зависимости и ограничения платформ/packaging.
 
 ## Системные бэкенды
 

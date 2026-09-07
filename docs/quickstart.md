@@ -18,16 +18,14 @@ int main() {
 }
 ```
 
-For a vendored checkout, add the repository with `add_subdirectory()` and link
-`log-it-cpp::log-it-cpp`. For an installed package, use
-`find_package(log-it-cpp CONFIG REQUIRED)` and link the same target. Optional
-features and their dependency requirements are described in the
-[`Backend matrix`](backends.html).
+Installation choices and complete CMake examples are collected in the
+[`Installation guide`](installation.html). Optional features and their
+dependency requirements are described in the [`Backend matrix`](backends.html).
 
 ## Documentation map
 
-- **Installation and CMake** — see the installation section in the project
-  README and the generated CMake target reference.
+- **Installation and CMake** — [`Installation guide`](installation.html),
+  including vendored, submodule, installed-package, and package-manager flows.
 - **Macros and formatting** — use the public `<logit.hpp>` entry point; the
   macro and pattern references are available from the API index.
 - **Backends** — [`Backend matrix`](backends.html),

@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -27,6 +30,7 @@ jobs:
           fi
           DOC_VERSION="${VERSION}-dev"
           echo "Using version: $DOC_VERSION"
+          echo "DOC_VERSION=$DOC_VERSION" >> "$GITHUB_ENV"
           test -f docs/mainpage.dox || { echo "mainpage.dox not found!"; exit 1; }
           sed -i "0,/VERSION_PLACEHOLDER/s//${DOC_VERSION}/" docs/mainpage.dox
       - name: Generate Documentation
@@ -40,7 +44,7 @@ jobs:
           test -s docs/html/backends.html
           test -s docs/html/benchmarks.html
           test -s docs/html/api_reference.html
-          grep -q "1.0.2-dev" docs/html/index.html
+          grep -q "$DOC_VERSION" docs/html/index.html
           grep -q "Quick start" docs/html/index.html
           grep -q "Backend matrix" docs/html/index.html
           grep -q "Performance and benchmarks" docs/html/index.html
@@ -74,6 +78,7 @@ jobs:
               raise SystemExit(1)
           PY
       - name: Publish generated content to GitHub Pages
+        if: github.event_name != 'pull_request'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.ACCESS_TOKEN }}

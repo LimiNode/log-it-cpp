@@ -68,6 +68,7 @@ Recent focused examples include:
 Detailed guides and documentation map:
 
 - [`docs/quickstart.md`](docs/quickstart.md) — quick start and documentation map.
+- [`docs/installation.md`](docs/installation.md) — CMake, vendored, installed-package, and package-manager setup.
 - [`docs/backends.md`](docs/backends.md) — backend, platform, dependency, and packaging matrix.
 - [`docs/benchmarks.md`](docs/benchmarks.md) — benchmark methodology and historical snapshot.
 
@@ -488,10 +489,12 @@ Use the host OS logging facility. `SyslogLogger` works with POSIX `syslog`, whil
 
 - **Asynchronous Logging**:
 
-Most general-purpose native backends are asynchronous by default. Crash and
-payload callback backends are synchronous, OTLP maintains its own exporter
-queue, dedicated executors create one worker per selected backend, and
-Emscripten without pthreads drains cooperatively without OS worker threads.
+Most general-purpose native backends are asynchronous by default. Crash
+backends and `PrometheusPayloadLogger` are synchronous. OTLP HTTP and payload
+exporters own their queues and workers and can be configured for synchronous or
+asynchronous delivery. Dedicated executors create one worker per selected
+backend, and Emscripten without pthreads drains cooperatively without OS worker
+threads.
 
 - **Stream-Based Logging**: 
 
@@ -1090,22 +1093,13 @@ The following toggles cover all build-time features:
 - `LOGIT_WITH_WIN_EVENT_LOG` (default: ON on Windows) — build the Windows Event Log backend.
 - `LOGIT_FORCE_ASYNC_OFF` (default: OFF) — force synchronous logging even in multi-threaded builds.
 - `LOGIT_USE_MPSC_RING` (default: ON) — use the lock-free task queue instead of the mutex-backed deque.
-- `LOGIT_ENABLE_DROP_OLDEST_SLOWPATH` (default: ON) — compile the slow-path used by `DropOldest` when the ring is full.
 - `LOGIT_EMSCRIPTEN` (default: ON under Emscripten toolchains) — adjust the build for single-threaded WebAssembly environments.
 
 ## Backend matrix
 
-| Backend | Enablement | Standard | Extra dependency | Platform/package notes |
-|---|---|---:|---|---|
-| Console, file, unique file, memory, crash | built in | C++11 | TimeShield | Native and Emscripten stubs where documented |
-| Syslog | `LOGIT_WITH_SYSLOG=ON` | C++11 | POSIX syslog | Unix-like platforms |
-| Windows Event Log | `LOGIT_WITH_WIN_EVENT_LOG=ON` | C++11 | Windows SDK | Windows only |
-| `WindowsDebugLogger` | built in | C++11 | Windows API | Windows `OutputDebugStringW`; stderr fallback elsewhere |
-| OTLP/HTTP | `LOGIT_WITH_OTLP=ON` | C++17 | kurlyk | Not supported on Emscripten; installed exports need external kurlyk |
-| OTLP payload callback | `LOGIT_WITH_OTLP=ON` | C++17 | None for callback; shared OTLP feature | Serializes JSON and invokes the caller callback |
-| Prometheus payload | `LOGIT_WITH_PROMETHEUS=ON` | C++11 | None | Not supported on Emscripten |
-| Prometheus HTTP server | `LOGIT_WITH_PROMETHEUS_SERVER=ON` | C++17 | Simple-Web-Server/Asio | Build-tree only; install currently rejected |
-| MDBX structured storage | `LOGIT_WITH_MDBX=ON` | C++17 | mdbx-containers | Not supported on Emscripten or MSVC |
+Supported backends include console, file, memory, system logging, OTLP,
+Prometheus, and MDBX. See the canonical [backend matrix](docs/backends.md) for
+standards, feature-specific dependencies, and platform/package restrictions.
 
 ## System Backends
 

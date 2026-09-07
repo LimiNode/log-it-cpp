@@ -22,6 +22,7 @@ int main() {
 \section docs_map Documentation map
 
 - \ref quickstart — quick start, installation paths, and public API boundary.
+- \ref installation — complete CMake, vendored, installed-package, and package-manager setup.
 - \ref backends — backend, platform, dependency, and packaging matrix.
 - \ref otlp_http_logger — OTLP HTTP and callback exporters.
 - \ref prometheus_logger — Prometheus payload and HTTP server backends.

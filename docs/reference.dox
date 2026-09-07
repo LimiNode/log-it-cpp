@@ -43,7 +43,7 @@ benchmarks, adapters, or internal maintenance.
 
 \section backpressure_sec Backpressure and queue variants
 
-The asynchronous `TaskExecutor` supports both a mutex-protected deque and an optional lock-free MPSC ring (enable via `LOGIT_USE_MPSC_RING`). Overflow policies (`Block`, `DropNewest`, `DropOldest`) behave the same in both variants, with the MPSC build intentionally dropping the **incoming** task for `DropOldest` to preserve the ordering of accepted work. The ring uses `LOGIT_TASK_EXECUTOR_DEFAULT_RING_CAPACITY` entries (1024 by default); adjust the baseline with that macro alongside `LOGIT_SET_MAX_QUEUE(...)` if your workload needs a different buffer size. MPSC builds also allow "hot" resizes where producers briefly wait while the worker rebuilds the ring without losing in-flight tasks.
+The asynchronous `TaskExecutor` supports both a mutex-protected deque and an optional lock-free MPSC ring (enable via `LOGIT_USE_MPSC_RING`). The same policy names (`Block`, `DropNewest`, `DropOldest`) are available in both implementations, but `DropOldest` has intentionally different semantics in MPSC mode: the deque removes the oldest accepted task, while MPSC drops the incoming task to preserve the ordering of accepted work. The ring uses `LOGIT_TASK_EXECUTOR_DEFAULT_RING_CAPACITY` entries (1024 by default); adjust the baseline with that macro alongside `LOGIT_SET_MAX_QUEUE(...)` if your workload needs a different buffer size. MPSC builds also allow "hot" resizes where producers briefly wait while the worker rebuilds the ring without losing in-flight tasks.
 
 \section macro_examples_sec Macro Examples
 
@@ -306,10 +306,11 @@ LOGIT_ADD_EVENT_LOG_DEFAULT();
 \subsection async_logging Asynchronous Logging
 
 Most general-purpose native backends handle messages asynchronously by
-default. Crash and payload callback backends are synchronous, OTLP maintains
-its own exporter queue, and dedicated executors create one worker per selected
-backend. Emscripten builds without pthreads drain cooperatively without OS
-worker threads.
+default. Crash backends and `PrometheusPayloadLogger` are synchronous. OTLP
+HTTP and payload exporters own their queues and workers and can be configured
+for synchronous or asynchronous delivery. Dedicated executors create one
+worker per selected backend. Emscripten builds without pthreads drain
+cooperatively without OS worker threads.
 
 \subsection buffer_modes Queue Buffer Modes
 
@@ -921,7 +922,7 @@ public:
         log_entry["file"] = record.file;
         log_entry["line"] = record.line;
         log_entry["function"] = record.function;
-        log_entry["message"] = record.format;
+        log_entry["format"] = record.format;
 
         Json::StreamWriterBuilder writer;
         return Json::writeString(writer, log_entry);
@@ -1023,7 +1024,6 @@ All build-time toggles:
 - `LOGIT_WITH_WIN_EVENT_LOG` (default: ON on Windows) — build the Windows Event Log backend.
 - `LOGIT_FORCE_ASYNC_OFF` (default: OFF) — force synchronous logging even on multi-threaded builds.
 - `LOGIT_USE_MPSC_RING` (default: ON) — enable the lock-free task queue instead of the mutex-backed deque.
-- `LOGIT_ENABLE_DROP_OLDEST_SLOWPATH` (default: ON) — include the drop-oldest slow-path used when the ring is full.
 - `LOGIT_EMSCRIPTEN` (default: ON when building under Emscripten) — adjust the build for single-threaded WebAssembly targets.
 
 Detailed guides for the optional backends and queue internals are available as

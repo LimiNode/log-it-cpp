@@ -953,6 +953,7 @@ INPUT                  = ./include \
                          ./examples \
                          ./docs/mainpage.dox \
                          ./docs/quickstart.md \
+                         ./docs/installation.md \
                          ./docs/backends.md \
                          ./docs/reference.dox \
                          ./docs/benchmarks.md \
