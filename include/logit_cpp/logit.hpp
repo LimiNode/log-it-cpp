@@ -11,6 +11,7 @@
 
 #include "logit/config.hpp"
 #include "logit/enums.hpp"
+#include "logit/QueuePolicy.hpp"
 #include "logit/utils.hpp"
 #include "logit/formatter.hpp"
 #include "logit/loggers.hpp"

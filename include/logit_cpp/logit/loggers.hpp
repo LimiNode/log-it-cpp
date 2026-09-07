@@ -10,6 +10,7 @@
 /// any header under `loggers/` to satisfy the nearest-header requirement.
 
 #include "config.hpp"
+#include "QueuePolicy.hpp"
 #include "utils.hpp"
 #include "detail/TaskExecutor.hpp"
 #include "detail/SingleThreadExecutor.hpp"

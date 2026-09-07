@@ -22,7 +22,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 endif()
 option(LOGIT_FORCE_ASYNC_OFF "Force disable async logging" OFF)
 option(LOGIT_USE_MPSC_RING "Enable lock-free TaskExecutor queue" ON)
-option(LOGIT_ENABLE_DROP_OLDEST_SLOWPATH "Enable TaskExecutor DropOldest slow-path" ON)
 
 if(NOT DEFINED CMAKE_CXX_STANDARD)
     if(LOGIT_WITH_OTLP OR LOGIT_WITH_PROMETHEUS_SERVER OR LOGIT_WITH_MDBX)
@@ -61,10 +60,6 @@ target_link_libraries(log-it-cpp INTERFACE time_shield::time_shield)
 
 if(LOGIT_USE_MPSC_RING)
     target_compile_definitions(log-it-cpp INTERFACE LOGIT_USE_MPSC_RING=1)
-endif()
-
-if(LOGIT_ENABLE_DROP_OLDEST_SLOWPATH)
-    target_compile_definitions(log-it-cpp INTERFACE LOGIT_ENABLE_DROP_OLDEST_SLOWPATH=1)
 endif()
 
 if(LOGIT_EMSCRIPTEN)
