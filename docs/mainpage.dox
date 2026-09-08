@@ -31,6 +31,7 @@ int main() {
 - \ref benchmarks — benchmark methodology and historical snapshot.
 - \ref api_reference — detailed macro, formatting, configuration, and extension reference.
 - \ref comparison — comparison with other C++ logging libraries and trade-offs.
+
 \section feature_summary Feature summary
 
 - Macro families cover direct, printf-style, stream, conditional, throttled,
