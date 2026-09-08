@@ -33,7 +33,7 @@ namespace logit {
             bool async;           ///< Use TaskExecutor when true.
             bool use_dedicated_executor = false; ///< Use a dedicated executor instead of the global TaskExecutor; native builds create one worker thread per logger.
             std::size_t queue_capacity = 0;       ///< Maximum queue size for the dedicated executor (0 = unlimited).
-            detail::QueuePolicy queue_policy = detail::QueuePolicy::Block; ///< Overflow policy for the dedicated executor.
+            QueuePolicy queue_policy = QueuePolicy::Block; ///< Overflow policy for the dedicated executor.
             /// \brief Initialize configuration.
             /// \param s Source name.
             /// \param a Run asynchronously.
@@ -66,7 +66,7 @@ namespace logit {
                 bool async,
                 bool use_dedicated_executor,
                 std::size_t queue_capacity,
-                detail::QueuePolicy queue_policy)
+                QueuePolicy queue_policy)
             : EventLogLogger(make_config(
                     source,
                     async,
@@ -164,7 +164,7 @@ namespace logit {
                 bool async,
                 bool use_dedicated_executor,
                 std::size_t queue_capacity,
-                detail::QueuePolicy queue_policy) {
+                QueuePolicy queue_policy) {
             Config config(source, async);
             config.use_dedicated_executor = use_dedicated_executor;
             config.queue_capacity = queue_capacity;
@@ -184,7 +184,7 @@ namespace logit {
             bool async;           ///< Unused flag.
             bool use_dedicated_executor = false; ///< Unused flag.
             std::size_t queue_capacity = 0;       ///< Unused.
-            detail::QueuePolicy queue_policy = detail::QueuePolicy::Block; ///< Unused.
+            QueuePolicy queue_policy = QueuePolicy::Block; ///< Unused.
             Config(const wchar_t* s = L"", bool a = false) : source(s), async(a) {}
         };
 
@@ -202,7 +202,7 @@ namespace logit {
 
         /// \brief Construct with parameters and ignored dedicated executor options.
         EventLogLogger(const wchar_t* source, bool async, bool use_dedicated_executor,
-                       std::size_t queue_capacity, detail::QueuePolicy queue_policy) {
+                       std::size_t queue_capacity, QueuePolicy queue_policy) {
             (void)source; (void)async; (void)use_dedicated_executor;
             (void)queue_capacity; (void)queue_policy;
         }

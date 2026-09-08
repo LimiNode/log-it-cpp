@@ -83,7 +83,7 @@ namespace logit {
 #endif
             bool use_dedicated_executor = false; ///< Use a dedicated executor instead of the global TaskExecutor; native builds create one worker thread per logger.
             std::size_t queue_capacity = 0;       ///< Maximum queue size for the dedicated executor (0 = unlimited).
-            detail::QueuePolicy queue_policy = detail::QueuePolicy::Block; ///< Overflow policy for the dedicated executor.
+            QueuePolicy queue_policy = QueuePolicy::Block; ///< Overflow policy for the dedicated executor.
             /// \brief Optional level-based stream routing.
             /// \details When non-empty, the first matching route (inclusive range
             /// `[min_level, max_level]`) wins. Falls back to the primary stream when
@@ -140,7 +140,7 @@ namespace logit {
                 bool async,
                 bool use_dedicated_executor,
                 std::size_t queue_capacity = 0,
-                detail::QueuePolicy queue_policy = detail::QueuePolicy::Block)
+                QueuePolicy queue_policy = QueuePolicy::Block)
             : ConsoleLogger(make_config(
                     async,
                     use_dedicated_executor,
@@ -153,7 +153,7 @@ namespace logit {
                 bool async,
                 bool use_dedicated_executor,
                 std::size_t queue_capacity = 0,
-                detail::QueuePolicy queue_policy = detail::QueuePolicy::Block)
+                QueuePolicy queue_policy = QueuePolicy::Block)
             : ConsoleLogger(stream, make_config(
                     async,
                     use_dedicated_executor,
@@ -429,7 +429,7 @@ namespace logit {
                 bool async,
                 bool use_dedicated_executor,
                 std::size_t queue_capacity,
-                detail::QueuePolicy queue_policy) {
+                QueuePolicy queue_policy) {
             Config config;
             config.async = async;
             config.use_dedicated_executor = use_dedicated_executor;

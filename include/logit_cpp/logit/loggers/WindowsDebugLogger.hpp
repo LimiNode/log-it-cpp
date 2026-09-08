@@ -46,12 +46,12 @@ namespace logit {
                 : async(async_value)
                 , use_dedicated_executor(false)
                 , queue_capacity(0)
-                , queue_policy(detail::QueuePolicy::Block) {}
+                , queue_policy(QueuePolicy::Block) {}
 
             bool async; ///< Flag indicating whether logging should be asynchronous.
             bool use_dedicated_executor; ///< Use a dedicated executor instead of the global TaskExecutor; native builds create one worker thread per logger.
             std::size_t queue_capacity;       ///< Maximum queue size for the dedicated executor (0 = unlimited).
-            detail::QueuePolicy queue_policy; ///< Overflow policy for the dedicated executor.
+            QueuePolicy queue_policy; ///< Overflow policy for the dedicated executor.
         };
 
         /// \brief Default constructor that uses default configuration.
@@ -72,7 +72,7 @@ namespace logit {
                 bool async,
                 bool use_dedicated_executor,
                 std::size_t queue_capacity,
-                detail::QueuePolicy queue_policy)
+                QueuePolicy queue_policy)
             : WindowsDebugLogger(make_config(
                     async,
                     use_dedicated_executor,
@@ -126,7 +126,7 @@ namespace logit {
         /// changes async mode or executor ownership. If no dedicated executor exists,
         /// only the stored config fields are updated for future reference.
         bool set_queue_config(std::size_t queue_capacity,
-                              detail::QueuePolicy queue_policy) {
+                              QueuePolicy queue_policy) {
             std::lock_guard<std::mutex> lifecycle_lock(m_lifecycle_mutex);
 
             if (m_shutdown.load(std::memory_order_acquire)) {
@@ -256,7 +256,7 @@ namespace logit {
                 bool async,
                 bool use_dedicated_executor,
                 std::size_t queue_capacity,
-                detail::QueuePolicy queue_policy) {
+                QueuePolicy queue_policy) {
             Config config(async);
             config.use_dedicated_executor = use_dedicated_executor;
             config.queue_capacity = queue_capacity;

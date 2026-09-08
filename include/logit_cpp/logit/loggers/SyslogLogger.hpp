@@ -34,7 +34,7 @@ namespace logit {
             bool async;         ///< Use TaskExecutor when true.
             bool use_dedicated_executor = false; ///< Use a dedicated executor instead of the global TaskExecutor; native builds create one worker thread per logger.
             std::size_t queue_capacity = 0;       ///< Maximum queue size for the dedicated executor (0 = unlimited).
-            detail::QueuePolicy queue_policy = detail::QueuePolicy::Block; ///< Overflow policy for the dedicated executor.
+            QueuePolicy queue_policy = QueuePolicy::Block; ///< Overflow policy for the dedicated executor.
             /// \brief Initialize configuration.
             /// \param i Identifier string.
             /// \param f Facility code.
@@ -71,7 +71,7 @@ namespace logit {
                 bool async,
                 bool use_dedicated_executor,
                 std::size_t queue_capacity,
-                detail::QueuePolicy queue_policy)
+                QueuePolicy queue_policy)
             : SyslogLogger(make_config(
                     ident,
                     facility,
@@ -163,7 +163,7 @@ namespace logit {
                 bool async,
                 bool use_dedicated_executor,
                 std::size_t queue_capacity,
-                detail::QueuePolicy queue_policy) {
+                QueuePolicy queue_policy) {
             Config config(ident, facility, async);
             config.use_dedicated_executor = use_dedicated_executor;
             config.queue_capacity = queue_capacity;
@@ -184,7 +184,7 @@ namespace logit {
             bool async;         ///< Unused flag.
             bool use_dedicated_executor = false; ///< Unused flag.
             std::size_t queue_capacity = 0;       ///< Unused.
-            detail::QueuePolicy queue_policy = detail::QueuePolicy::Block; ///< Unused.
+            QueuePolicy queue_policy = QueuePolicy::Block; ///< Unused.
             Config(const char* i="", int f=0, bool a=false) : ident(i), facility(f), async(a) {}
         };
 
@@ -203,7 +203,7 @@ namespace logit {
 
         /// \brief Construct with parameters and ignored dedicated executor options.
         SyslogLogger(const char* ident, int facility, bool async, bool use_dedicated_executor,
-                     std::size_t queue_capacity, detail::QueuePolicy queue_policy) {
+                     std::size_t queue_capacity, QueuePolicy queue_policy) {
             (void)ident; (void)facility; (void)async; (void)use_dedicated_executor;
             (void)queue_capacity; (void)queue_policy;
         }
