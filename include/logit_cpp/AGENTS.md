@@ -19,7 +19,8 @@ For subsystem-specific work, also read the nearest guide:
   `loggers.hpp`) in examples and integration tests.
 - Treat `<logit.hpp>` as the supported application entry point. Do not infer a
   standalone contract for `log_macros.hpp` or other aggregate-owned leaf
-  headers unless a focused public-header test documents it.
+  headers unless a focused public-header test documents it. Public aliases are
+  normally consumed through `<logit.hpp>` or the relevant module umbrella.
 - Preserve the existing public names, overloads, macro expansion contracts,
   and feature guards. Add new API only with a focused test and documentation.
 - Keep headers self-contained: include every standard type used directly and

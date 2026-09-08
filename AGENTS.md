@@ -37,7 +37,8 @@ These headers prepare internal dependencies in the intended order.
 supported for focused use; `logit/log_macros.hpp` is an aggregate-owned macro
 implementation header and has no standalone-inclusion guarantee. A leaf type
 header is standalone only when its documentation and include-contract test say
-so (for example, `<logit/QueuePolicy.hpp>`).
+so. Public aliases such as `logit::QueuePolicy` are normally consumed through
+`<logit.hpp>` or the relevant module umbrella.
 
 ## Include Policy
 

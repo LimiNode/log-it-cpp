@@ -107,7 +107,7 @@ Use `PrometheusRegistry` with the `on_collect` callback to register
 application-specific metrics once and collect them on each scrape:
 
 ```cpp
-#include <logit/loggers/prometheus/PrometheusRegistry.hpp>
+#include <logit.hpp>
 
 logit::PrometheusRegistry registry("myapp_");
 
