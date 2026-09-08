@@ -823,7 +823,7 @@ public:
 		log_entry["file"] = record.file;
 		log_entry["line"] = record.line;
 		log_entry["function"] = record.function;
-		log_entry["message"] = record.format;
+		log_entry["format"] = record.format;
 
 		Json::StreamWriterBuilder writer;
 		return Json::writeString(writer, log_entry);

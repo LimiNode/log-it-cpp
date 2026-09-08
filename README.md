@@ -317,10 +317,11 @@ logs.
 ## Backpressure and hot resize
 
 The asynchronous `TaskExecutor` supports both a mutex-protected deque and an
-optional lock-free MPSC ring (enable via `LOGIT_USE_MPSC_RING`). Queue overflow
-policies (`Block`, `DropNewest`, `DropOldest`) behave consistently across both
-implementations, with the MPSC build intentionally dropping the *incoming* task
-for `DropOldest` to keep accepted work ordered. The ring build also allows
+optional lock-free MPSC ring (enable via `LOGIT_USE_MPSC_RING`). The same queue
+policy names (`Block`, `DropNewest`, `DropOldest`) are available in both
+implementations, but `DropOldest` has intentionally different semantics: the
+deque removes the oldest accepted task, while MPSC drops the *incoming* task to
+keep accepted work ordered. The ring build also allows
 "hot" queue resizes where producers briefly wait while the worker rebuilds the
 ring buffer without losing in-flight tasks. The default MPSC buffer holds
 `LOGIT_TASK_EXECUTOR_DEFAULT_RING_CAPACITY` tasks (1024 by default) and can be
@@ -916,7 +917,7 @@ public:
 		log_entry["file"] = record.file;
 		log_entry["line"] = record.line;
 		log_entry["function"] = record.function;
-		log_entry["message"] = record.format;
+		log_entry["format"] = record.format;
 
 		Json::StreamWriterBuilder writer;
 		return Json::writeString(writer, log_entry);
