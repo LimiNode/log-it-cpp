@@ -29,8 +29,8 @@ application code should use the public umbrella headers and macros.
 
 \section macro_first_usage_sec Macro-first usage
 
-For normal application logging, prefer the public macros from `<logit.hpp>` or
-`<logit/log_macros.hpp>`. Choose the matching family
+For normal application logging, include `<logit.hpp>` and use the public macros.
+Choose the matching family
 (`LOGIT_<LEVEL>`, `LOGIT_PRINTF_<LEVEL>`, `LOGIT_STREAM_<LEVEL>`,
 `LOGIT_<LEVEL>_IF`, `LOGIT_<LEVEL>_TO`, `LOGIT_SCOPE_<LEVEL>`, and related
 helpers) and pass the data directly to that macro.
