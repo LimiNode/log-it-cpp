@@ -10,10 +10,17 @@
 /// any header under `loggers/` to satisfy the nearest-header requirement.
 
 #include "config.hpp"
-#include "QueuePolicy.hpp"
 #include "utils.hpp"
 #include "detail/TaskExecutor.hpp"
 #include "detail/SingleThreadExecutor.hpp"
+
+namespace logit {
+
+    /// \brief Public queue overflow handling policy.
+    using QueuePolicy = detail::QueuePolicy;
+
+} // namespace logit
+
 #ifndef __EMSCRIPTEN__
 #include "detail/CompressionWorker.hpp"
 #endif
