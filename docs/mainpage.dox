@@ -30,7 +30,6 @@ int main() {
 - \ref backpressure — queue policies and drop counters.
 - \ref benchmarks — benchmark methodology and historical snapshot.
 - \ref api_reference — detailed macro, formatting, configuration, and extension reference.
-
 - \ref comparison — comparison with other C++ logging libraries and trade-offs.
 \section feature_summary Feature summary
 
