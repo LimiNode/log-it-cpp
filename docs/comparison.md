@@ -48,7 +48,7 @@ goal of the checked project, not that it is impossible to implement.
 | Macro-first instrumentation | Built in | Built in macros | Built in macros | Different model | Built in macros | Core feature |
 | Structured records / attributes | Built in `LogRecord` and values | Different model: formatted message and formatter arguments | Different model: typed async log messages | Built in attribute/event model | Extension / message-centric | Diagnostic values, not a sink record |
 | Capture source argument names | Built in | — | — | — | — | Built in |
-| `printf`-style and stream APIs | Built in | Built in | Built in / fmt-oriented | Extension / different model | Stream and printf-like macros | Human-readable display |
+| `printf`-style and stream APIs | Built in | Built in | Built in / fmt-oriented | Extension / different model | Stream-oriented macros | Human-readable display |
 | Conditional and rate-limited macros | Built in | Built in macro families | API-dependent | Filters and predicates | Built in severity/condition macros | Limited diagnostic helpers |
 | Asynchronous queue | Built in | Built in | Core design | Sink-dependent | Not the primary model | — |
 | Configurable overflow/backpressure | Built in (`Block`, `DropNewest`, `DropOldest`) | Built in overflow policies | Queue policies documented by Quill | Sink/configuration dependent | — | — |

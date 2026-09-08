@@ -47,7 +47,7 @@ API покрывает условное логирование, throttling, scop
 | Macro-first instrumentation | Built in | Built in macros | Built in macros | Другая модель | Built in macros | Основная функция |
 | Structured records / attributes | Built in `LogRecord` и values | Другая модель: строки и formatter arguments | Другая модель: typed async messages | Built in attributes/events | Extension / message-centric | Диагностические values, не sink record |
 | Захват имён аргументов | Built in | — | — | — | — | Built in |
-| `printf` и stream API | Built in | Built in | Built in / fmt-oriented | Extension / другая модель | Stream и printf-подобные macros | Человекочитаемый вывод |
+| `printf` и stream API | Built in | Built in | Built in / fmt-oriented | Extension / другая модель | Stream-oriented macros | Человекочитаемый вывод |
 | Conditional и rate-limited macros | Built in | Built in macro families | Зависит от API | Filters и predicates | Built in severity/condition macros | Ограниченные diagnostic helpers |
 | Асинхронная очередь | Built in | Built in | Основная архитектура | Зависит от sink-а | Не основная модель | — |
 | Настраиваемый overflow/backpressure | Built in (`Block`, `DropNewest`, `DropOldest`) | Built in overflow policies | Queue policies документированы | Зависит от sink/configuration | — | — |
