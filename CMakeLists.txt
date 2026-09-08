@@ -37,8 +37,10 @@ if(LOGIT_WITH_MDBX AND CMAKE_CXX_STANDARD LESS 17)
 endif()
 
 # Dependency: TimeShield
-find_package(TimeShield 1.0.6 QUIET CONFIG)
-if(NOT TimeShield_FOUND)
+if(NOT TARGET time_shield::time_shield)
+    find_package(TimeShield 1.0.6 QUIET CONFIG)
+endif()
+if(NOT TARGET time_shield::time_shield)
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/time-shield-cpp/CMakeLists.txt")
         add_subdirectory(external/time-shield-cpp)
     else()
