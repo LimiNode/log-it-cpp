@@ -65,6 +65,23 @@ jobs:
       - name: Build fmt-enabled consumer project
         if: matrix.std == 17
         run: cmake --build build-fmt-consumer
+      - name: Configure build-tree dependency reuse
+        if: matrix.std == 17
+        run: >-
+          cmake -S tests/dependency_reuse/build_tree -B build-timeshield-reuse
+          -DLOGIT_SOURCE_DIR=${{ github.workspace }}
+          -DCMAKE_DISABLE_FIND_PACKAGE_TimeShield=TRUE
+      - name: Configure installed dependency reuse
+        if: matrix.std == 17
+        run: >-
+          cmake -S tests/dependency_reuse/installed -B build-installed-reuse
+          -DLOGIT_SOURCE_DIR=${{ github.workspace }}
+          -DCMAKE_PREFIX_PATH=${{ github.workspace }}/install-fmt-package
+          -DCMAKE_DISABLE_FIND_PACKAGE_TimeShield=TRUE
+          -DCMAKE_DISABLE_FIND_PACKAGE_fmt=TRUE
+      - name: Build installed dependency reuse
+        if: matrix.std == 17
+        run: cmake --build build-installed-reuse
       - name: Configure Prometheus server package
         if: matrix.std == 17
         run: cmake -S . -B build-prometheus-package -DLOGIT_CPP_BUILD_TESTS=OFF -DLOGIT_WITH_PROMETHEUS_SERVER=ON -DLOGIT_WITH_SYSLOG=OFF -DLOGIT_WITH_WIN_EVENT_LOG=OFF
