@@ -38,6 +38,8 @@ dependency requirements are described in the [`Backend matrix`](backends.html).
   [`Queue back-pressure`](backpressure.html).
 - **Performance** — [`Benchmarks`](benchmarks.html), including methodology and
   the historical snapshot disclaimer.
+- **Choosing a logging library** — [`Comparison with other C++ logging libraries`](comparison.html),
+  including trade-offs and the scope of the comparison.
 - **Examples** — browse the `examples/` directory in the source repository;
   each optional example states the feature macro it requires.
 

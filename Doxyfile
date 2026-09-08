@@ -957,6 +957,7 @@ INPUT                  = ./include \
                          ./docs/backends.md \
                          ./docs/reference.dox \
                          ./docs/benchmarks.md \
+                         ./docs/comparison.md \
                          ./docs/groups.dox \
                          ./docs/OtlpHttpLogger.md \
                          ./docs/PrometheusLogger.md \
