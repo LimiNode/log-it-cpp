@@ -49,7 +49,7 @@ goal of the checked project, not that it is impossible to implement.
 | Structured records / attributes | Built in `LogRecord` and values | Formatted messages plus MDC (synchronous logging only); different record model | Built-in named-value logging, JSON output, tags, and MDC; different record model | Built in attribute/event model | Extension / message-centric | Diagnostic values, not a sink record |
 | Capture source argument names | Built in | — | Built in via `LOGV_*` | — | — | Core feature |
 | `{fmt}`-style formatting | Built in when `LOGIT_WITH_FMT=ON` | Built in | Built in | Extension / pre-formatting | Extension / pre-formatting | — |
-| `printf`-style logging | Built in | Extension / pre-formatting | Extension / pre-formatting | Extension / pre-formatting | Built in via low-level `RAW_LOG` | — |
+| `printf`-style logging | Built in | Extension / pre-formatting | Extension / pre-formatting | Extension / pre-formatting | Low-level `RAW_LOG` only (stderr-only) | — |
 | Stream-style logging | Built in | Extension / pre-formatting | Extension / pre-formatting | Built in | Built in | Human-readable diagnostic output |
 | Conditional logging helpers | Built in | No dedicated helper; use an application condition | No dedicated helper; use an application condition | Filters and predicates; no equivalent call-site macro | Built in via `LOG_IF` | Configuration helpers, not a logging framework |
 | Rate-limited logging helpers | Built in | No dedicated macro family | Built in via `LOG_*_LIMIT` and `LOGV_*_LIMIT` | Extension / custom filter | Built in via `LOG_EVERY_N`, `LOG_FIRST_N`, and related macros | — |
