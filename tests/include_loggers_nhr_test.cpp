@@ -2,8 +2,9 @@
 #include <logit/loggers/ConsoleLogger.hpp>
 
 int main() {
+    const logit::QueuePolicy policy = logit::QueuePolicy::Block;
     logit::ConsoleLogger logger(false);
     logger.set_log_level(logit::LogLevel::LOG_LVL_WARN);
     logger.wait();
-    return 0;
+    return policy == logit::QueuePolicy::Block ? 0 : 1;
 }

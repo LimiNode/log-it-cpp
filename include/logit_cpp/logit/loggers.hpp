@@ -13,6 +13,14 @@
 #include "utils.hpp"
 #include "detail/TaskExecutor.hpp"
 #include "detail/SingleThreadExecutor.hpp"
+
+namespace logit {
+
+    /// \brief Public queue overflow handling policy.
+    using QueuePolicy = detail::QueuePolicy;
+
+} // namespace logit
+
 #ifndef __EMSCRIPTEN__
 #include "detail/CompressionWorker.hpp"
 #endif

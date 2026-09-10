@@ -43,7 +43,7 @@ namespace logit {
             uint32_t    seq_width       = 3;
             bool        use_dedicated_executor = false;
             std::size_t queue_capacity = 0;
-            detail::QueuePolicy queue_policy = detail::QueuePolicy::Block;
+            QueuePolicy queue_policy = QueuePolicy::Block;
         };
 
         FileLogger() { warn(); }
@@ -51,9 +51,9 @@ namespace logit {
         FileLogger(const std::string&, const bool& = true, const int& = 30,
                     const uint64_t& = 0, const uint32_t& = 0) { warn(); }
         FileLogger(const std::string&, const bool&, const int&, bool, std::size_t,
-                   detail::QueuePolicy) { warn(); }
+                   QueuePolicy) { warn(); }
         FileLogger(const std::string&, const bool&, const int&, uint64_t, uint32_t,
-                   bool, std::size_t, detail::QueuePolicy) { warn(); }
+                   bool, std::size_t, QueuePolicy) { warn(); }
 
         void log(const LogRecord&, const std::string&) override { warn(); }
         std::string get_string_param(const LoggerParam&) const override { return {}; }
@@ -106,7 +106,7 @@ namespace logit {
             uint32_t    seq_width       = 3;       ///< Width of sequence index.
             bool        use_dedicated_executor = false; ///< Use a dedicated executor instead of the global TaskExecutor; native builds create one worker thread per logger.
             std::size_t queue_capacity = 0;       ///< Maximum queue size for the dedicated executor (0 = unlimited).
-            detail::QueuePolicy queue_policy = detail::QueuePolicy::Block; ///< Overflow policy for the dedicated executor.
+            QueuePolicy queue_policy = QueuePolicy::Block; ///< Overflow policy for the dedicated executor.
         };
 
         /// \brief Default constructor that uses default configuration.
@@ -146,7 +146,7 @@ namespace logit {
                 const int& auto_delete_days,
                 bool use_dedicated_executor,
                 std::size_t queue_capacity,
-                detail::QueuePolicy queue_policy)
+                QueuePolicy queue_policy)
             : FileLogger(make_config(
                     directory,
                     async,
@@ -181,7 +181,7 @@ namespace logit {
                 uint32_t max_rotated_files,
                 bool use_dedicated_executor,
                 std::size_t queue_capacity,
-                detail::QueuePolicy queue_policy)
+                QueuePolicy queue_policy)
             : FileLogger(make_config(
                     directory,
                     async,
@@ -255,7 +255,7 @@ namespace logit {
         /// changes async mode or executor ownership. If no dedicated executor exists,
         /// only the stored config fields are updated for future reference.
         bool set_queue_config(std::size_t queue_capacity,
-                              detail::QueuePolicy queue_policy) {
+                              QueuePolicy queue_policy) {
             std::lock_guard<std::mutex> lifecycle_lock(m_lifecycle_mutex);
 
             if (m_shutdown.load(std::memory_order_acquire)) {
@@ -563,7 +563,7 @@ namespace logit {
                 uint32_t max_rotated_files,
                 bool use_dedicated_executor,
                 std::size_t queue_capacity,
-                detail::QueuePolicy queue_policy) {
+                QueuePolicy queue_policy) {
             Config config;
             config.directory = directory;
             config.async = async;

@@ -23,8 +23,12 @@ For subsystem-specific work, also read the nearest guide:
   normally consumed through `<logit.hpp>` or the relevant module umbrella.
 - Preserve the existing public names, overloads, macro expansion contracts,
   and feature guards. Add new API only with a focused test and documentation.
-- Keep headers self-contained: include every standard type used directly and
-  do not depend on include order or transitive headers.
+- Keep the supported public umbrellas (`logit.hpp`, `utils.hpp`,
+  `formatter.hpp`, `loggers.hpp`) self-contained.
+- Leaf headers follow the aggregate-first/NHR contract and may rely on
+  prerequisites prepared by their nearest umbrella. Do not add standalone
+  include contracts to leaf headers unless explicitly required by the public
+  API and covered by a focused test.
 - A `noexcept` declaration is a contract. Do not perform allocation, invoke a
   user callback, or execute code that may throw in a `noexcept` function.
   Signal/crash handlers are the explicit exception and must stay async-signal

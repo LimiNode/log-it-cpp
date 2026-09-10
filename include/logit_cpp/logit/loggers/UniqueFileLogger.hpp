@@ -34,14 +34,14 @@ namespace logit {
             size_t      hash_length = 8;
             bool        use_dedicated_executor = false;
             std::size_t queue_capacity = 0;
-            detail::QueuePolicy queue_policy = detail::QueuePolicy::Block;
+            QueuePolicy queue_policy = QueuePolicy::Block;
         };
 
         UniqueFileLogger() { warn(); }
         UniqueFileLogger(const Config&) { warn(); }
         UniqueFileLogger(const std::string&, bool = true, int = 30, size_t = 8) { warn(); }
         UniqueFileLogger(const std::string&, bool, int, size_t, bool, std::size_t,
-                         detail::QueuePolicy) { warn(); }
+                         QueuePolicy) { warn(); }
 
         void log(const LogRecord&, const std::string&) override { warn(); }
         std::string get_string_param(const LoggerParam&) const override { return {}; }
@@ -88,7 +88,7 @@ namespace logit {
             size_t      hash_length         = 8;    ///< Length of the hash used in filenames.
             bool        use_dedicated_executor = false; ///< Use a dedicated executor instead of the global TaskExecutor; native builds create one worker thread per logger.
             std::size_t queue_capacity = 0;       ///< Maximum queue size for the dedicated executor (0 = unlimited).
-            detail::QueuePolicy queue_policy = detail::QueuePolicy::Block; ///< Overflow policy for the dedicated executor.
+            QueuePolicy queue_policy = QueuePolicy::Block; ///< Overflow policy for the dedicated executor.
         };
 
         /// \brief Default constructor that uses default configuration.
@@ -132,7 +132,7 @@ namespace logit {
             size_t hash_length,
             bool use_dedicated_executor,
             std::size_t queue_capacity,
-            detail::QueuePolicy queue_policy)
+            QueuePolicy queue_policy)
             : UniqueFileLogger(make_config(
                     directory,
                     async,
@@ -199,7 +199,7 @@ namespace logit {
         /// changes async mode or executor ownership. If no dedicated executor exists,
         /// only the stored config fields are updated for future reference.
         bool set_queue_config(std::size_t queue_capacity,
-                              detail::QueuePolicy queue_policy) {
+                              QueuePolicy queue_policy) {
             std::lock_guard<std::mutex> lifecycle_lock(m_lifecycle_mutex);
 
             if (m_shutdown.load(std::memory_order_acquire)) {
@@ -478,7 +478,7 @@ namespace logit {
                 size_t hash_length,
                 bool use_dedicated_executor,
                 std::size_t queue_capacity,
-                detail::QueuePolicy queue_policy) {
+                QueuePolicy queue_policy) {
             Config config;
             config.directory = directory;
             config.async = async;
