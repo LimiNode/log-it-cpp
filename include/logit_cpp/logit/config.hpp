@@ -5,7 +5,7 @@
 /// \file config.hpp
 /// \brief Configuration macros for the LogIt logging system.
 
-/// \ingroup ConfigMacros Configuration Macros
+/// \ingroup ConfigMacros
 /// \{
 
 #ifndef LOGIT_BASE_PATH

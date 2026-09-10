@@ -24,7 +24,7 @@ namespace logit {
 
     /// \class EventLogLogger
     /// \brief Logger forwarding messages to Windows Event Log.
-    /// \thread_safety Thread-safe.
+    /// \note Thread-safe when enabled on Windows.
     class EventLogLogger : public ILogger {
     public:
         /// \brief Runtime configuration.

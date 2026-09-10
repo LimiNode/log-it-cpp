@@ -87,6 +87,14 @@ log messages are processed and stored:
 - \b ConsoleLogger: Outputs logs to the console with optional color coding.
 - \b FileLogger: Logs messages to files with date-based rotation and old file deletion.
 - \b UniqueFileLogger: Writes each log message to a unique file with automatic cleanup.
+- \b MemoryLogger: Keeps a bounded in-memory snapshot buffer and supports subscriptions.
+- \b MdbxLogger: Persists structured records and payloads in MDBX when enabled.
+- \b OtlpHttpLogger: Exports records to an OTLP/HTTP endpoint when enabled.
+- \b OtlpPayloadLogger: Exposes OTLP payloads through a callback when enabled.
+- \b PrometheusPayloadLogger: Emits Prometheus text payloads through a callback when enabled.
+- \b PrometheusHttpServerLogger: Serves Prometheus metrics over HTTP when enabled.
+- \b CrashLogger: Provides platform-specific crash-time logging backends.
+- \b WindowsDebugLogger: Writes to the Windows debugger output or stderr fallback.
 - \b SyslogLogger: Sends log messages to the POSIX syslog service.
 - \b EventLogLogger: Writes logs to the Windows Event Log.
 - \b SystemLogger: Alias that maps to the platform's system logger.

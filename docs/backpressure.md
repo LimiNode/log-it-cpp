@@ -1,7 +1,11 @@
+\page backpressure Queue Back-Pressure Controls
+
 # Queue Back-Pressure Controls
 
-The asynchronous task executor backs every logger and can be tuned to handle
-high-load bursts. Use the following helpers from
+The global asynchronous task executor backs loggers that use the default
+executor and can be tuned to handle high-load bursts. Some backends are
+synchronous, while configured dedicated executors and OTLP maintain their own
+queues. Use the following helpers from
 `<logit_cpp/logit/log_macros.hpp>` when preparing stress tests or
 long-running services:
 
@@ -22,7 +26,8 @@ publishing policy decides to discard work. Combining the counter with
 `TaskExecutor::wait()` makes it easy to assert the expected throughput for each
 policy without inspecting private state.
 
-The queue limits apply globally to every logger instance. After finishing a
-burst test remember to restore the capacity or shut down the logging subsystem
-with `LOGIT_WAIT()` and `LOGIT_SHUTDOWN()` to avoid interfering with other
-scenarios.
+These global controls affect the shared `TaskExecutor` only. A backend with
+`Config::use_dedicated_executor=true` has its own capacity and policy, and
+OTLP uses its exporter queue settings. After finishing a burst test remember
+to restore the shared capacity or shut down the logging subsystem with
+`LOGIT_WAIT()` and `LOGIT_SHUTDOWN()` to avoid interfering with other scenarios.

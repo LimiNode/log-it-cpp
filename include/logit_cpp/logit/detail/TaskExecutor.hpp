@@ -39,7 +39,7 @@ namespace logit { namespace detail {
     /// \brief Simplified task executor for single-threaded Emscripten builds.
     /// \details The Emscripten variant keeps behaviour compatible with the
     /// browser event loop. See docs/TaskExecutor.md for the high level design.
-    /// \thread_safety Not thread-safe.
+    /// \note Not thread-safe in the single-threaded Emscripten build.
     class TaskExecutor {
     public:
         /// \brief Returns the singleton executor instance.
@@ -166,7 +166,8 @@ namespace logit { namespace detail {
     /// \brief Thread-safe task executor backed by a dedicated worker thread.
     /// \details The full design, including backpressure semantics and hot
     /// resizing, is described in docs/TaskExecutor.md.
-    /// \thread_safety Thread-safe.
+    /// \note Thread-safe on native builds; Emscripten without pthreads is
+    /// single-threaded and uses cooperative draining.
     class TaskExecutor {
     public:
         /// \brief Returns the global executor instance.

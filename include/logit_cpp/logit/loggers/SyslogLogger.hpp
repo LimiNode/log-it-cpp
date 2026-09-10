@@ -24,7 +24,7 @@ namespace logit {
 
     /// \class SyslogLogger
     /// \brief Logger forwarding messages to syslog.
-    /// \thread_safety Thread-safe.
+    /// \note Thread-safe when enabled on POSIX platforms.
     class SyslogLogger : public ILogger {
     public:
         /// \brief Runtime configuration.

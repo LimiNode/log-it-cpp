@@ -15,25 +15,35 @@ jobs:
         with:
           submodules: "true"
           fetch-depth: 0
-      - name: Inject version into mainpage.dox
+      - name: Inject development version into mainpage.dox
         run: |
-          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0-untagged")
-          TAG=$(echo "$TAG" | sed 's/^v//')
-          echo "Using version: $TAG"
-          test -f docs/mainpage.dox || { echo "mainpage.dox not found!"; exit 1; }
-          sed -i "0,/VERSION_PLACEHOLDER/s//$TAG/" docs/mainpage.dox
-      - name: Generate Documentation
-        uses: mattnotmitt/doxygen-action@edge
-      - name: Check for documentation changes
-        id: docs_changed
-        run: |
-          if git diff --quiet -- docs/html; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
+          VERSION=$(sed -n 's/^project(log-it-cpp VERSION \([^ ]*\).*/\1/p' CMakeLists.txt | head -n 1)
+          if [ -z "$VERSION" ]; then
+            if VERSION=$(git describe --tags --abbrev=0 2>/dev/null); then
+              VERSION=$(printf '%s' "$VERSION" | sed 's/^v//')
+            else
+              VERSION="0.0.0-untagged"
+            fi
           fi
+          DOC_VERSION="${VERSION}-dev"
+          echo "Using version: $DOC_VERSION"
+          test -f docs/mainpage.dox || { echo "mainpage.dox not found!"; exit 1; }
+          sed -i "0,/VERSION_PLACEHOLDER/s//${DOC_VERSION}/" docs/mainpage.dox
+      - name: Generate Documentation
+        uses: mattnotmitt/doxygen-action@v1.12.0
+      - name: Validate generated documentation
+        run: |
+          test -s docs/html/index.html
+          test -s docs/html/pages.html
+          test -s docs/html/classes.html
+          grep -q "1.0.2-dev" docs/html/index.html
+          grep -R -q "MemoryLogger" docs/html
+          grep -R -q "MdbxLogger" docs/html
+          grep -R -q "PrometheusHttpServerLogger" docs/html
+          grep -R -q "OtlpHttpLogger" docs/html
+          ! grep -R -q "AGENTS.md" docs/html
+          ! grep -R -q "NewYaroslav" docs/html
       - name: Publish generated content to GitHub Pages
-        if: steps.docs_changed.outputs.changed == 'true'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.ACCESS_TOKEN }}

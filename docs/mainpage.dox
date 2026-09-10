@@ -5,15 +5,29 @@ Version: VERSION_PLACEHOLDER
 
 \section overview_sec Overview
 
-`LogIt++` is a macro-first C++ logging library that supports C++11 and newer toolchains. It pairs lightweight instrumentation macros with configurable backends (console, rotating files, syslog, Windows Event Log, or custom sinks) and routes messages through an asynchronous queue so applications remain responsive while recording detailed diagnostics. The library combines the convenience of macro-driven logging similar to **IceCream-Cpp** with the configurability of engines such as **spdlog**.
+`LogIt++` is a macro-first C++ logging library. The core and most built-in
+backends support C++11; OTLP, Prometheus HTTP server, and MDBX integrations
+require C++17. It pairs lightweight instrumentation macros with configurable
+backends (console, rotating files, memory, system/crash loggers, OTLP,
+Prometheus, MDBX, or custom sinks). Most general-purpose native backends are
+asynchronous by default, while specialized backends may be synchronous or own
+their own worker and queue.
 
 Key characteristics:
 
 - **Macro-oriented API.** Consistent macro families (`LOGIT_<LEVEL>`, `LOGIT_PRINTF_<LEVEL>`, `LOGIT_STREAM_<LEVEL>`, etc.) cover immediate messages, `printf`-style formatting, streaming, throttling, and tagging. Defining `LOGIT_SHORT_NAME` when including `<logit.hpp>` enables compact aliases like `LOG_I`, `LOG_WPF`, and `LOG_S_INFO`.
-- **Flexible formatting and routing.** Customize output patterns, mix console/file/system backends, or supply custom logger implementations.
-- **Async by default.** Each backend is served by the task executor with configurable queue sizes and overflow policies, plus helpers such as `LOGIT_WARN_ONCE` or `LOGIT_ERROR_THROTTLE` to keep repeated messages under control.
+- **Flexible formatting and routing.** Customize output patterns, mix console,
+  file, system, telemetry, and storage backends, or supply custom logger
+  implementations.
+- **Configurable delivery.** General-purpose native backends use asynchronous
+  queues by default; queue limits, overflow policies, dedicated executors,
+  and synchronous modes are configurable per backend where supported.
 
 See the macro examples below or browse the `examples/` directory for focused demonstrations, including queue tuning and crash handling. `examples/example_logit_memory_logger.cpp` and `examples/example_logit_mdbx_logger.cpp` show the shared read/callback API for in-memory and MDBX-backed stored logs.
+
+The `logit::detail` namespace is implementation-only and carries no source or
+API compatibility guarantee. It is shown in the reference for maintainers;
+application code should use the public umbrella headers and macros.
 
 \section macro_first_usage_sec Macro-first usage
 
@@ -86,6 +100,34 @@ void short_names_demo() {
 \endcode
 
 For a standalone program that brings everything together and intentionally aborts after logging a fatal message, check `examples/example_logit_minimal_crash.cpp`.
+
+\subsection macro_examples_context Diagnostic context (MDC/NDC)
+
+Enable `LOGIT_WITH_CONTEXT` to keep mapped key/value context and a nested
+diagnostic context stack in thread-local storage. Use `%K`, `%K{key}`, and `%J`
+pattern tokens to render the values.
+
+\code{.cpp}
+#include <logit.hpp>
+
+void handle_request() {
+    LOGIT_MDC_PUT("request_id", "req-42");
+    {
+        LOGIT_NDC_GUARD("checkout");
+        LOGIT_INFO("processing order");
+    }
+    LOGIT_MDC_CLEAR();
+}
+\endcode
+
+\subsection macro_examples_optional Optional backends
+
+The `MemoryLogger`, `MdbxLogger`, OTLP, and Prometheus backends are demonstrated
+in the corresponding files under `examples/`. OTLP requires
+`LOGIT_WITH_OTLP=ON`, Prometheus payload/server requires
+`LOGIT_WITH_PROMETHEUS=ON` or `LOGIT_WITH_PROMETHEUS_SERVER=ON`, and MDBX
+requires `LOGIT_WITH_MDBX=ON`. See `\ref otlp_http_logger` and
+`\ref prometheus_logger` for backend-specific configuration and limitations.
 
 \subsection macro_examples_targeted Targeted, conditional, and scope helpers
 
@@ -265,7 +307,11 @@ LOGIT_ADD_EVENT_LOG_DEFAULT();
 
 \subsection async_logging Asynchronous Logging
 
-Improve application performance with asynchronous logging. All loggers handle messages in a separate thread by default.
+Most general-purpose native backends handle messages asynchronously by
+default. Crash and payload callback backends are synchronous, OTLP maintains
+its own exporter queue, and dedicated executors create one worker per selected
+backend. Emscripten builds without pthreads drain cooperatively without OS
+worker threads.
 
 \subsection buffer_modes Queue Buffer Modes
 
@@ -313,10 +359,12 @@ LOGIT_STREAM_INFO() << "Stream-based info logging with short macro. Integer valu
 
 \subsection compile_level Compile-Time Log Level
 
-Exclude lower-severity logs from the final binary by defining the maximum level to compile. Set the `LOGIT_COMPILED_LEVEL` macro during compilation:
+Exclude lower-severity logs from the final binary by defining the minimum
+severity compiled into the program. Set the `LOGIT_COMPILED_LEVEL` macro during
+compilation:
 
 \code{.bash}
-g++ -DLOGIT_COMPILED_LEVEL=logit::LogLevel::LOG_LVL_WARN ...
+g++ -DLOGIT_COMPILED_LEVEL=LOGIT_LEVEL_WARN ...
 \endcode
 
 With this configuration, `TRACE`, `DEBUG`, and `INFO` macros are disabled at compile time.
@@ -328,24 +376,8 @@ cannot re-enable macros removed earlier by `LOGIT_COMPILED_LEVEL`.
 \subsection extensibility Extensibility
 
 Create custom loggers and formatters to meet your specific requirements.
-
-\code{.cpp}
-class CustomLogger : public logit::ILogger {
-public:
-    CustomLogger() = default;
-
-    /// \brief Logs a message by formatting the log record and message.
-    /// \param record The log record containing event details.
-    /// \param message The formatted log message to log.
-    void log(const logit::LogRecord& record, const std::string& message) override {
-        // Implementation for sending logs...
-    }
-
-    ~CustomLogger() override = default;
-};
-
-LOGIT_ADD_LOGGER(CustomLogger, (), logit::SimpleLogFormatter, ("%v"));
-\endcode
+See the complete implementation in `\ref custom_backend_sec` below; it matches
+the current `ILogger` and `ILogFormatter` interfaces.
 
 \section usage_sec Usage
 
@@ -743,7 +775,7 @@ Controls how frequently blocking producers poll for capacity while
 `LOGIT_QUEUE_BLOCK` is active.
 
 \code{.cpp}
-#define LOGIT_TASK_EXECUTOR_BLOCK_WAIT_USEC 500
+#define LOGIT_TASK_EXECUTOR_BLOCK_WAIT_USEC 200
 \endcode
 
 - **LOGIT_TASK_EXECUTOR_DRAIN_BUDGET**:
@@ -752,7 +784,7 @@ Defines how many queued tasks a worker drains per iteration in ring-buffer
 builds before yielding.
 
 \code{.cpp}
-#define LOGIT_TASK_EXECUTOR_DRAIN_BUDGET 4096
+#define LOGIT_TASK_EXECUTOR_DRAIN_BUDGET 2048
 \endcode
 
 - **LOGIT_TASK_EXECUTOR_DEFAULT_RING_CAPACITY**:
@@ -761,7 +793,7 @@ Defines the default MPSC ring capacity used when unlimited queue mode still
 needs a backing ring size.
 
 \code{.cpp}
-#define LOGIT_TASK_EXECUTOR_DEFAULT_RING_CAPACITY 2048
+#define LOGIT_TASK_EXECUTOR_DEFAULT_RING_CAPACITY 1024
 \endcode
 
 - **LOGIT_SHORT_NAME**:
@@ -784,7 +816,10 @@ other infrastructure code that intentionally works below the macro layer.
 
 \subsection custom_logger Custom Logger Example
 
-To create a custom logger backend, you need to implement the `ILogger` interface, which requires defining the `log()` and `wait()` methods. Here's an example of a simple custom logger that logs messages to a text file:
+To create a custom logger backend, implement all pure virtual methods of the
+`ILogger` interface (`log()`, parameter accessors, log-level accessors, and
+`wait()`). The complete example below logs messages to a text file and matches
+the current interface:
 
 \code{.cpp}
 #include <fstream>
@@ -817,10 +852,34 @@ public:
         // No async processing, so no need to implement
     }
 
+    std::string get_string_param(const logit::LoggerParam& param) const override {
+        (void)param;
+        return std::string();
+    }
+
+    int64_t get_int_param(const logit::LoggerParam& param) const override {
+        (void)param;
+        return 0;
+    }
+
+    double get_float_param(const logit::LoggerParam& param) const override {
+        (void)param;
+        return 0.0;
+    }
+
+    void set_log_level(logit::LogLevel level) override {
+        m_log_level = level;
+    }
+
+    logit::LogLevel get_log_level() const override {
+        return m_log_level;
+    }
+
 private:
     std::string m_file_name;     ///< The name of the log file
     std::ofstream m_log_file;    ///< The file stream for logging
     std::mutex m_mutex;          ///< Mutex to ensure thread-safe logging
+    logit::LogLevel m_log_level = logit::LogLevel::LOG_LVL_TRACE;
 };
 \endcode
 
@@ -834,8 +893,8 @@ LOGIT_ADD_LOGGER(
 // or, if you intentionally need the lower-level equivalent...
 
 logit::Logger::get_instance().add_logger(
-    std::make_unique<FileLogger>("logfile.txt"),
-    std::make_unique<logit::SimpleLogFormatter>());
+    std::unique_ptr<logit::ILogger>(new FileLogger("logfile.txt")),
+    std::unique_ptr<logit::ILogFormatter>(new logit::SimpleLogFormatter()));
 \endcode
 
 Prefer `LOGIT_ADD_LOGGER(...)` when it fits your use case; calling
@@ -852,6 +911,10 @@ In addition to creating custom loggers, you can also create custom formatters by
 
 class JsonLogFormatter : public logit::ILogFormatter {
 public:
+    void set_timestamp_offset(int64_t offset_ms) override {
+        (void)offset_ms;
+    }
+
     // Formats the log record into a JSON string
     std::string format(const logit::LogRecord& record) const override {
         Json::Value log_entry;
@@ -873,13 +936,13 @@ This `JsonLogFormatter` formats log messages as JSON objects. You can combine it
 \code{.cpp}
 LOGIT_ADD_LOGGER(
     FileLogger, ("logfile.json"),
-    logit::JsonLogFormatter, ());
+    JsonLogFormatter, ());
 
 // or, if you intentionally need the lower-level equivalent...
 
 logit::Logger::get_instance().add_logger(
-    std::make_unique<FileLogger>("logfile.json"),
-    std::make_unique<JsonLogFormatter>());
+    std::unique_ptr<logit::ILogger>(new FileLogger("logfile.json")),
+    std::unique_ptr<logit::ILogFormatter>(new JsonLogFormatter()));
 \endcode
 
 \subsection summary_custom_backend Summary
@@ -894,11 +957,16 @@ Here's a quick summary:
 
 \section install_sec Installation
 
-LogIt++ is a header-only library, which means it can be easily included in your project without the need for compilation or linking. Below are the steps to integrate it into your project.
+LogIt++ itself is header-only. When consumed through the CMake target,
+enabled optional features may add transitive compile and link dependencies.
+Below are the steps to integrate it into your project.
 
 \subsection step1 Step 1: Clone the Repository
 
-First, clone the LogIt++ repository from GitHub along with its submodules. The required dependency is **time-shield-cpp** (for time utilities); optional features may also use **fmt**, **zlib**, or **zstd**.
+First, clone the LogIt++ repository from GitHub along with its submodules. The
+required dependency is **time-shield-cpp** (for time utilities); optional
+features may also use **fmt**, **zlib**, **zstd**, **kurlyk**, or
+**mdbx-containers**.
 
 To clone the repository with submodules, use the following command:
 
@@ -927,7 +995,13 @@ This will give you access to the entire logging system.
 
 CMake builds first look for the required **TimeShield** package and then fall back to this repository's bundled `external/time-shield-cpp` submodule when it is present. If you vendor dependencies inside your own project, use your own install or vendor paths; the directory does not need to be named `external`.
 
-Optional dependencies are needed only for the features you enable: **fmt** for `LOGIT_WITH_FMT`, **zlib** for `LOGIT_WITH_GZIP`, and **zstd** for `LOGIT_WITH_ZSTD`. Install them as packages, provide them from your own dependency layout, or set `LOGIT_USE_SUBMODULES=ON` to let CMake use the bundled copies from this repository.
+Optional dependencies are needed only for the features you enable: **fmt** for
+`LOGIT_WITH_FMT`, **zlib** for `LOGIT_WITH_GZIP`, **zstd** for
+`LOGIT_WITH_ZSTD`, **kurlyk** for `LOGIT_WITH_OTLP`, and
+**mdbx-containers** for `LOGIT_WITH_MDBX`. Install them as packages, provide
+them from your own dependency layout, or set `LOGIT_USE_SUBMODULES=ON` to let
+CMake use bundled copies for development. Installed package exports require
+those dependencies to be provided as installed/imported targets.
 
 \subsection step4 Step 4: Using fmt (Optional)
 
@@ -942,12 +1016,21 @@ All build-time toggles:
 - `LOGIT_BENCH_ENABLE` (default: OFF) — build the benchmarks; `LOGIT_BENCH_WITH_SPDLOG` (default: OFF) adds the spdlog comparison binaries.
 - `LOGIT_WITH_GZIP` / `LOGIT_WITH_ZSTD` (defaults: OFF) — enable gzip or zstd support for rotated files.
 - `LOGIT_WITH_FMT` (default: OFF) — include the `{}`-style formatting macros; `LOGIT_USE_SUBMODULES` (default: OFF) allows bundled optional dependency fallbacks such as fmt, zlib, and zstd when system packages are missing.
+- `LOGIT_WITH_CONTEXT` (default: OFF) — enable MDC/NDC helpers and context formatter tokens.
+- `LOGIT_WITH_OTLP` (default: OFF, C++17) — enable OTLP/HTTP export through kurlyk; not supported on Emscripten.
+- `LOGIT_WITH_PROMETHEUS` (default: OFF) — enable Prometheus text payload support; not supported on Emscripten.
+- `LOGIT_WITH_PROMETHEUS_SERVER` (default: OFF, C++17) — enable the embedded Prometheus HTTP server; not supported on Emscripten and currently rejected by `cmake --install`.
+- `LOGIT_WITH_MDBX` (default: OFF, C++17) — enable structured MDBX storage through mdbx-containers; not supported on Emscripten or MSVC.
 - `LOGIT_WITH_SYSLOG` (default: ON on Unix-like targets) — build the syslog backend.
 - `LOGIT_WITH_WIN_EVENT_LOG` (default: ON on Windows) — build the Windows Event Log backend.
 - `LOGIT_FORCE_ASYNC_OFF` (default: OFF) — force synchronous logging even on multi-threaded builds.
 - `LOGIT_USE_MPSC_RING` (default: ON) — enable the lock-free task queue instead of the mutex-backed deque.
 - `LOGIT_ENABLE_DROP_OLDEST_SLOWPATH` (default: ON) — include the drop-oldest slow-path used when the ring is full.
 - `LOGIT_EMSCRIPTEN` (default: ON when building under Emscripten) — adjust the build for single-threaded WebAssembly targets.
+
+Detailed guides for the optional backends and queue internals are available as
+separate pages: `\ref otlp_http_logger`, `\ref prometheus_logger`,
+`\ref task_executor`, and `\ref backpressure`.
 
 \section bench_sec Benchmarks
 
@@ -987,7 +1070,18 @@ Async results include enqueue + worker wakeup/scheduling + sink time. File sinks
 
 \subsection step5 Step 5: Build and Run Your Project
 
-After adding the necessary include paths, you can proceed to build and run your project. LogIt++ is designed to be easy to integrate and requires no linking since it's header-only.
+After adding the necessary include paths, you can proceed to build and run your
+project. For a vendored or installed CMake package, link the exported target:
+
+\code{.cmake}
+find_package(log-it-cpp CONFIG REQUIRED)
+target_link_libraries(my_app PRIVATE log-it-cpp::log-it-cpp)
+\endcode
+
+The repository can be installed with `cmake --install`; use separately
+installed dependency targets for optional features. `LOGIT_WITH_PROMETHEUS_SERVER`
+and bundled optional dependencies are intentionally rejected by the install
+step until their exported dependency targets are available.
 
 \section repo_sec Repository
 

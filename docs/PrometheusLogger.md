@@ -1,3 +1,5 @@
+\page prometheus_logger Prometheus Logger
+
 # Prometheus Logger
 
 ## Overview
@@ -6,8 +8,8 @@ LogIt++ provides two Prometheus backends for exposing internal log metrics in th
 [Prometheus text exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/):
 
 - **PrometheusPayloadLogger** -- callback-based; delivers the serialized payload to a
-  user-provided function. Useful when you have your own HTTP server or want to push to
-  a Prometheus Pushgateway.
+  user-provided function. It can be integrated with your own HTTP server,
+  Pushgateway client, or another existing transport.
 
 - **PrometheusHttpServerLogger** -- embedded HTTP server; serves `/metrics` on a
   configurable port using Simple-Web-Server. Ideal for simple services without a
@@ -44,6 +46,11 @@ option(LOGIT_WITH_PROMETHEUS_SERVER "Enable Prometheus HTTP server backend" OFF)
 
 `LOGIT_WITH_PROMETHEUS_SERVER` implies `LOGIT_WITH_PROMETHEUS` and requires C++17
 (Simple-Web-Server dependency).
+
+`LOGIT_WITH_PROMETHEUS_SERVER=ON` currently supports source-tree and build-tree
+consumption only. The install/export step intentionally rejects this
+configuration because the Simple-Web-Server and Asio include trees are not
+exported package dependencies yet.
 
 ## Usage: PrometheusPayloadLogger
 
