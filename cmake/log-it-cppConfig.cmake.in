@@ -1,25 +1,27 @@
 @PACKAGE_INIT@
 
 include(CMakeFindDependencyMacro)
-find_dependency(TimeShield)
+if(NOT TARGET time_shield::time_shield)
+    find_dependency(TimeShield 1.0.6 CONFIG)
+endif()
 
-if(@LOGIT_WITH_FMT@)
+if(@LOGIT_WITH_FMT@ AND NOT TARGET fmt::fmt)
     find_dependency(fmt CONFIG)
 endif()
 
-if(@LOGIT_WITH_OTLP@)
+if(@LOGIT_WITH_OTLP@ AND NOT TARGET kurlyk)
     find_dependency(kurlyk CONFIG)
 endif()
 
-if(@LOGIT_WITH_GZIP@)
+if(@LOGIT_WITH_GZIP@ AND NOT TARGET ZLIB::ZLIB)
     find_dependency(ZLIB)
 endif()
 
-if(@LOGIT_WITH_ZSTD@)
+if(@LOGIT_WITH_ZSTD@ AND NOT TARGET ZSTD::ZSTD)
     find_dependency(ZSTD)
 endif()
 
-if(@LOGIT_WITH_MDBX@)
+if(@LOGIT_WITH_MDBX@ AND NOT TARGET mdbx_containers::mdbx_containers)
     find_dependency(mdbx_containers CONFIG)
 endif()
 
