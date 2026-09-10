@@ -71,6 +71,7 @@ Detailed guides and documentation map:
 - [`docs/installation.md`](docs/installation.md) — CMake, vendored, installed-package, and package-manager setup.
 - [`docs/backends.md`](docs/backends.md) — backend, platform, dependency, and packaging matrix.
 - [`docs/benchmarks.md`](docs/benchmarks.md) — benchmark methodology and historical snapshot.
+- [`docs/comparison.md`](docs/comparison.md) — comparison with spdlog, Quill, Boost.Log, glog, and IceCream-Cpp.
 
 - [`docs/OtlpHttpLogger.md`](docs/OtlpHttpLogger.md) — OTLP/HTTP and callback exporters, structured attributes, retries, splitting, and compression.
 - [`docs/PrometheusLogger.md`](docs/PrometheusLogger.md) — payload/server backends, registry metrics, scrape configuration, and limitations.

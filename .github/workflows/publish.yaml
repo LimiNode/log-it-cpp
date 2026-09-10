@@ -43,11 +43,13 @@ jobs:
           test -s docs/html/quickstart.html
           test -s docs/html/backends.html
           test -s docs/html/benchmarks.html
+          test -s docs/html/comparison.html
           test -s docs/html/api_reference.html
           grep -q "$DOC_VERSION" docs/html/index.html
           grep -q "Quick start" docs/html/index.html
           grep -q "Backend matrix" docs/html/index.html
           grep -q "Performance and benchmarks" docs/html/index.html
+          grep -q "Comparison with other C++ logging libraries" docs/html/index.html
           grep -q "API reference and concepts" docs/html/index.html
           grep -R -q "MemoryLogger" docs/html
           grep -R -q "MdbxLogger" docs/html

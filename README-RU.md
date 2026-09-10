@@ -55,6 +55,7 @@ scope-замер.
 - [`docs/installation.md`](docs/installation.md) — установка через CMake, vendored и installed package сценарии.
 - [`docs/backends.md`](docs/backends.md) — матрица бэкендов, платформ, зависимостей и packaging.
 - [`docs/benchmarks.md`](docs/benchmarks.md) — методика benchmark и исторический snapshot.
+- [`docs/comparison-RU.md`](docs/comparison-RU.md) — сравнение со spdlog, Quill, Boost.Log, glog и IceCream-Cpp.
 
 - [`docs/OtlpHttpLogger.md`](docs/OtlpHttpLogger.md) — OTLP/HTTP, callback-экспорт, атрибуты, retries, разбиение payload и сжатие.
 - [`docs/PrometheusLogger.md`](docs/PrometheusLogger.md) — payload/server-бэкенды, registry, scrape и ограничения.
