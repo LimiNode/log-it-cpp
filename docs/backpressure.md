@@ -6,8 +6,7 @@ The global asynchronous task executor backs loggers that use the default
 executor and can be tuned to handle high-load bursts. Some backends are
 synchronous, while configured dedicated executors and OTLP maintain their own
 queues. Use the following helpers from
-`<logit_cpp/logit/log_macros.hpp>` when preparing stress tests or
-long-running services:
+`<logit.hpp>` when preparing stress tests or long-running services:
 
 - `LOGIT_SET_MAX_QUEUE(size)` sets the maximum number of queued tasks. Use a
   small `size` to emulate a constrained environment or `0` to remove the

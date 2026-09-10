@@ -65,7 +65,12 @@ Recent focused examples include:
 - `examples/example_logit_prometheus_server.cpp` - embedded `/metrics` endpoint with built-in and application metrics.
 - `examples/example_logit_mdc_ndc.cpp` - mapped and nested diagnostic context across scopes and threads.
 
-Detailed backend and executor guides:
+Detailed guides and documentation map:
+
+- [`docs/quickstart.md`](docs/quickstart.md) — quick start and documentation map.
+- [`docs/installation.md`](docs/installation.md) — CMake, vendored, installed-package, and package-manager setup.
+- [`docs/backends.md`](docs/backends.md) — backend, platform, dependency, and packaging matrix.
+- [`docs/benchmarks.md`](docs/benchmarks.md) — benchmark methodology and historical snapshot.
 
 - [`docs/OtlpHttpLogger.md`](docs/OtlpHttpLogger.md) — OTLP/HTTP and callback exporters, structured attributes, retries, splitting, and compression.
 - [`docs/PrometheusLogger.md`](docs/PrometheusLogger.md) — payload/server backends, registry metrics, scrape configuration, and limitations.
@@ -312,10 +317,11 @@ logs.
 ## Backpressure and hot resize
 
 The asynchronous `TaskExecutor` supports both a mutex-protected deque and an
-optional lock-free MPSC ring (enable via `LOGIT_USE_MPSC_RING`). Queue overflow
-policies (`Block`, `DropNewest`, `DropOldest`) behave consistently across both
-implementations, with the MPSC build intentionally dropping the *incoming* task
-for `DropOldest` to keep accepted work ordered. The ring build also allows
+optional lock-free MPSC ring (enable via `LOGIT_USE_MPSC_RING`). The same queue
+policy names (`Block`, `DropNewest`, `DropOldest`) are available in both
+implementations, but `DropOldest` has intentionally different semantics: the
+deque removes the oldest accepted task, while MPSC drops the *incoming* task to
+keep accepted work ordered. The ring build also allows
 "hot" queue resizes where producers briefly wait while the worker rebuilds the
 ring buffer without losing in-flight tasks. The default MPSC buffer holds
 `LOGIT_TASK_EXECUTOR_DEFAULT_RING_CAPACITY` tasks (1024 by default) and can be
@@ -337,7 +343,7 @@ logit::ConsoleLogger::Config cfg;
 cfg.async = true;
 cfg.use_dedicated_executor = true;
 cfg.queue_capacity = 1024;
-cfg.queue_policy = logit::detail::QueuePolicy::Block;
+cfg.queue_policy = logit::QueuePolicy::Block;
 
 LOGIT_ADD_LOGGER(
     logit::ConsoleLogger,
@@ -354,7 +360,7 @@ LOGIT_ADD_CONSOLE_CONFIG(cfg, LOGIT_CONSOLE_PATTERN);
 LOGIT_ADD_CONSOLE_DEDICATED(
     LOGIT_CONSOLE_PATTERN,
     1024,
-    logit::detail::QueuePolicy::DropNewest
+    logit::QueuePolicy::DropNewest
 );
 ```
 
@@ -484,10 +490,12 @@ Use the host OS logging facility. `SyslogLogger` works with POSIX `syslog`, whil
 
 - **Asynchronous Logging**:
 
-Most general-purpose native backends are asynchronous by default. Crash and
-payload callback backends are synchronous, OTLP maintains its own exporter
-queue, dedicated executors create one worker per selected backend, and
-Emscripten without pthreads drains cooperatively without OS worker threads.
+Most general-purpose native backends are asynchronous by default. Crash
+backends and `PrometheusPayloadLogger` are synchronous. OTLP HTTP and payload
+exporters own their queues and workers and can be configured for synchronous or
+asynchronous delivery. Dedicated executors create one worker per selected
+backend, and Emscripten without pthreads drains cooperatively without OS worker
+threads.
 
 - **Stream-Based Logging**: 
 
@@ -909,7 +917,7 @@ public:
 		log_entry["file"] = record.file;
 		log_entry["line"] = record.line;
 		log_entry["function"] = record.function;
-		log_entry["message"] = record.format;
+		log_entry["format"] = record.format;
 
 		Json::StreamWriterBuilder writer;
 		return Json::writeString(writer, log_entry);
@@ -1086,22 +1094,13 @@ The following toggles cover all build-time features:
 - `LOGIT_WITH_WIN_EVENT_LOG` (default: ON on Windows) — build the Windows Event Log backend.
 - `LOGIT_FORCE_ASYNC_OFF` (default: OFF) — force synchronous logging even in multi-threaded builds.
 - `LOGIT_USE_MPSC_RING` (default: ON) — use the lock-free task queue instead of the mutex-backed deque.
-- `LOGIT_ENABLE_DROP_OLDEST_SLOWPATH` (default: ON) — compile the slow-path used by `DropOldest` when the ring is full.
 - `LOGIT_EMSCRIPTEN` (default: ON under Emscripten toolchains) — adjust the build for single-threaded WebAssembly environments.
 
 ## Backend matrix
 
-| Backend | Enablement | Standard | Extra dependency | Platform/package notes |
-|---|---|---:|---|---|
-| Console, file, unique file, memory, crash | built in | C++11 | TimeShield | Native and Emscripten stubs where documented |
-| Syslog | `LOGIT_WITH_SYSLOG=ON` | C++11 | POSIX syslog | Unix-like platforms |
-| Windows Event Log | `LOGIT_WITH_WIN_EVENT_LOG=ON` | C++11 | Windows SDK | Windows only |
-| `WindowsDebugLogger` | built in | C++11 | Windows API | Windows `OutputDebugStringW`; stderr fallback elsewhere |
-| OTLP/HTTP | `LOGIT_WITH_OTLP=ON` | C++17 | kurlyk | Not supported on Emscripten; installed exports need external kurlyk |
-| OTLP payload callback | `LOGIT_WITH_OTLP=ON` | C++17 | None for callback; shared OTLP feature | Serializes JSON and invokes the caller callback |
-| Prometheus payload | `LOGIT_WITH_PROMETHEUS=ON` | C++11 | None | Not supported on Emscripten |
-| Prometheus HTTP server | `LOGIT_WITH_PROMETHEUS_SERVER=ON` | C++17 | Simple-Web-Server/Asio | Build-tree only; install currently rejected |
-| MDBX structured storage | `LOGIT_WITH_MDBX=ON` | C++17 | mdbx-containers | Not supported on Emscripten or MSVC |
+Supported backends include console, file, memory, system logging, OTLP,
+Prometheus, and MDBX. See the canonical [backend matrix](docs/backends.md) for
+standards, feature-specific dependencies, and platform/package restrictions.
 
 ## System Backends
 
@@ -1135,6 +1134,10 @@ used.
 
 ## Benchmarks
 
+The canonical benchmark guide is [docs/benchmarks.md](docs/benchmarks.md).
+It contains the methodology, interpretation rules, historical snapshot, and
+`LatencyRecorder` notes referenced by the detailed material below.
+
 Latency and throughput benchmarks live under `bench/`. Enable them during configuration and optionally pull in the spdlog
 adapters:
 
@@ -1149,50 +1152,17 @@ and `LOGIT_BENCH_WARMUP` environment variables if you need a lighter run.
 
 ### What this benchmark measures
 
-The harness times end-to-end latency (*log call → delivery into the sink*) and aggregate throughput. It is great for spotting
-regressions and comparing pipeline designs, but it is **not** a perfect “fastest logger wins” contest. LogIt++ intentionally does
-extra work inspired by Python’s `icecream`: a single `LOGIT_*` call can extract argument names, build `args_array` with
-`VariableValue`, and optionally format those structured values. Classic printf-style loggers such as spdlog focus on fast string
-formatting and queueing instead of this metadata path. In this harness LogIt++ travels the “record → formatter → sink/queue” path
-with IceCream-inspired metadata (argument names/values), while the spdlog adapter receives an already formatted string and measures “string → queue → sink.”
-If you want an apples-to-apples view, keep the comparison within the same
-mode:
+See the canonical [benchmark guide](docs/benchmarks.md) for the measurement
+model, comparison caveats, and interpretation rules.
 
-- *Text-only/passthrough* shows dispatch/queue/sink cost and is the closest to spdlog’s default path.
-- *Metadata-heavy* (`LOGIT_*` with argument capture) includes parsing and packing the structured arguments; LogIt++ will do more
-  work per call here by design.
+### Latest snapshot
 
-Async numbers also include enqueue + worker wakeup/scheduling + sink time; file sinks add I/O variance from buffering and flush
-policies. Async latencies depend heavily on thread pool size/overflow policy and sink behavior; the values below reflect the
-adapter in this repository rather than spdlog at large.
+The historical snapshot and full comparison table are maintained in the
+[benchmark guide](docs/benchmarks.md).
 
-### Latest snapshot (Dec 05, 2025)
+### Benchmark harness notes
 
-- Build: `Release`, `LOGIT_BENCH_ENABLE=ON`, `LOGIT_BENCH_WITH_SPDLOG=ON`, `LOGIT_USE_MPSC_RING=ON` (default).
-- Workload: `LOGIT_BENCH_TOTAL=10000`, 4 producers, message size 200 bytes for the comparison table (all other sizes/counts
-  are in `bench/results/latency-2025-12-05-10k.csv`).
-- Metrics: median (`p50`) latency in nanoseconds and achieved throughput (messages/sec).
-- Hardware: 3 vCPU VM (Intel Xeon E5-2673 v4 @ 2.30GHz), single NUMA node.
-- Data: refreshed from `bench/results/latency-2025-12-05-10k.csv` (Dec 05, 2025 @ 03:18 UTC).
-- The table captures that single scenario; see the CSV for the full matrix.
-
-| Mode | Sink | LogIt++ p50 | LogIt++ throughput | spdlog p50 | spdlog throughput |
-|------|------|-------------|--------------------|------------|-------------------|
-| Sync | Null | 119 ns | 2,127,704 msg/s | 86 ns | 5,803,783 msg/s |
-| Sync | File | 130 ns | 1,035,690 msg/s | 87 ns | 1,593,987 msg/s |
-| Async | Null | 20,916 ns | 1,846,272 msg/s | 1,248,779 ns | 1,303,573 msg/s |
-| Async | File | 255,323 ns | 651,384 msg/s | 5,001,140 ns | 1,153,976 msg/s |
-
-**Takeaways:** In synchronous modes LogIt++ shows p50 ~120–130 ns while carrying the IceCream-inspired metadata path; the spdlog adapter receives preformatted strings, so it remains faster on the null/file sinks in this scenario. Asynchronously, both sides measure enqueue + worker wakeups + sink work and are sensitive to thread-pool/overflow/sink configuration; here LogIt++ stays in the tens-to-hundreds of microseconds, while the spdlog adapter lands in low-to-mid milliseconds and would need tuning/profiling for other setups. Passthrough/fmt-only modes remain available if you want to trim the metadata cost.
-
-### Benchmark harness notes (LatencyRecorder)
-
-- `bench/LatencyRecorder.hpp` preallocates slots and tracks `Token {slot, t0_ns, active}` → `Summary {p50, p99, p999}` with per-
-slot deduplication (duplicate `complete()` calls are ignored). It exposes `recorded()`, `wait_for_all()`, and `finalize()` for
-end-to-end timing across producers/consumers.
-- The LogIt adapter stores the benchmark slot in `LogRecord::line` (see `bench/adapters/LogItAdapter.cpp`). Sinks call
-  `LatencyRecorder::complete_slot()` when they observe a non-negative line number, so no extra payload is needed inside the log
-  record.
+See the [benchmark guide](docs/benchmarks.md) for `LatencyRecorder` details.
 
 
 ---

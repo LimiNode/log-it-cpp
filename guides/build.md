@@ -38,8 +38,6 @@ From `CMakeLists.txt` and `README.md`, the most relevant toggles are:
 - `LOGIT_WITH_WIN_EVENT_LOG` - enable the Windows Event Log backend on Windows.
 - `LOGIT_FORCE_ASYNC_OFF` - force synchronous logging.
 - `LOGIT_USE_MPSC_RING` - enable the lock-free task queue.
-- `LOGIT_ENABLE_DROP_OLDEST_SLOWPATH` - compile the ring slow-path for
-  `DropOldest`.
 
 When zlib, zstd, kurlyk, or mdbx-containers are supplied from submodules,
 they are suitable for development and tests. Package installation must use
@@ -80,8 +78,8 @@ cmake -S . -B build -DLOGIT_BENCH_ENABLE=ON -DLOGIT_BENCH_WITH_SPDLOG=ON
 cmake --build build --target logit_bench
 ```
 
-Benchmark output is described in `README.md`; the benchmark binary lives under
-the build tree, typically `build/bench/logit_bench`.
+Benchmark output is described in `docs/benchmarks.md`; the benchmark binary
+lives under the build tree, typically `build/bench/logit_bench`.
 
 ## Verification notes
 

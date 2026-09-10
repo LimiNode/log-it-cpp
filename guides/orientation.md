@@ -7,7 +7,7 @@ does not replace them.
 ## Quick Model
 
 `log-it-cpp` is a header-only C++ logging library. Its public surface is a
-macro-first facade (`include/logit_cpp/logit/log_macros.hpp`) backed by a
+macro-first facade exposed by the supported `<logit.hpp>` entry point and backed by a
 singleton dispatcher (`include/logit_cpp/logit/Logger.hpp`), formatter
 strategies (`include/logit_cpp/logit/formatter/`), logger backends
 (`include/logit_cpp/logit/loggers/`), utility DTOs/helpers
@@ -46,7 +46,7 @@ See `guides/header-impl.md` before changing include structure.
 
 | Subsystem | Main files | Responsibility |
 | --- | --- | --- |
-| Macro facade | `log_macros.hpp` | Public logging, setup, query, queue, and short-name macros. Normal application code should stay here. |
+| Macro facade | `log_macros.hpp` | Macro implementation consumed by `<logit.hpp>`; normal application code should use the umbrella entry point. Standalone inclusion is not guaranteed. |
 | Dispatcher | `Logger.hpp` | Owns logger/formatter strategies, filtering, single-mode routing, targeted logging, snapshots, shutdown. |
 | Logger interfaces | `loggers/ILogger.hpp` | Backend contract for sinks, parameters, buffered snapshots, persisted file access, and flush/wait. |
 | Logger backends | `ConsoleLogger.hpp`, `FileLogger.hpp`, `UniqueFileLogger.hpp`, `MemoryLogger.hpp`, `SyslogLogger.hpp`, `EventLogLogger.hpp`, `CrashLogger.hpp` | Concrete sinks. Platform-specific backends provide stubs or aliases where unsupported. |
@@ -69,7 +69,8 @@ The practical dependency direction is:
 4. `loggers.hpp` depends on utilities and detail helpers, then exposes
    backend implementations.
 5. `Logger.hpp` combines `ILogger` and `ILogFormatter` strategies.
-6. `log_macros.hpp` is the macro facade over `Logger` and `TaskExecutor`.
+6. `log_macros.hpp` is the macro facade over `Logger` and `TaskExecutor`,
+   included by the supported `<logit.hpp>` entry point.
 
 Avoid these dependency shapes:
 
@@ -343,7 +344,7 @@ changing async behavior, run the relevant backpressure tests and prefer a full
 | `include/logit_cpp/logit/loggers/` | Concrete sinks and `ILogger`. | Adding or changing backend behavior. |
 | `include/logit_cpp/logit/detail/` | Private executor, compression, stream, scope internals. | Internal library mechanics only; avoid from consumer code. |
 | `include/logit_cpp/logit/Logger.hpp` | Singleton dispatcher and strategy management. | Changing routing, filtering, snapshot, or shutdown behavior. |
-| `include/logit_cpp/logit/log_macros.hpp` | Public macro API. | Adding macro families, setup/query macros, or C++11/17 macro branches. |
+| `include/logit_cpp/logit/log_macros.hpp` | Macro implementation behind `<logit.hpp>`. | Adding macro families, setup/query macros, or C++11/17 macro branches. |
 | `tests/` | Unit, integration, include, ODR, optional feature tests. | Any behavior or include-contract change. |
 | `examples/` | User-facing examples. | Public workflow or new backend examples. |
 | `bench/` | Benchmark harness and adapters. | Performance scenarios or benchmark-specific adapter changes. |

@@ -157,7 +157,8 @@ Public methods exposed by `TaskExecutor`:
 * `dropped_tasks()` and `reset_dropped_tasks()` — inspect or reset the overflow
   counter.
 
-Macros in `<logit_cpp/logit/log_macros.hpp>` map directly onto these calls:
+Macros from the supported `<logit.hpp>` entry point map directly onto these
+calls:
 
 * `LOGIT_SET_MAX_QUEUE(size)` → `set_max_queue_size(size)`
 * `LOGIT_SET_QUEUE_POLICY(mode)` → `set_queue_policy(mode)`

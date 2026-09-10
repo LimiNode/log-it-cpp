@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -27,6 +30,7 @@ jobs:
           fi
           DOC_VERSION="${VERSION}-dev"
           echo "Using version: $DOC_VERSION"
+          echo "DOC_VERSION=$DOC_VERSION" >> "$GITHUB_ENV"
           test -f docs/mainpage.dox || { echo "mainpage.dox not found!"; exit 1; }
           sed -i "0,/VERSION_PLACEHOLDER/s//${DOC_VERSION}/" docs/mainpage.dox
       - name: Generate Documentation
@@ -36,14 +40,45 @@ jobs:
           test -s docs/html/index.html
           test -s docs/html/pages.html
           test -s docs/html/classes.html
-          grep -q "1.0.2-dev" docs/html/index.html
+          test -s docs/html/quickstart.html
+          test -s docs/html/backends.html
+          test -s docs/html/benchmarks.html
+          test -s docs/html/api_reference.html
+          grep -q "$DOC_VERSION" docs/html/index.html
+          grep -q "Quick start" docs/html/index.html
+          grep -q "Backend matrix" docs/html/index.html
+          grep -q "Performance and benchmarks" docs/html/index.html
+          grep -q "API reference and concepts" docs/html/index.html
           grep -R -q "MemoryLogger" docs/html
           grep -R -q "MdbxLogger" docs/html
           grep -R -q "PrometheusHttpServerLogger" docs/html
           grep -R -q "OtlpHttpLogger" docs/html
           ! grep -R -q "AGENTS.md" docs/html
           ! grep -R -q "NewYaroslav" docs/html
+          python3 - <<'PY'
+          from pathlib import Path
+          from urllib.parse import urlsplit
+          import re
+
+          root = Path("docs/html")
+          missing = []
+          for page in root.glob("*.html"):
+              text = page.read_text(encoding="utf-8", errors="ignore")
+              for href in re.findall(r'href="([^"]+)"', text):
+                  parsed = urlsplit(href)
+                  target = parsed.path
+                  if not target or parsed.scheme or href.startswith("#"):
+                      continue
+                  target = target.split("#", 1)[0]
+                  if target and not (page.parent / target).exists():
+                      missing.append(f"{page}: {href}")
+          if missing:
+              print("Broken local documentation links:")
+              print("\n".join(missing))
+              raise SystemExit(1)
+          PY
       - name: Publish generated content to GitHub Pages
+        if: github.event_name != 'pull_request'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.ACCESS_TOKEN }}

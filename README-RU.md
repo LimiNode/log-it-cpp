@@ -49,7 +49,12 @@ scope-замер.
 
 Ниже приведены примеры макросов; также загляните в каталог `examples/` с отдельными сценариями, включая настройку очереди и обработку аварийного завершения.
 
-Дополнительные руководства:
+Дополнительные руководства и карта документации:
+
+- [`docs/quickstart.md`](docs/quickstart.md) — краткий старт и карта документации.
+- [`docs/installation.md`](docs/installation.md) — установка через CMake, vendored и installed package сценарии.
+- [`docs/backends.md`](docs/backends.md) — матрица бэкендов, платформ, зависимостей и packaging.
+- [`docs/benchmarks.md`](docs/benchmarks.md) — методика benchmark и исторический snapshot.
 
 - [`docs/OtlpHttpLogger.md`](docs/OtlpHttpLogger.md) — OTLP/HTTP, callback-экспорт, атрибуты, retries, разбиение payload и сжатие.
 - [`docs/PrometheusLogger.md`](docs/PrometheusLogger.md) — payload/server-бэкенды, registry, scrape и ограничения.
@@ -238,8 +243,8 @@ Prometheus text payload, а `LOGIT_WITH_PROMETHEUS_SERVER` — встроенн�
 ## Обратное давление и горячее изменение размера
 
 Асинхронный `TaskExecutor` поддерживает как очередь на основе `std::deque` под мьютексом, так и опциональный lock-free MPSC ring
- (включается флагом `LOGIT_USE_MPSC_RING`). Политики переполнения (`Block`, `DropNewest`, `DropOldest`) ведут себя одинаково в
- обеих конфигурациях; в MPSC-режиме `DropOldest` намеренно отбрасывает **входящую** задачу, чтобы не нарушать порядок уже приня
+ (включается флагом `LOGIT_USE_MPSC_RING`). Имена политик переполнения (`Block`, `DropNewest`, `DropOldest`) доступны в обеих
+ конфигурациях, но семантика `DropOldest` различается: deque удаляет старую принятую задачу, а MPSC намеренно отбрасывает **входящую**, чтобы не нарушать порядок уже приня
 тых. Кольцевой буфер по умолчанию вмещает `LOGIT_TASK_EXECUTOR_DEFAULT_RING_CAPACITY` задач (1024) и может быть перенастроен ком
 бинацией `LOGIT_SET_MAX_QUEUE(...)` с этим макросом, если приложению требуется другой базовый объём. В сборках с MPSC допускаетс
 я "горячее" изменение размера очереди без потери принятых задач — продюсеры кратковременно ждут, пока поток-воркер пересобирает
@@ -316,9 +321,10 @@ LOGIT_ADD_UNIQUE_FILE_LOGGER_DEFAULT_SINGLE_MODE();
 - **Асинхронное логирование**:
 
 Большинство обычных native-бэкендов по умолчанию работают асинхронно.
-Crash- и payload callback-бэкенды синхронны, OTLP использует собственную
-очередь экспортёра, dedicated executor создаёт worker для выбранного бэкенда,
-а Emscripten без pthreads работает кооперативно без OS-потока.
+Crash-бэкенды и `PrometheusPayloadLogger` синхронны. OTLP HTTP и payload-
+экспортёры владеют собственными очередями и worker-потоками и могут работать
+синхронно или асинхронно. Dedicated executor создаёт worker для выбранного
+бэкенда, а Emscripten без pthreads работает кооперативно без OS-потока.
 
 - **Потоковое логирование**: 
 
@@ -817,7 +823,7 @@ public:
 		log_entry["file"] = record.file;
 		log_entry["line"] = record.line;
 		log_entry["function"] = record.function;
-		log_entry["message"] = record.format;
+		log_entry["format"] = record.format;
 
 		Json::StreamWriterBuilder writer;
 		return Json::writeString(writer, log_entry);
@@ -905,61 +911,36 @@ LogIt++ включает библиотеку *fmt* для форматиров�
 - `LOGIT_WITH_WIN_EVENT_LOG` (по умолчанию: ON в Windows) — сборка бэкенда Windows Event Log.
 - `LOGIT_FORCE_ASYNC_OFF` (по умолчанию: OFF) — принудительно отключить асинхронное выполнение даже в многопоточных сборках.
 - `LOGIT_USE_MPSC_RING` (по умолчанию: ON) — использовать lock-free очередь вместо варианта на `std::deque`.
-- `LOGIT_ENABLE_DROP_OLDEST_SLOWPATH` (по умолчанию: ON) — скомпилировать медленный путь для `DropOldest`, когда кольцо заполнено.
 - `LOGIT_EMSCRIPTEN` (по умолчанию: ON при сборке Emscripten) — подстройка под однопоточные среды WebAssembly.
 
 ## Бенчмарки
+
+Каноническое руководство по бенчмаркам находится в
+[`docs/benchmarks.md`](docs/benchmarks.md); там собраны методика,
+интерпретация результатов, исторический снимок и заметки о `LatencyRecorder`.
 
 Запустите `./build/bench/logit_bench`, чтобы получить полный набор измерений (sync/async × null/file × количество продюсеров × размер сообщений). Результаты дописываются в `bench/results/latency.csv` по одной строке на каждую библиотеку/комбинацию. При необходимости сократите нагрузку с помощью переменных окружения `LOGIT_BENCH_TOTAL` и `LOGIT_BENCH_WARMUP`.
 
 ### Что на самом деле измеряет бенчмарк
 
-Харнесс меряет end-to-end латентность (*вызов лога → доставка в sink*) и суммарную пропускную. Он полезен для поиска регрессий и сравнения дизайна пайплайнов, но это **не** идеальное соревнование «кто быстрее». LogIt++ осознанно тратит больше работы в духе Python `icecream`: один `LOGIT_*` может парсить имена аргументов, собирать `args_array` из `VariableValue` и опционально форматировать структуру. Классические printf-логгеры вроде spdlog оптимизируются под быстрое форматирование строк и очереди, без этой «леденцовой» ветки. Для корректного сравнения держите оба лагеря в одном режиме:
+Полная методика, ограничения сравнения и правила интерпретации находятся в
+[`docs/benchmarks.md`](docs/benchmarks.md).
 
-В этой методике LogIt++ проходит путь «record → formatter → sink/queue» с IceCream-подобными метаданными (имена/значения аргументов), а spdlog в адаптере получает уже готовую строку и измеряет «string → queue → sink».
+### Последний снимок
 
-- *Только текст / passthrough* показывает стоимость dispatch/очереди/sink и ближе всего к поведению spdlog по умолчанию.
-- *IceCream-стиль метаданных* (`LOGIT_*` с захватом аргументов) включает парсинг имён и упаковку значений; тут LogIt++ делает больше работы на вызов намеренно.
+Исторический снимок и полная таблица сравнения находятся в
+[`docs/benchmarks.md`](docs/benchmarks.md).
 
-Асинхронные цифры включают enqueue + пробуждение воркера/планирование ОС + работу sink; для file sink добавляется разброс из-за буферов/flush. Латентности в async сильно зависят от размера thread_pool/overflow policy и поведения sink; числа ниже отражают именно адаптер из этого репозитория, а не «spdlog в целом».
+### Как устроен бенч-харнесс
 
-### Последний снимок (05.12.2025)
-
-- Сборка: `Release`, `LOGIT_BENCH_ENABLE=ON`, `LOGIT_BENCH_WITH_SPDLOG=ON`, `LOGIT_USE_MPSC_RING=ON` (по умолчанию).
-- Нагрузка: `LOGIT_BENCH_TOTAL=10000`, 4 продюсера, размер сообщений 200 байт для таблицы сравнения (остальные комбинации см. в `bench/results/latency-2025-12-05-10k.csv`).
-- Метрики: медианная задержка (`p50`) в наносекундах и достигнутая пропускная способность (сообщений/с).
-- Железо: 3 vCPU (Intel Xeon E5-2673 v4 @ 2.30GHz) в виртуальной машине, одна NUMA-нода.
-- Данные: обновлено по `bench/results/latency-2025-12-05-10k.csv` (05.12.2025, 03:18 UTC).
-- Таблица отражает только этот сценарий; полный набор — в CSV.
-
-| Режим | Приёмник | LogIt++ p50 | Пропускная (LogIt++) | spdlog p50 | Пропускная (spdlog) |
-|-------|----------|-------------|----------------------|------------|---------------------|
-| Sync  | Null     | 119 нс | 2 127 704 сооб./с | 86 нс | 5 803 783 сооб./с |
-| Sync  | File     | 130 нс | 1 035 690 сооб./с | 87 нс | 1 593 987 сооб./с |
-| Async | Null     | 20 916 нс | 1 846 272 сооб./с | 1 248 779 нс | 1 303 573 сооб./с |
-| Async | File     | 255 323 нс | 651 384 сооб./с | 5 001 140 нс | 1 153 976 сооб./с |
-
-**Выводы:** В синхронных режимах LogIt++ показывает p50 ~120–130 нс при IceCream-подобном пути метаданных; адаптер spdlog работает с готовой строкой, поэтому на Null/File быстрее в этой методике. В async обе стороны меряют enqueue + пробуждения + sink и чувствительны к конфигурации thread_pool/overflow/sink: здесь LogIt++ остаётся в десятках–сотнях микросекунд, а spdlog-адаптер уходит в миллисекунды и требует отдельной настройки/профиля для других конфигураций. При необходимости можно включить passthrough/fmt_only и отключить лишние метаданные.
-
-### Как устроен бенч-харнесс (LatencyRecorder)
-
-- `bench/LatencyRecorder.hpp` заранее резервирует слоты и ведёт `Token {slot, t0_ns, active}` → `Summary {p50, p99, p999}` с защитой от повторных `complete()` на один слот. Доступны методы `recorded()`, `wait_for_all()` и `finalize()` для end-to-end измерений между продюсерами и консюмером.
-- Адаптер LogIt кладёт номер слота в `LogRecord::line` (см. `bench/adapters/LogItAdapter.cpp`). Приёмник вызывает `LatencyRecorder::complete_slot()`, когда видит неотрицательный номер строки; никаких дополнительных полей в записи не требуется.
+Детали `LatencyRecorder` собраны в [`docs/benchmarks.md`](docs/benchmarks.md).
 
 
 ## Матрица бэкендов
 
-| Бэкенд | Включение | Standard | Зависимость | Ограничения |
-|---|---|---:|---|---|
-| Console, file, unique file, memory, crash | встроены | C++11 | TimeShield | Native и документированные Emscripten stubs |
-| Syslog | `LOGIT_WITH_SYSLOG=ON` | C++11 | POSIX syslog | Unix-подобные системы |
-| Windows Event Log | `LOGIT_WITH_WIN_EVENT_LOG=ON` | C++11 | Windows SDK | Только Windows |
-| `WindowsDebugLogger` | встроен | C++11 | Windows API | `OutputDebugStringW` в Windows; в остальных системах fallback в stderr |
-| OTLP/HTTP | `LOGIT_WITH_OTLP=ON` | C++17 | kurlyk | Не Emscripten; для install нужен внешний kurlyk |
-| OTLP payload callback | `LOGIT_WITH_OTLP=ON` | C++17 | Для callback не нужен; общая OTLP-функция | JSON-сериализация и callback вызывающей стороны |
-| Prometheus payload | `LOGIT_WITH_PROMETHEUS=ON` | C++11 | нет | Не Emscripten |
-| Prometheus HTTP server | `LOGIT_WITH_PROMETHEUS_SERVER=ON` | C++17 | Simple-Web-Server/Asio | Только build-tree; install запрещён |
-| MDBX | `LOGIT_WITH_MDBX=ON` | C++17 | mdbx-containers | Не Emscripten и не MSVC |
+Поддерживаются консольные, файловые, системные, OTLP, Prometheus и MDBX-
+бэкенды. Каноническая [матрица бэкендов](docs/backends.md) содержит стандарты,
+feature-specific зависимости и ограничения платформ/packaging.
 
 ## Системные бэкенды
 
