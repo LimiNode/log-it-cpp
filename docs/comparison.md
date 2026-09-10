@@ -7,7 +7,7 @@ answers a practical question: **when does LogIt++ fit better than a smaller
 formatted-string logger, a general event framework, or a diagnostic macro
 utility?**
 
-The comparison was checked on **2026-09-08** against these upstream releases:
+The comparison was checked on **2026-09-10** against these upstream releases:
 
 | Project | Release checked | Primary documentation |
 | --- | --- | --- |
@@ -45,18 +45,22 @@ goal of the checked project, not that it is impossible to implement.
 
 | Capability | LogIt++ | spdlog | Quill | Boost.Log | glog | IceCream-Cpp |
 | --- | --- | --- | --- | --- | --- | --- |
-| Macro-first instrumentation | Built in | Built in macros | Built in macros | Different model | Built in macros | Core feature |
-| Structured records / attributes | Built in `LogRecord` and values | Different model: formatted message and formatter arguments | Different model: typed async log messages | Built in attribute/event model | Extension / message-centric | Diagnostic values, not a sink record |
-| Capture source argument names | Built in | — | — | — | — | Built in |
-| `printf`-style and stream APIs | Built in | Built in | Built in / fmt-oriented | Extension / different model | Stream-oriented macros | Human-readable display |
-| Conditional and rate-limited macros | Built in | Built in macro families | API-dependent | Filters and predicates | Built in severity/condition macros | Limited diagnostic helpers |
-| Asynchronous queue | Built in | Built in | Core design | Sink-dependent | Not the primary model | — |
-| Configurable overflow/backpressure | Built in (`Block`, `DropNewest`, `DropOldest`) | Built in overflow policies | Queue policies documented by Quill | Sink/configuration dependent | — | — |
-| Rotating file sink | Built in | Built in | Built in handlers | Built in sink types | Basic file logging; rotation is a different concern | — |
-| In-memory history and read-back | Built in for selected backends | Extension | Extension | Extension / custom sink | — | — |
-| Live log subscriptions | Built in for selected backends | Extension | Extension | Extension | — | — |
-| Persistent structured storage | Built in optional MDBX backend | Extension | Extension | Extension | — | — |
-| OTLP and Prometheus integrations | Built in optional backends | Extension / adapter | Extension / adapter | Extension / adapter | Extension / adapter | — |
+| Macro-first instrumentation | Built in | Built-in severity macros | Built in macros | Built-in macros over a record/stream model | Built in macros | Core feature |
+| Structured records / attributes | Built in `LogRecord` and values | Formatted messages plus MDC (synchronous logging only); different record model | Built-in named-value logging, JSON output, tags, and MDC; different record model | Built in attribute/event model | Extension / message-centric | Diagnostic values, not a sink record |
+| Capture source argument names | Built in | — | Built in via `LOGV_*` | — | — | Core feature |
+| `{fmt}`-style formatting | Built in when `LOGIT_WITH_FMT=ON` | Built in | Built in | Extension / pre-formatting | Extension / pre-formatting | — |
+| `printf`-style logging | Built in | Extension / pre-formatting | Extension / pre-formatting | Extension / pre-formatting | Built in via low-level `RAW_LOG` | — |
+| Stream-style logging | Built in | Extension / pre-formatting | Extension / pre-formatting | Built in | Built in | Human-readable diagnostic output |
+| Conditional logging helpers | Built in | No dedicated helper; use an application condition | No dedicated helper; use an application condition | Filters and predicates; no equivalent call-site macro | Built in via `LOG_IF` | Configuration helpers, not a logging framework |
+| Rate-limited logging helpers | Built in | No dedicated macro family | Built in via `LOG_*_LIMIT` and `LOGV_*_LIMIT` | Extension / custom filter | Built in via `LOG_EVERY_N`, `LOG_FIRST_N`, and related macros | — |
+| Asynchronous queue | Built in | Built in | Core design | Built in via asynchronous sink frontends | Not the primary model | — |
+| Configurable overflow/backpressure | Built in (`Block`, `DropNewest`, `DropOldest`) | Built in overflow policies | Built-in bounded/unbounded and blocking/dropping queue modes | Built in via bounded async sink queue strategies (`drop_on_overflow`, `block_on_overflow`) | — | — |
+| Rotating file sink | Built in | Built in | Built in via `RotatingFileSink` | Built in sink types | Built-in file rollover/cleanup; different model | — |
+| In-memory history and read-back | Built in for selected backends | Built-in backtrace buffer; no equivalent read-back API | Built-in backtrace logging; no equivalent read-back API | Extension / custom sink | — | — |
+| Live log subscriptions | Built in for selected backends | Built-in callback sink; different model | Extension / custom sink | Extension / custom sink | — | — |
+| Embedded queryable structured storage | Built in via optional MDBX backend | Extension | Extension | Extension | — | — |
+| OTLP / OpenTelemetry log export | Built in optional backend | Extension / adapter | Extension / custom sink | Extension / adapter | Extension / adapter | — |
+| Prometheus metrics | Built in optional backends | Extension / adapter | Built in via `PrometheusSink` | Extension / adapter | Extension / adapter | — |
 | Header-only integration | Built in | Supported mode | CMake/library integration | Compiled Boost component | CMake/library integration | Header-oriented utility |
 
 The word “built in” is intentionally narrow. For example, all of these
@@ -85,10 +89,10 @@ also does more work than a minimal formatted-string call.
 
 spdlog, Quill, and glog also provide useful macro families, but their primary
 abstractions remain logger calls, formatted messages, or severity/check
-macros. Boost.Log emphasizes records, attributes, filters, and sinks rather
-than a single macro facade. IceCream-Cpp is the closest comparison for
-argument-name display, but it deliberately stops short of being a logger
-backend framework.
+macros. Boost.Log provides logging macros over its record, attribute, filter,
+and sink model rather than a single broad macro facade. IceCream-Cpp is the
+closest comparison as a dedicated introspection utility; Quill also captures
+source variable names through its `LOGV_*` logging macros.
 
 ## Why IceCream-Cpp is a different comparison
 
@@ -117,25 +121,29 @@ accepted work.
 spdlog and Quill are closer comparisons for asynchronous throughput and queue
 configuration. Their options, worker topology, and overflow semantics are
 not interchangeable with LogIt++, so a benchmark must hold the workload and
-delivery contract constant. Boost.Log can express asynchronous pipelines
-through sinks and backends, but its configuration model is more general. glog
-and IceCream-Cpp are not primary comparisons for this queue design.
+delivery contract constant. Boost.Log provides asynchronous sink frontends,
+including bounded FIFO queues with drop-on-overflow and block-on-overflow
+strategies, through a more general sink configuration model. glog and
+IceCream-Cpp are not primary comparisons for this queue design.
 
 ## Structured data, storage, and telemetry
 
 Choose LogIt++ when the log record itself is useful after the logging call:
 
 - `MemoryLogger` supports snapshots, readers, and subscribers;
-- file and MDBX backends can retain structured records for later access;
+- `FileLogger` supports persisted-file enumeration and text read-back;
+- `MdbxLogger` retains structured records for later querying;
 - OTLP exporters preserve selected structured attributes and context;
 - Prometheus backends expose application and built-in metrics;
 - MDC/NDC, tags, and argument values can flow through the same record model.
 
 Boost.Log is the closest architectural comparison for an extensible record,
-attribute, filter, and sink pipeline. spdlog and Quill are usually simpler to
-adopt for formatted messages and high-throughput sinks. glog is intentionally
-focused on application diagnostics and severity/check macros. These are
-trade-offs in scope, not a claim that one design is universally better.
+attribute, filter, and sink pipeline. spdlog is usually simpler to adopt for
+formatted messages and high-throughput sinks. Quill combines that performance
+focus with named-value macros, JSON output, tags, and MDC through its own
+record model. glog is focused on application diagnostics and severity/check
+macros. These are trade-offs in scope, not a claim that one design is
+universally better.
 
 ## Performance snapshot
 
@@ -190,11 +198,19 @@ Choose LogIt++ with its trade-offs in mind:
   delivery behavior matter;
 - a header-only C++11 core with optional C++17 integrations fits the project.
 
-**Consider spdlog or Quill when:**
+**Consider spdlog when:**
 
 - the main requirement is a focused, fast formatted-message pipeline;
-- their existing sinks, queue design, or ecosystem match the application;
+- its existing sinks, async queue design, or ecosystem match the application;
 - retaining structured diagnostic records is not necessary.
+
+**Consider Quill when:**
+
+- an asynchronous, low-latency logging pipeline is the main requirement;
+- its named-value macros, JSON output, tags, MDC, and Prometheus metrics fit
+  the structured-data requirements;
+- LogIt++-style persistent structured storage, programmatic read-back, and
+  live subscriptions are not required.
 
 **Consider Boost.Log when:**
 
@@ -207,6 +223,10 @@ Choose LogIt++ with its trade-offs in mind:
 - Google-style severity, check, and diagnostic macros are the primary need;
 - a narrower application logging model is preferable to storage and telemetry
   backends.
+
+The [upstream `google/glog` repository](https://github.com/google/glog) was
+archived and made read-only as of the 2026-09-10 check; account for that
+lifecycle status before adopting it as a new dependency.
 
 **Consider IceCream-Cpp when:**
 
