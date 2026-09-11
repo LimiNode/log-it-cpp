@@ -1,19 +1,16 @@
 var searchData=
 [
-  ['uint16_5fval_0',['UINT16_VAL',['../structlogit_1_1VariableValue.html#aadabf80a158fd1569ca3f761c673c6e9adb47570540547954be1d416536f2f9c8',1,'logit::VariableValue']]],
-  ['uint16_5fvalue_1',['uint16_value',['../structlogit_1_1VariableValue.html#a75add3518fb55bb2b42daf5ea890bad8',1,'logit::VariableValue']]],
-  ['uint32_5fval_2',['UINT32_VAL',['../structlogit_1_1VariableValue.html#aadabf80a158fd1569ca3f761c673c6e9a5789cbbc0a492069cd17f63887878a71',1,'logit::VariableValue']]],
-  ['uint32_5fvalue_3',['uint32_value',['../structlogit_1_1VariableValue.html#ab99997d39329337385ef913e75774857',1,'logit::VariableValue']]],
-  ['uint64_5fval_4',['UINT64_VAL',['../structlogit_1_1VariableValue.html#aadabf80a158fd1569ca3f761c673c6e9a550fe28643c6d6ab2d41012bdc0e3edb',1,'logit::VariableValue']]],
-  ['uint64_5fvalue_5',['uint64_value',['../structlogit_1_1VariableValue.html#a7c8e213da20b0d275aaef3b3c62f7aab',1,'logit::VariableValue']]],
-  ['uint8_5fval_6',['UINT8_VAL',['../structlogit_1_1VariableValue.html#aadabf80a158fd1569ca3f761c673c6e9a7bd6884629a764a9f2ea9699abe9f4af',1,'logit::VariableValue']]],
-  ['uint8_5fvalue_7',['uint8_value',['../structlogit_1_1VariableValue.html#a953ba4c64dba602661e92bf719eb99ff',1,'logit::VariableValue']]],
-  ['unique_5flogger_5fid_8',['UNIQUE_LOGGER_ID',['../example__logit__short__macros_8cpp.html#a43ef5cc9b062d3a7fc3d997744bffb9e',1,'example_logit_short_macros.cpp']]],
-  ['uniquefilelogger_9',['UniqueFileLogger',['../classlogit_1_1UniqueFileLogger.html',1,'logit::UniqueFileLogger'],['../classlogit_1_1UniqueFileLogger.html#a55be631d8dc98d787b0f7173d75fb293',1,'logit::UniqueFileLogger::UniqueFileLogger()'],['../classlogit_1_1UniqueFileLogger.html#a77ddf7511827c616b3cd2387782e6212',1,'logit::UniqueFileLogger::UniqueFileLogger(const Config &amp;config)'],['../classlogit_1_1UniqueFileLogger.html#a4bd4cd863795d4aca2dd3a319b9b8516',1,'logit::UniqueFileLogger::UniqueFileLogger(const std::string &amp;directory, bool async=true, int auto_delete_days=30, size_t hash_length=8)']]],
-  ['uniquefilelogger_2ehpp_10',['UniqueFileLogger.hpp',['../UniqueFileLogger_8hpp.html',1,'']]],
-  ['unknown_5fval_11',['UNKNOWN_VAL',['../structlogit_1_1VariableValue.html#aadabf80a158fd1569ca3f761c673c6e9ade4c5dc187362fb24e97644857b77a7c',1,'logit::VariableValue']]],
-  ['usage_12',['Usage',['../index.html#usage_sec',1,'']]],
-  ['using_20fmt_20optional_13',['Step 4: Using fmt (Optional)',['../index.html#step4',1,'']]],
-  ['using_20macros_20for_20simplicity_14',['Example Using Macros for Simplicity',['../index.html#autotoc_md1',1,'']]],
-  ['utils_2ehpp_15',['utils.hpp',['../utils_8hpp.html',1,'']]]
+  ['queue_0',['queue',['../structlogit_1_1OtlpHttpLoggerState.html#a6a47e2130da351b6409982ec05043f48',1,'logit::OtlpHttpLoggerState']]],
+  ['queue_20back_20pressure_20controls_1',['Queue Back Pressure Controls',['../backpressure.html',1,'Queue Back-Pressure Controls'],['../backpressure.html#autotoc_md70',1,'Queue Back-Pressure Controls']]],
+  ['queue_20buffer_20modes_2',['Queue Buffer Modes',['../api_reference.html#buffer_modes',1,'']]],
+  ['queue_20resize_20tt_20logit_5fuse_5fmpsc_5fring_20tt_3',['3. Hot queue resize (&lt;tt&gt;LOGIT_USE_MPSC_RING&lt;/tt&gt;)',['../task_executor.html#autotoc_md62',1,'']]],
+  ['queue_20semantics_4',['Async delivery and queue semantics',['../comparison.html#autotoc_md27',1,'']]],
+  ['queue_20variants_5',['Backpressure and queue variants',['../api_reference.html#backpressure_sec',1,'']]],
+  ['queue_5fcapacity_6',['queue_capacity',['../structlogit_1_1ConsoleLogger_1_1Config.html#a2d5a0e5f9c141e38593682a96f3a5386',1,'logit::ConsoleLogger::Config::queue_capacity'],['../structlogit_1_1EventLogLogger_1_1Config.html#af69b5b6c9287195727d7ce373c310cd3',1,'logit::EventLogLogger::Config::queue_capacity'],['../structlogit_1_1FileLogger_1_1Config.html#a1964eb0ba4daa6f6520c58e41e552f3b',1,'logit::FileLogger::Config::queue_capacity'],['../structlogit_1_1SyslogLogger_1_1Config.html#a3f248b8caeae0702fc2b6bd5143cbf31',1,'logit::SyslogLogger::Config::queue_capacity'],['../structlogit_1_1UniqueFileLogger_1_1Config.html#a09db7359677b6ce0cd9f452445a5a20a',1,'logit::UniqueFileLogger::Config::queue_capacity'],['../structlogit_1_1WindowsDebugLogger_1_1Config.html#af60e66d1173e39ce8b304ddc431656a6',1,'logit::WindowsDebugLogger::Config::queue_capacity']]],
+  ['queue_5fpolicy_7',['queue_policy',['../structlogit_1_1ConsoleLogger_1_1Config.html#a2372d19c3b0753e7c488d7ae51951415',1,'logit::ConsoleLogger::Config::queue_policy'],['../structlogit_1_1EventLogLogger_1_1Config.html#a1c36b0395312f1a9991a96f29bc7455e',1,'logit::EventLogLogger::Config::queue_policy'],['../structlogit_1_1FileLogger_1_1Config.html#a7048a75e750329e88e0bd55005f5094a',1,'logit::FileLogger::Config::queue_policy'],['../structlogit_1_1SyslogLogger_1_1Config.html#a3ead5062ec7cc4302cdd1bf4cbb39e8d',1,'logit::SyslogLogger::Config::queue_policy'],['../structlogit_1_1UniqueFileLogger_1_1Config.html#a4f16e46eeb5cf2ed14d590deca280935',1,'logit::UniqueFileLogger::Config::queue_policy'],['../structlogit_1_1WindowsDebugLogger_1_1Config.html#ae890b55cd82acca205506ab2e087947d',1,'logit::WindowsDebugLogger::Config::queue_policy']]],
+  ['queuepolicy_8',['QueuePolicy',['../namespacelogit_1_1detail.html#a77f1a331d383a8293d4a3e6efc49f5c2',1,'logit::detail::QueuePolicy'],['../namespacelogit.html#ada06d5c1f7b474b3769f236bf7118dfe',1,'logit::QueuePolicy']]],
+  ['queuepolicy_2ehpp_9',['QueuePolicy.hpp',['../QueuePolicy_8hpp.html',1,'']]],
+  ['quick_20start_10',['Quick start',['../quickstart.html#autotoc_md0',1,'']]],
+  ['quick_20start_20and_20documentation_20map_11',['Quick start and documentation map',['../quickstart.html',1,'']]],
+  ['quickstart_2emd_12',['quickstart.md',['../quickstart_8md.html',1,'']]]
 ];

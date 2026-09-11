@@ -11,7 +11,10 @@ var searchData=
   ['datetime_8',['DateTime',['../structlogit_1_1FormatInstruction.html#a6a3644a7970741bbdd4750d30a8e4ad8a8cf10d2341ed01492506085688270c1e',1,'logit::FormatInstruction']]],
   ['day_9',['Day',['../structlogit_1_1FormatInstruction.html#a6a3644a7970741bbdd4750d30a8e4ad8a03727ac48595a24daed975559c944a44',1,'logit::FormatInstruction']]],
   ['default_10',['Default',['../structlogit_1_1FormatInstruction.html#a9a66c50ca010deee5b94a0dca9ef90a0a7a1920d61156abc05a60135aefe8bc67',1,'logit::FormatInstruction']]],
-  ['double_5fval_11',['DOUBLE_VAL',['../structlogit_1_1VariableValue.html#aadabf80a158fd1569ca3f761c673c6e9a6a3c5df1fb0537503763dc02418668b4',1,'logit::VariableValue']]],
-  ['drop_12',['Drop',['../namespacelogit_1_1detail.html#a77f1a331d383a8293d4a3e6efc49f5c2a3e679cff5b3a6f6f8f32aead541a0a12',1,'logit::detail']]],
-  ['duration_5fval_13',['DURATION_VAL',['../structlogit_1_1VariableValue.html#aadabf80a158fd1569ca3f761c673c6e9a69d1ae3e7e14cdedc42556b0c4a51ca7',1,'logit::VariableValue']]]
+  ['descending_11',['Descending',['../namespacelogit.html#ab262842dc67236ffe4d9f31a7213f1c0ae3cf5ac19407b1a62c6fccaff675a53b',1,'logit']]],
+  ['double_5fval_12',['DOUBLE_VAL',['../structlogit_1_1VariableValue.html#aadabf80a158fd1569ca3f761c673c6e9a6a3c5df1fb0537503763dc02418668b4',1,'logit::VariableValue']]],
+  ['dropnewest_13',['DropNewest',['../namespacelogit_1_1detail.html#a77f1a331d383a8293d4a3e6efc49f5c2aeeea1e87070782ec3cdd75c78984baaa',1,'logit::detail']]],
+  ['dropoldest_14',['DropOldest',['../namespacelogit_1_1detail.html#a77f1a331d383a8293d4a3e6efc49f5c2ae273dab723fc345684a50d971853ccbd',1,'logit::detail']]],
+  ['droppedlogcount_15',['DroppedLogCount',['../namespacelogit.html#a9e415ea803231f2d81a3632b507dff2cab3f355afaf72e90fafc8b71e75fc34e0',1,'logit']]],
+  ['duration_5fval_16',['DURATION_VAL',['../structlogit_1_1VariableValue.html#aadabf80a158fd1569ca3f761c673c6e9a69d1ae3e7e14cdedc42556b0c4a51ca7',1,'logit::VariableValue']]]
 ];

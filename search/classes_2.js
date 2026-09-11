@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['ilogformatter_0',['ILogFormatter',['../classlogit_1_1ILogFormatter.html',1,'logit']]],
-  ['ilogger_1',['ILogger',['../classlogit_1_1ILogger.html',1,'logit']]]
+  ['entry_0',['Entry',['../structlogit_1_1PrometheusRegistry_1_1Entry.html',1,'logit::PrometheusRegistry']]],
+  ['eventloglogger_1',['EventLogLogger',['../classlogit_1_1EventLogLogger.html',1,'logit']]]
 ];

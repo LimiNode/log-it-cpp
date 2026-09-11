@@ -1,9 +1,8 @@
 var searchData=
 [
-  ['logger_2ehpp_0',['Logger.hpp',['../Logger_8hpp.html',1,'']]],
-  ['loggers_2ehpp_1',['loggers.hpp',['../loggers_8hpp.html',1,'']]],
-  ['logit_2ehpp_2',['LogIt.hpp',['../LogIt_8hpp.html',1,'']]],
-  ['logmacros_2ehpp_3',['LogMacros.hpp',['../LogMacros_8hpp.html',1,'']]],
-  ['logrecord_2ehpp_4',['LogRecord.hpp',['../LogRecord_8hpp.html',1,'']]],
-  ['logstream_2ehpp_5',['LogStream.hpp',['../LogStream_8hpp.html',1,'']]]
+  ['ilogformatter_2ehpp_0',['ILogFormatter.hpp',['../ILogFormatter_8hpp.html',1,'']]],
+  ['ilogger_2ehpp_1',['ILogger.hpp',['../ILogger_8hpp.html',1,'']]],
+  ['ilogreader_2ehpp_2',['ILogReader.hpp',['../ILogReader_8hpp.html',1,'']]],
+  ['ilogsubscriber_2ehpp_3',['ILogSubscriber.hpp',['../ILogSubscriber_8hpp.html',1,'']]],
+  ['installation_2emd_4',['installation.md',['../installation_8md.html',1,'']]]
 ];

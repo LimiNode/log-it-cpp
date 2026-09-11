@@ -1,9 +1,12 @@
 var searchData=
 [
-  ['encoding_5futils_2ehpp_0',['encoding_utils.hpp',['../encoding__utils_8hpp.html',1,'']]],
-  ['enums_2ehpp_1',['enums.hpp',['../enums_8hpp.html',1,'']]],
-  ['example_5flogit_5fbasic_2ecpp_2',['example_logit_basic.cpp',['../example__logit__basic_8cpp.html',1,'']]],
-  ['example_5flogit_5fcustom_5fbackend_2ecpp_3',['example_logit_custom_backend.cpp',['../example__logit__custom__backend_8cpp.html',1,'']]],
-  ['example_5flogit_5fcustomized_2ecpp_4',['example_logit_customized.cpp',['../example__logit__customized_8cpp.html',1,'']]],
-  ['example_5flogit_5fshort_5fmacros_2ecpp_5',['example_logit_short_macros.cpp',['../example__logit__short__macros_8cpp.html',1,'']]]
+  ['comparison_2emd_0',['comparison.md',['../comparison_8md.html',1,'']]],
+  ['compressionutils_2ehpp_1',['CompressionUtils.hpp',['../CompressionUtils_8hpp.html',1,'']]],
+  ['compressionworker_2ehpp_2',['CompressionWorker.hpp',['../CompressionWorker_8hpp.html',1,'']]],
+  ['config_2ehpp_3',['config.hpp',['../config_8hpp.html',1,'']]],
+  ['consolelogger_2ehpp_4',['ConsoleLogger.hpp',['../ConsoleLogger_8hpp.html',1,'']]],
+  ['consolestreamroute_2ehpp_5',['ConsoleStreamRoute.hpp',['../ConsoleStreamRoute_8hpp.html',1,'']]],
+  ['crashlogger_2ehpp_6',['CrashLogger.hpp',['../CrashLogger_8hpp.html',1,'']]],
+  ['crashposixlogger_2ehpp_7',['CrashPosixLogger.hpp',['../CrashPosixLogger_8hpp.html',1,'']]],
+  ['crashwindowslogger_2ehpp_8',['CrashWindowsLogger.hpp',['../CrashWindowsLogger_8hpp.html',1,'']]]
 ];

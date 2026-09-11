@@ -1,7 +1,5 @@
 var searchData=
 [
-  ['pattern_0',['pattern',['../structlogit_1_1SimpleLogFormatter_1_1Config.html#acbf8e737f237af8cb50b184cc443ad5a',1,'logit::SimpleLogFormatter::Config']]],
-  ['pending_5flogs_1',['pending_logs',['../structlogit_1_1UniqueFileLogger_1_1ThreadLogInfo.html#a8ad8de686335b1e5760ec431989d872d',1,'logit::UniqueFileLogger::ThreadLogInfo']]],
-  ['pod_5fvalue_2',['pod_value',['../structlogit_1_1VariableValue.html#a2731e7278213924fc549ad4ed1b11843',1,'logit::VariableValue']]],
-  ['print_5fmode_3',['print_mode',['../structlogit_1_1LogRecord.html#ae8ec54cad6862e74aa9b079c7232c83b',1,'logit::LogRecord']]]
+  ['name_0',['name',['../structlogit_1_1PrometheusRegistry_1_1Entry.html#a00f9ee48e091e9fa800ce1f814eaee29',1,'logit::PrometheusRegistry::Entry::name'],['../structlogit_1_1PrometheusLabel.html#a337d99e7ec240e7c84c93b5af3494af7',1,'logit::PrometheusLabel::name'],['../structlogit_1_1PrometheusSample.html#a1f9d570e5e328ac8a720a6ad32b550bd',1,'logit::PrometheusSample::name'],['../structlogit_1_1PrometheusMetricFamily.html#ab4abc65a5b8f45826d65b2d98d5818dd',1,'logit::PrometheusMetricFamily::name'],['../structlogit_1_1LogFileInfo.html#a25229ece486b77b5f0fbcf98df9a2ea3',1,'logit::LogFileInfo::name'],['../structlogit_1_1VariableValue.html#a384ed16552b39216d326bca6409107a7',1,'logit::VariableValue::name']]],
+  ['naming_1',['naming',['../structlogit_1_1FileLogger_1_1Config.html#ad0b34a04249f25bfde8ea21f97e5cf6e',1,'logit::FileLogger::Config']]]
 ];

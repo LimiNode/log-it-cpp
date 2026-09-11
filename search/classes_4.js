@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['pathcomponents_0',['PathComponents',['../structlogit_1_1PathComponents.html',1,'logit']]],
-  ['patterncompiler_1',['PatternCompiler',['../classlogit_1_1PatternCompiler.html',1,'logit']]]
+  ['ilogformatter_0',['ILogFormatter',['../classlogit_1_1ILogFormatter.html',1,'logit']]],
+  ['ilogger_1',['ILogger',['../classlogit_1_1ILogger.html',1,'logit']]],
+  ['ilogreader_2',['ILogReader',['../classlogit_1_1ILogReader.html',1,'logit']]],
+  ['ilogsubscriber_3',['ILogSubscriber',['../classlogit_1_1ILogSubscriber.html',1,'logit']]]
 ];

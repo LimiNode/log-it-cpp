@@ -1,7 +1,25 @@
 var dir_c80fae293bdf57c1c67b4874c22574b2 =
 [
+    [ "ConsoleLogger", "dir_1c7a8da71344a2b48efbd2a453f9a6f4.html", "dir_1c7a8da71344a2b48efbd2a453f9a6f4" ],
+    [ "otlp", "dir_16942dbdfb1b70f713f6ae599cb4ac07.html", "dir_16942dbdfb1b70f713f6ae599cb4ac07" ],
+    [ "prometheus", "dir_e8bc51a9fadc2c185b9e5453b83c4862.html", "dir_e8bc51a9fadc2c185b9e5453b83c4862" ],
     [ "ConsoleLogger.hpp", "ConsoleLogger_8hpp.html", "ConsoleLogger_8hpp" ],
+    [ "CrashLogger.hpp", "CrashLogger_8hpp.html", "CrashLogger_8hpp" ],
+    [ "CrashPosixLogger.hpp", "CrashPosixLogger_8hpp.html", "CrashPosixLogger_8hpp" ],
+    [ "CrashWindowsLogger.hpp", "CrashWindowsLogger_8hpp.html", "CrashWindowsLogger_8hpp" ],
+    [ "EventLogLogger.hpp", "EventLogLogger_8hpp.html", "EventLogLogger_8hpp" ],
     [ "FileLogger.hpp", "FileLogger_8hpp.html", "FileLogger_8hpp" ],
     [ "ILogger.hpp", "ILogger_8hpp.html", "ILogger_8hpp" ],
-    [ "UniqueFileLogger.hpp", "UniqueFileLogger_8hpp.html", "UniqueFileLogger_8hpp" ]
+    [ "ILogReader.hpp", "ILogReader_8hpp.html", "ILogReader_8hpp" ],
+    [ "ILogSubscriber.hpp", "ILogSubscriber_8hpp.html", "ILogSubscriber_8hpp" ],
+    [ "MdbxLogger.hpp", "MdbxLogger_8hpp.html", "MdbxLogger_8hpp" ],
+    [ "MemoryLogger.hpp", "MemoryLogger_8hpp.html", "MemoryLogger_8hpp" ],
+    [ "OtlpHttpLogger.hpp", "OtlpHttpLogger_8hpp.html", "OtlpHttpLogger_8hpp" ],
+    [ "OtlpPayloadLogger.hpp", "OtlpPayloadLogger_8hpp.html", "OtlpPayloadLogger_8hpp" ],
+    [ "PrometheusHttpServerLogger.hpp", "PrometheusHttpServerLogger_8hpp.html", "PrometheusHttpServerLogger_8hpp" ],
+    [ "PrometheusPayloadLogger.hpp", "PrometheusPayloadLogger_8hpp.html", "PrometheusPayloadLogger_8hpp" ],
+    [ "SyslogLogger.hpp", "SyslogLogger_8hpp.html", "SyslogLogger_8hpp" ],
+    [ "SystemLogger.hpp", "SystemLogger_8hpp.html", "SystemLogger_8hpp" ],
+    [ "UniqueFileLogger.hpp", "UniqueFileLogger_8hpp.html", "UniqueFileLogger_8hpp" ],
+    [ "WindowsDebugLogger.hpp", "WindowsDebugLogger_8hpp.html", "WindowsDebugLogger_8hpp" ]
 ];

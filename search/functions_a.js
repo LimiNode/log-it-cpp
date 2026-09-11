@@ -1,7 +1,8 @@
 var searchData=
 [
-  ['on_5fexit_5fhandler_0',['on_exit_handler',['../classlogit_1_1Logger.html#aba08f203435bb262e029f554dc180f36',1,'logit::Logger']]],
-  ['open_5flog_5ffile_1',['open_log_file',['../classlogit_1_1FileLogger.html#abef1a66fa8f1fd1cde468cce8e82f8d8',1,'logit::FileLogger']]],
-  ['operator_3c_3c_2',['operator&lt;&lt;',['../classlogit_1_1LogStream.html#a199cea90a80f3386c73e262e36528abc',1,'logit::LogStream::operator&lt;&lt;(const T &amp;value)'],['../classlogit_1_1LogStream.html#ae57de7f0308363d47ff56633a304d72e',1,'logit::LogStream::operator&lt;&lt;(std::ostream &amp;(*manip)(std::ostream &amp;))'],['../example__logit__basic_8cpp.html#ae09d6484db2244c3eb317883ba8abca1',1,'operator&lt;&lt;():&#160;example_logit_basic.cpp']]],
-  ['operator_3d_3',['operator=',['../classlogit_1_1detail_1_1TaskExecutor.html#a5019cccb69d29cd52d43c9ce66c9c6ee',1,'logit::detail::TaskExecutor::operator=(const TaskExecutor &amp;)=delete'],['../classlogit_1_1detail_1_1TaskExecutor.html#a87508601908e420b4b821836ed3a0135',1,'logit::detail::TaskExecutor::operator=(TaskExecutor &amp;&amp;)=delete'],['../classlogit_1_1Logger.html#a5be1e4fe455bcdadee4fa88866a99f7e',1,'logit::Logger::operator=(const Logger &amp;)=delete'],['../classlogit_1_1Logger.html#ac6f33c7d76748f2056584f02c99b3565',1,'logit::Logger::operator=(Logger &amp;&amp;)=delete'],['../structlogit_1_1VariableValue.html#a3c2642e81f29b8db75e9127ddc2af657',1,'logit::VariableValue::operator=()']]]
+  ['name_0',['name',['../classCustomErrorCategory.html#a9fe259d274429e5256f240d9c3dadc32',1,'CustomErrorCategory']]],
+  ['next_5frecord_5fkey_5flocked_1',['next_record_key_locked',['../classlogit_1_1MdbxLogger.html#a3481fb278dc1940fdbb7b0ffe14e4ef1',1,'logit::MdbxLogger']]],
+  ['normalize_5fconfig_2',['normalize_config',['../classlogit_1_1MdbxLogger.html#a047b8ed7261ba24c6ef419d447201d70',1,'logit::MdbxLogger']]],
+  ['normalize_5fpath_5fseparators_3',['normalize_path_separators',['../classlogit_1_1FileLogger.html#a436ebc7876775806a30c683b7130bf80',1,'logit::FileLogger::normalize_path_separators()'],['../classlogit_1_1UniqueFileLogger.html#a13657e5ac0957769693019cae3628184',1,'logit::UniqueFileLogger::normalize_path_separators()']]],
+  ['notify_5fcallbacks_4',['notify_callbacks',['../classlogit_1_1MdbxLogger.html#aa275b9f86218ee67e06269286e329a83',1,'logit::MdbxLogger::notify_callbacks()'],['../classlogit_1_1MemoryLogger.html#a53f7425df59d3e3b3ccb8e707c582bd6',1,'logit::MemoryLogger::notify_callbacks()']]]
 ];

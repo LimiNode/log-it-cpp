@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['textcolor_0',['TextColor',['../namespacelogit.html#aa63786fdda1bd7b89a591a13fd12bb31',1,'logit']]]
+  ['otlpcompression_0',['OtlpCompression',['../namespacelogit.html#a314eec838235b151614e9a9732865a8c',1,'logit']]]
 ];

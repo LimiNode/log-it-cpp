@@ -1,4 +1,4 @@
 var encoding__utils_8hpp =
 [
-    [ "_LOGIT_ENCODING_UTILS_HPP_INCLUDED", "encoding__utils_8hpp.html#a6ba91d688f89e9f5f03899407e5697c5", null ]
+    [ "LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_UTILS_ENCODING_UTILS_HPP_INCLUDED", "encoding__utils_8hpp.html#a24cd325b25ce0c8638816505cc1f3791", null ]
 ];

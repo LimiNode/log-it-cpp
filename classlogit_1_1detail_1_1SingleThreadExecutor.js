@@ -1,0 +1,27 @@
+var classlogit_1_1detail_1_1SingleThreadExecutor =
+[
+    [ "SingleThreadExecutor", "classlogit_1_1detail_1_1SingleThreadExecutor.html#aee821748c41d1bd03d72abb393f49f57", null ],
+    [ "~SingleThreadExecutor", "classlogit_1_1detail_1_1SingleThreadExecutor.html#a49116fce841a530e5e928905591f402b", null ],
+    [ "SingleThreadExecutor", "classlogit_1_1detail_1_1SingleThreadExecutor.html#aba9cde11a45935efa4ba52eb81b79e34", null ],
+    [ "SingleThreadExecutor", "classlogit_1_1detail_1_1SingleThreadExecutor.html#a65f81701c6df17c110096c35f8d4fe5a", null ],
+    [ "add_task", "classlogit_1_1detail_1_1SingleThreadExecutor.html#a506da3953bd683f9f6d68f095d1a0ebf", null ],
+    [ "dropped_tasks", "classlogit_1_1detail_1_1SingleThreadExecutor.html#a80fbfb7f99ac4eb11589c2f60687f647", null ],
+    [ "operator=", "classlogit_1_1detail_1_1SingleThreadExecutor.html#a445be6e7266a6be0b809d95d252dc42a", null ],
+    [ "operator=", "classlogit_1_1detail_1_1SingleThreadExecutor.html#a2776c2e93dc1bce9006e7efdef2f7ae9", null ],
+    [ "reset_dropped_tasks", "classlogit_1_1detail_1_1SingleThreadExecutor.html#ae7d9246e26a91e0aac4571e7083b3390", null ],
+    [ "set_max_queue_size", "classlogit_1_1detail_1_1SingleThreadExecutor.html#a3ce24e4803e8462a67b376a42191f039", null ],
+    [ "set_queue_policy", "classlogit_1_1detail_1_1SingleThreadExecutor.html#a987c98254217a1e8de1c010bb82562a0", null ],
+    [ "shutdown", "classlogit_1_1detail_1_1SingleThreadExecutor.html#af25e777b82d33d670728ef280a0c3e1a", null ],
+    [ "wait", "classlogit_1_1detail_1_1SingleThreadExecutor.html#a0296eac552050c4ca26c120188194132", null ],
+    [ "worker_loop", "classlogit_1_1detail_1_1SingleThreadExecutor.html#a0e8461a3ece0a9522005cb142c747033", null ],
+    [ "m_active_tasks", "classlogit_1_1detail_1_1SingleThreadExecutor.html#abb53fb29886977a60d263ed6add32c10", null ],
+    [ "m_cv", "classlogit_1_1detail_1_1SingleThreadExecutor.html#acc1d35b3af5ea2de45320baa8e9dd568", null ],
+    [ "m_dropped_tasks", "classlogit_1_1detail_1_1SingleThreadExecutor.html#a0973105e2560a64b31d1018f1a978b12", null ],
+    [ "m_max_queue_size", "classlogit_1_1detail_1_1SingleThreadExecutor.html#a42a8173be91ed273dce2e01bb3bfdc99", null ],
+    [ "m_mutex", "classlogit_1_1detail_1_1SingleThreadExecutor.html#a30b395c178add84364235eef3e27f1b8", null ],
+    [ "m_overflow_policy", "classlogit_1_1detail_1_1SingleThreadExecutor.html#a847948995aa4bfd60f51175f693df669", null ],
+    [ "m_queue", "classlogit_1_1detail_1_1SingleThreadExecutor.html#aaa0f74edf918ec7d0b0933b82dff4fba", null ],
+    [ "m_shutdown_done", "classlogit_1_1detail_1_1SingleThreadExecutor.html#a21a1e85baffa104300ccd7b715deb57a", null ],
+    [ "m_stop", "classlogit_1_1detail_1_1SingleThreadExecutor.html#a423374c89fcd4ea05590a8a262387c06", null ],
+    [ "m_worker", "classlogit_1_1detail_1_1SingleThreadExecutor.html#a3ca27677285c89370edab44ca80a2582", null ]
+];

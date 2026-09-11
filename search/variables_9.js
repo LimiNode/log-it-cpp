@@ -1,11 +1,7 @@
 var searchData=
 [
-  ['last_5ffile_5fname_0',['last_file_name',['../structlogit_1_1UniqueFileLogger_1_1ThreadLogInfo.html#af1e74e31fc4ce79525705de138ad9bcb',1,'logit::UniqueFileLogger::ThreadLogInfo']]],
-  ['last_5ffile_5fpath_1',['last_file_path',['../structlogit_1_1UniqueFileLogger_1_1ThreadLogInfo.html#a405bcbe200ad81dca3b9dc6cd60dbb34',1,'logit::UniqueFileLogger::ThreadLogInfo']]],
-  ['left_5falign_2',['left_align',['../structlogit_1_1FormatInstruction.html#ac86749e4633d3c8790223948d2739727',1,'logit::FormatInstruction']]],
-  ['line_3',['line',['../structlogit_1_1LogRecord.html#a4391320be1edb2148a1152bfaa7ce95c',1,'logit::LogRecord']]],
-  ['log_5flevel_4',['log_level',['../structlogit_1_1LogRecord.html#a568090fa7e3e34a23d895c9f6485a541',1,'logit::LogRecord']]],
-  ['logger_5',['logger',['../structlogit_1_1Logger_1_1LoggerStrategy.html#a8aa5132097aec9c2a87f31e27d71334a',1,'logit::Logger::LoggerStrategy']]],
-  ['logger_5findex_6',['logger_index',['../structlogit_1_1LogRecord.html#a115c38e46963ba500d6afcffa40f350c',1,'logit::LogRecord']]],
-  ['long_5fdouble_5fvalue_7',['long_double_value',['../structlogit_1_1VariableValue.html#a158877c821067242de79c53c46c209f1',1,'logit::VariableValue']]]
+  ['kdefaultbuffersize_0',['kDefaultBufferSize',['../classlogit_1_1CrashPosixLogger.html#ae5ac528f313ba4aeac0f15aa78b9edfb',1,'logit::CrashPosixLogger::kDefaultBufferSize'],['../classlogit_1_1CrashWindowsLogger.html#adc0c905864712a205fe3e2168bb770f0',1,'logit::CrashWindowsLogger::kDefaultBufferSize']]],
+  ['kind_1',['kind',['../structlogit_1_1ConsoleStreamRoute.html#af35a31ef9870603e3e200fc6d27e32f5',1,'logit::ConsoleStreamRoute']]],
+  ['kind_5frank_2',['kind_rank',['../structlogit_1_1FileLogger_1_1FileSortKey.html#aedd7f3af18064ed94ed395e1f38540c1',1,'logit::FileLogger::FileSortKey']]],
+  ['kmaxbuffersize_3',['kMaxBufferSize',['../classlogit_1_1CrashPosixLogger.html#af6f9c3c2049362e2787604e156e878b9',1,'logit::CrashPosixLogger::kMaxBufferSize'],['../classlogit_1_1CrashWindowsLogger.html#ac63852eb903b6c2c4aaea0caaf07903d',1,'logit::CrashWindowsLogger::kMaxBufferSize']]]
 ];

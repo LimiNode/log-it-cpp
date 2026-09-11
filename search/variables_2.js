@@ -1,9 +1,19 @@
 var searchData=
 [
-  ['center_5falign_0',['center_align',['../structlogit_1_1FormatInstruction.html#a51d02027ece52ac3283aa0329f23998d',1,'logit::FormatInstruction']]],
-  ['char_5fvalue_1',['char_value',['../structlogit_1_1VariableValue.html#ace994beb0b40eb5152a483e6ad48842d',1,'logit::VariableValue']]],
-  ['components_2',['components',['../structlogit_1_1PathComponents.html#ae98b306dec832103a6d69b772b4162ec',1,'logit::PathComponents']]],
-  ['compress_5fcmd_3',['compress_cmd',['../structlogit_1_1FileLogger_1_1Config.html#a07afdc47f2a1fc5421e94d0ef62fa1cc',1,'logit::FileLogger::Config']]],
-  ['compress_5frotated_4',['compress_rotated',['../structlogit_1_1FileLogger_1_1Config.html#a2e4797fc3a0fa274b21996c9061322a1',1,'logit::FileLogger::Config']]],
-  ['context_5',['context',['../structlogit_1_1FormatInstruction.html#a7663e50eaa0cdb6b6757bbd348e80540',1,'logit::FormatInstruction']]]
+  ['cancel_5fon_5fshutdown_0',['cancel_on_shutdown',['../structlogit_1_1OtlpHttpLogger_1_1Config.html#ae7d331b402a3c336a82aeeb121a75ea3',1,'logit::OtlpHttpLogger::Config']]],
+  ['center_5falign_1',['center_align',['../structlogit_1_1FormatInstruction.html#a51d02027ece52ac3283aa0329f23998d',1,'logit::FormatInstruction']]],
+  ['char_5fvalue_2',['char_value',['../structlogit_1_1VariableValue.html#ace994beb0b40eb5152a483e6ad48842d',1,'logit::VariableValue']]],
+  ['cleared_5frecords_3',['cleared_records',['../structlogit_1_1LogClearResult.html#a34143fad6cdefecfc469ae8360ee2889',1,'logit::LogClearResult']]],
+  ['components_4',['components',['../structlogit_1_1PathComponents.html#ae98b306dec832103a6d69b772b4162ec',1,'logit::PathComponents']]],
+  ['compress_5',['compress',['../structlogit_1_1FileLogger_1_1Config.html#aa23a870b3e978c543abc173ae104e2d0',1,'logit::FileLogger::Config']]],
+  ['compress_5fasync_6',['compress_async',['../structlogit_1_1FileLogger_1_1Config.html#a80342438466ca6154dd105f7b2e686e2',1,'logit::FileLogger::Config']]],
+  ['compress_5flevel_7',['compress_level',['../structlogit_1_1FileLogger_1_1Config.html#aa86136a0934b5795213adc84f5938820',1,'logit::FileLogger::Config']]],
+  ['compression_8',['compression',['../structlogit_1_1MdbxLogger_1_1PayloadView.html#ac5aefe97dc2fe81b1d8dc444e5a82632',1,'logit::MdbxLogger::PayloadView::compression'],['../structlogit_1_1MdbxLogger_1_1Payload.html#a7b0fe390c66ccf6ffa0f3562b44cc8f4',1,'logit::MdbxLogger::Payload::compression'],['../structlogit_1_1OtlpHttpLogger_1_1Config.html#a65625128b9df85e805872cc1c57d3964',1,'logit::OtlpHttpLogger::Config::compression']]],
+  ['compression_5flevel_9',['compression_level',['../structlogit_1_1OtlpHttpLogger_1_1Config.html#a890e883a0be96a19913210546b95ea23',1,'logit::OtlpHttpLogger::Config']]],
+  ['const_5flabels_10',['const_labels',['../structlogit_1_1PrometheusTextFormatConfig.html#ad889a7a1de34c62d9b3363dab742f7f2',1,'logit::PrometheusTextFormatConfig']]],
+  ['content_11',['content',['../structlogit_1_1LogFileReadResult.html#ab3d098aa62b9970f6a02d93e60cce9e8',1,'logit::LogFileReadResult']]],
+  ['context_12',['context',['../structlogit_1_1FormatInstruction.html#a7663e50eaa0cdb6b6757bbd348e80540',1,'logit::FormatInstruction']]],
+  ['context_5fkey_13',['context_key',['../structlogit_1_1FormatInstruction.html#af1475e2d906372caefd3cac5ff1908bd',1,'logit::FormatInstruction']]],
+  ['custom_5fstream_14',['custom_stream',['../structlogit_1_1ConsoleStreamRoute.html#aef442d18fcf5193f70a11c3f3fdb998a',1,'logit::ConsoleStreamRoute']]],
+  ['cv_15',['cv',['../structlogit_1_1OtlpHttpLoggerState.html#a2dc0d105cc387e1a16153555048ff5c6',1,'logit::OtlpHttpLoggerState']]]
 ];

@@ -1,8 +1,27 @@
 var searchData=
 [
-  ['int16_5fvalue_0',['int16_value',['../structlogit_1_1VariableValue.html#aec53c065789ac012e52ac3dcd6105af8',1,'logit::VariableValue']]],
-  ['int32_5fvalue_1',['int32_value',['../structlogit_1_1VariableValue.html#a769929d5c1dcde1e44e3ffdac03abe5e',1,'logit::VariableValue']]],
-  ['int64_5fvalue_2',['int64_value',['../structlogit_1_1VariableValue.html#ab472e9c282c57ed9ef77ded999374b16',1,'logit::VariableValue']]],
-  ['int8_5fvalue_3',['int8_value',['../structlogit_1_1VariableValue.html#a51a9d9271eab4acf5e20452a3188a0fa',1,'logit::VariableValue']]],
-  ['is_5fliteral_4',['is_literal',['../structlogit_1_1VariableValue.html#a76916b5233ebe2c66703e01786211e3b',1,'logit::VariableValue']]]
+  ['ident_0',['ident',['../structlogit_1_1SyslogLogger_1_1Config.html#ac52188ba9055f80ae635cda720dacd6d',1,'logit::SyslogLogger::Config']]],
+  ['include_5farg_5fnames_1',['include_arg_names',['../structlogit_1_1OtlpJsonFormatConfig.html#a7ab68f356ae21dcd90948538e64b3da4',1,'logit::OtlpJsonFormatConfig']]],
+  ['include_5fargs_2',['include_args',['../structlogit_1_1OtlpJsonFormatConfig.html#aa6205d78d6cf0fafa2d2669d0a2f9992',1,'logit::OtlpJsonFormatConfig']]],
+  ['include_5fbuild_5finfo_3',['include_build_info',['../structlogit_1_1PrometheusTextFormatConfig.html#a04e23589b7b229651f33b61634c97797',1,'logit::PrometheusTextFormatConfig']]],
+  ['include_5fformat_4',['include_format',['../structlogit_1_1OtlpJsonFormatConfig.html#a2e4b0c090e855ad0bdc7a544b8110098',1,'logit::OtlpJsonFormatConfig']]],
+  ['include_5fhelp_5',['include_help',['../structlogit_1_1PrometheusTextFormatConfig.html#a9475d0ecf0ceba074d2567833f2b01c2',1,'logit::PrometheusTextFormatConfig']]],
+  ['include_5finstance_5flabel_6',['include_instance_label',['../structlogit_1_1PrometheusTextFormatConfig.html#a6361f140c1e940875a00b9cb024b7c84',1,'logit::PrometheusTextFormatConfig']]],
+  ['include_5flogger_5flabel_7',['include_logger_label',['../structlogit_1_1PrometheusTextFormatConfig.html#a9c57ab384fab117d89864b7b9dfbef82',1,'logit::PrometheusTextFormatConfig']]],
+  ['include_5fpayloads_8',['include_payloads',['../structlogit_1_1LogClearOptions.html#a8636cf96c766cc9cf0acf70ce5299084',1,'logit::LogClearOptions']]],
+  ['include_5fpersistent_5frecords_9',['include_persistent_records',['../structlogit_1_1LogClearOptions.html#a4c02e19475997d1dd61966a405c73103',1,'logit::LogClearOptions']]],
+  ['include_5fsessions_10',['include_sessions',['../structlogit_1_1LogClearOptions.html#ad19ee37cee2cc8e76e5df7b57061f43f',1,'logit::LogClearOptions']]],
+  ['include_5fsource_11',['include_source',['../structlogit_1_1OtlpJsonFormatConfig.html#a60743957fb350d9465750ed269d973eb',1,'logit::OtlpJsonFormatConfig']]],
+  ['include_5fthread_5fid_12',['include_thread_id',['../structlogit_1_1OtlpJsonFormatConfig.html#a05d48759d9d7652c7a4a54c270689840',1,'logit::OtlpJsonFormatConfig']]],
+  ['include_5ftimestamp_13',['include_timestamp',['../structlogit_1_1PrometheusTextFormatConfig.html#a09e9a8599ccab0fa5f5d606612faea83',1,'logit::PrometheusTextFormatConfig']]],
+  ['include_5ftype_14',['include_type',['../structlogit_1_1PrometheusTextFormatConfig.html#ab2a42bcf17ca6fe39039c1409e746238',1,'logit::PrometheusTextFormatConfig']]],
+  ['instance_5flabel_5fname_15',['instance_label_name',['../structlogit_1_1PrometheusTextFormatConfig.html#a79e4e4af4b44ddac858237ae99d465c8',1,'logit::PrometheusTextFormatConfig']]],
+  ['instance_5flabel_5fvalue_16',['instance_label_value',['../structlogit_1_1PrometheusTextFormatConfig.html#a551eb9bb38cfc6a316b4c4a2d46fcba0',1,'logit::PrometheusTextFormatConfig']]],
+  ['int16_5fvalue_17',['int16_value',['../structlogit_1_1VariableValue.html#aec53c065789ac012e52ac3dcd6105af8',1,'logit::VariableValue']]],
+  ['int32_5fvalue_18',['int32_value',['../structlogit_1_1VariableValue.html#a769929d5c1dcde1e44e3ffdac03abe5e',1,'logit::VariableValue']]],
+  ['int64_5fvalue_19',['int64_value',['../structlogit_1_1VariableValue.html#ab472e9c282c57ed9ef77ded999374b16',1,'logit::VariableValue']]],
+  ['int8_5fvalue_20',['int8_value',['../structlogit_1_1VariableValue.html#a51a9d9271eab4acf5e20452a3188a0fa',1,'logit::VariableValue']]],
+  ['is_5fcompressed_21',['is_compressed',['../structlogit_1_1LogFileInfo.html#aee40cb4b78325b4c038d7e697cff50eb',1,'logit::LogFileInfo']]],
+  ['is_5fcurrent_22',['is_current',['../structlogit_1_1LogFileInfo.html#a27cd4c95ab35b93a624bed89f2304541',1,'logit::LogFileInfo']]],
+  ['is_5fliteral_23',['is_literal',['../structlogit_1_1VariableValue.html#a76916b5233ebe2c66703e01786211e3b',1,'logit::VariableValue']]]
 ];

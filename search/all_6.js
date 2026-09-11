@@ -1,25 +1,4 @@
 var searchData=
 [
-  ['a_20custom_20console_20logger_20format_0',['Example for Setting a Custom Console Logger Format',['../index.html#autotoc_md0',1,'']]],
-  ['abbreviatedmonthname_1',['AbbreviatedMonthName',['../structlogit_1_1FormatInstruction.html#a6a3644a7970741bbdd4750d30a8e4ad8a99f62b9939a80101815ca4080d1fe257',1,'logit::FormatInstruction']]],
-  ['abbreviatedweekdayname_2',['AbbreviatedWeekdayName',['../structlogit_1_1FormatInstruction.html#a6a3644a7970741bbdd4750d30a8e4ad8a39db0b1ea1beaf9f5119bf84f1525b93',1,'logit::FormatInstruction']]],
-  ['add_5flogger_3',['add_logger',['../classlogit_1_1Logger.html#a4e975699ce6b243f498cf05ec1d35b89',1,'logit::Logger']]],
-  ['add_5ftask_4',['add_task',['../classlogit_1_1detail_1_1TaskExecutor.html#ad07bd46d062a1cc4c9b90226af489fd3',1,'logit::detail::TaskExecutor']]],
-  ['advanced_20path_20handling_5',['Advanced Path Handling',['../index.html#advanced_path_handling',1,'']]],
-  ['alignment_20and_20truncation_6',['Alignment and Truncation',['../index.html#alignment_truncation_flags',1,'']]],
-  ['and_20formatter_7',['Custom Logger Backend and Formatter',['../index.html#custom_backend_sec',1,'']]],
-  ['and_20function_20information_8',['File and Function Information',['../index.html#file_function_flags',1,'']]],
-  ['and_20month_20names_9',['Weekday and Month Names',['../index.html#weekday_month_flags',1,'']]],
-  ['and_20run_20your_20project_10',['Step 5: Build and Run Your Project',['../index.html#step5',1,'']]],
-  ['and_20time_20flags_11',['Date and Time Flags',['../index.html#datetime_flags',1,'']]],
-  ['and_20truncation_12',['Alignment and Truncation',['../index.html#alignment_truncation_flags',1,'']]],
-  ['apply_13',['apply',['../structlogit_1_1FormatInstruction.html#a5965e36b6cd1a20461826c245e733c5d',1,'logit::FormatInstruction']]],
-  ['arg_5fnames_14',['arg_names',['../structlogit_1_1LogRecord.html#ad41f7c5f150fa9af6b6850efd83da678',1,'logit::LogRecord']]],
-  ['args_5farray_15',['args_array',['../structlogit_1_1LogRecord.html#aafa2dbe0b4bdcfb8007524aecc018fa4',1,'logit::LogRecord']]],
-  ['args_5fto_5farray_16',['args_to_array',['../namespacelogit.html#a233ff3fa2eaa7ddc4d076239b0c05ae2',1,'logit::args_to_array(std::vector&lt; std::string &gt;::const_iterator)'],['../namespacelogit.html#ac61cbb6336ea2c74d086799e21fab375',1,'logit::args_to_array(std::vector&lt; std::string &gt;::const_iterator name_iter, const T &amp;first_arg, const Ts &amp;... args)']]],
-  ['argument_5futils_2ehpp_17',['argument_utils.hpp',['../argument__utils_8hpp.html',1,'']]],
-  ['async_18',['async',['../structlogit_1_1ConsoleLogger_1_1Config.html#a0b1e6f055d48ec52f2549fffe0735255',1,'logit::ConsoleLogger::Config::async'],['../structlogit_1_1FileLogger_1_1Config.html#a7ed1376311c09df400755df8907e2317',1,'logit::FileLogger::Config::async'],['../structlogit_1_1UniqueFileLogger_1_1Config.html#ae3391a99bdce136dc44843853119c6d5',1,'logit::UniqueFileLogger::Config::async']]],
-  ['asynchronous_20logging_19',['Asynchronous Logging',['../index.html#async_logging',1,'']]],
-  ['auto_5fdelete_5fdays_20',['auto_delete_days',['../structlogit_1_1FileLogger_1_1Config.html#a796ec08314addbfc674c82bea43619b7',1,'logit::FileLogger::Config::auto_delete_days'],['../structlogit_1_1UniqueFileLogger_1_1Config.html#a05cef9944fbb97e85fb77012b8a92633',1,'logit::UniqueFileLogger::Config::auto_delete_days']]],
-  ['available_20trace_20level_20macros_3a_21',['Available TRACE-level macros:',['../index.html#autotoc_md2',1,'']]]
+  ['7_20api_20surface_20and_20macros_0',['7. API surface and macros',['../task_executor.html#autotoc_md66',1,'']]]
 ];

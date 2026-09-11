@@ -1,6 +1,5 @@
 var config_8hpp =
 [
-    [ "_LOGIT_CONFIG_HPP_INCLUDED", "config_8hpp.html#a88ccde7736a52e6ffc7f197e1e5b7baa", null ],
     [ "LOGIT_BASE_PATH", "group__ConfigMacros.html#ga3bf179993f836ab365df8a1888cd027d", null ],
     [ "LOGIT_COLOR_DEBUG", "config_8hpp.html#a16d0c5795c8966a9226aa476f61dd7f9", null ],
     [ "LOGIT_COLOR_DEFAULT", "config_8hpp.html#a4010311f751d0e30af97a8a35ad033eb", null ],
@@ -10,16 +9,28 @@ var config_8hpp =
     [ "LOGIT_COLOR_TRACE", "config_8hpp.html#a8237308da4156b0d57d2bd740f04bb86", null ],
     [ "LOGIT_COLOR_WARN", "config_8hpp.html#a901c2b4ba0cf5dd768cb227a4edc348e", null ],
     [ "LOGIT_CONSOLE_PATTERN", "config_8hpp.html#ae21dc36eb3e43139cacbd07c92bea9b9", null ],
+    [ "LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_CONFIG_HPP_INCLUDED", "config_8hpp.html#a6b32afd2fb3c4f5f2da84e1a4c58e215", null ],
     [ "LOGIT_CURRENT_TIMESTAMP_MS", "config_8hpp.html#ad80a264403426b63d7ecc1d1429ae030", null ],
     [ "LOGIT_DEFAULT_COLOR", "group__ConfigMacros.html#ga496ab9af419e4bccd182b25573387c08", null ],
     [ "LOGIT_FILE_LOGGER_AUTO_DELETE_DAYS", "config_8hpp.html#ab4d42b8c5a8fe2468557178ce120780b", null ],
-    [ "LOGIT_FILE_LOGGER_COMPRESS_CMD", "config_8hpp.html#a3ee988e93008c4d783d78049a2e8bc8a", null ],
-    [ "LOGIT_FILE_LOGGER_COMPRESS_ROTATED", "config_8hpp.html#a842d11066b7d6235029da21fc02a8737", null ],
     [ "LOGIT_FILE_LOGGER_MAX_FILE_SIZE_BYTES", "config_8hpp.html#adb0a339d0691331255881f1c76de886d", null ],
     [ "LOGIT_FILE_LOGGER_MAX_ROTATED_FILES", "config_8hpp.html#ac53ea2ae1b297346387da2122a326bad", null ],
     [ "LOGIT_FILE_LOGGER_PATH", "config_8hpp.html#a0f7223e40eee5ab323ba83d779b471c9", null ],
     [ "LOGIT_FILE_LOGGER_PATTERN", "config_8hpp.html#afeff518c76cf3749e91fdb8ad5e64bfa", null ],
+    [ "LOGIT_MONOTONIC_MS", "config_8hpp.html#afad2d53d834f9b450b092a2607e53be1", null ],
+    [ "LOGIT_OS_ERROR_JOIN", "config_8hpp.html#a809b004fe4174fae2a790d9ec60cc1ac", null ],
+    [ "LOGIT_POSIX_ERROR_PATTERN", "config_8hpp.html#a275c30663093431fd34b78f144eb2a9b", null ],
+    [ "LOGIT_SYSTEM_ERROR_PATTERN", "config_8hpp.html#a8dd8c692bfb2797e755308c84dfa54cb", null ],
+    [ "LOGIT_TAG_KV_SEP", "config_8hpp.html#a91741cdc0f21ab229dc1d4845bf91a64", null ],
+    [ "LOGIT_TAG_PAIR_SEP", "config_8hpp.html#a242b694d55f1c0eecff2d623b3438d8e", null ],
+    [ "LOGIT_TAG_QUOTE_VALUES", "config_8hpp.html#a1d668ae900f398cd4aac72f77ba3c203", null ],
+    [ "LOGIT_TAGS_JOIN", "config_8hpp.html#ac8fa580f3dc4818eb7f5da0f86c7cc59", null ],
+    [ "LOGIT_TASK_EXECUTOR_BLOCK_WAIT_USEC", "group__ConfigMacros.html#ga288e11993d726523d8a1220e8d053402", null ],
+    [ "LOGIT_TASK_EXECUTOR_DEFAULT_RING_CAPACITY", "config_8hpp.html#a783d61011221940c7002314de476cda1", null ],
+    [ "LOGIT_TASK_EXECUTOR_DRAIN_BUDGET", "config_8hpp.html#a2fa733e72aab4f4d9b3d31b9e995314a", null ],
     [ "LOGIT_UNIQUE_FILE_LOGGER_HASH_LENGTH", "config_8hpp.html#addb32afd844c2d2ecbc0637289e509b6", null ],
     [ "LOGIT_UNIQUE_FILE_LOGGER_PATH", "config_8hpp.html#af3e134818fca6df9710fa145ea62044a", null ],
-    [ "LOGIT_UNIQUE_FILE_LOGGER_PATTERN", "config_8hpp.html#a9084ea16f31554bdf35137910c027811", null ]
+    [ "LOGIT_UNIQUE_FILE_LOGGER_PATTERN", "config_8hpp.html#a9084ea16f31554bdf35137910c027811", null ],
+    [ "LOGIT_WALLCLOCK_MS", "config_8hpp.html#adbca5c8d098b599e3e0128bea0038c77", null ],
+    [ "LOGIT_WINDOWS_ERROR_PATTERN", "config_8hpp.html#ac05e6b5e8387489a9d5c9be78eb20ff0", null ]
 ];

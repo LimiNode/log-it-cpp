@@ -1,12 +1,20 @@
 var searchData=
 [
-  ['red_0',['RED',['../example__logit__short__macros_8cpp.html#ab983350d6d1201c0ebd709320e7a0d50af80f9a890089d211842d59625e561f88',1,'RED:&#160;example_logit_short_macros.cpp'],['../example__logit__basic_8cpp.html#ab983350d6d1201c0ebd709320e7a0d50aa2d9547b5d3dd9f05984475f7c926da0',1,'RED:&#160;example_logit_basic.cpp'],['../example__logit__short__macros_8cpp.html#ab983350d6d1201c0ebd709320e7a0d50aa2d9547b5d3dd9f05984475f7c926da0',1,'RED:&#160;example_logit_basic.cpp']]],
-  ['red_1',['Red',['../namespacelogit.html#aa63786fdda1bd7b89a591a13fd12bb31aee38e4d5dd68c4e440825018d549cb47',1,'logit']]],
-  ['remove_5fansi_5fescape_5fcodes_2',['remove_ansi_escape_codes',['../structlogit_1_1FormatInstruction.html#acea0c9eb68183459fb6ba3caddf02b4e',1,'logit::FormatInstruction']]],
-  ['remove_5fold_5flogs_3',['remove_old_logs',['../classlogit_1_1FileLogger.html#a21b8741d411d770d6c208b74b0987336',1,'logit::FileLogger::remove_old_logs()'],['../classlogit_1_1UniqueFileLogger.html#ad7a74dbb7bc17d7468b2a11673bdbe8c',1,'logit::UniqueFileLogger::remove_old_logs()']]],
-  ['repository_4',['Repository',['../index.html#repo_sec',1,'Repository'],['../index.html#step1',1,'Step 1: Clone the Repository']]],
-  ['reset_5fcolor_5',['reset_color',['../classlogit_1_1ConsoleLogger.html#afaa7f2349fe56e9fc22b9a979016addc',1,'logit::ConsoleLogger']]],
-  ['root_6',['root',['../structlogit_1_1PathComponents.html#aa095a4638dc9e9d994db96d3b4d9bf37',1,'logit::PathComponents']]],
-  ['rotate_5fcurrent_5ffile_7',['rotate_current_file',['../classlogit_1_1FileLogger.html#a42c7e23ed4cc60327cdb569894f2efa3',1,'logit::FileLogger']]],
-  ['run_20your_20project_8',['Step 5: Build and Run Your Project',['../index.html#step5',1,'']]]
+  ['name_0',['name',['../structlogit_1_1PrometheusRegistry_1_1Entry.html#a00f9ee48e091e9fa800ce1f814eaee29',1,'logit::PrometheusRegistry::Entry::name'],['../structlogit_1_1PrometheusLabel.html#a337d99e7ec240e7c84c93b5af3494af7',1,'logit::PrometheusLabel::name'],['../structlogit_1_1PrometheusSample.html#a1f9d570e5e328ac8a720a6ad32b550bd',1,'logit::PrometheusSample::name'],['../structlogit_1_1PrometheusMetricFamily.html#ab4abc65a5b8f45826d65b2d98d5818dd',1,'logit::PrometheusMetricFamily::name'],['../structlogit_1_1LogFileInfo.html#a25229ece486b77b5f0fbcf98df9a2ea3',1,'logit::LogFileInfo::name'],['../structlogit_1_1VariableValue.html#a384ed16552b39216d326bca6409107a7',1,'logit::VariableValue::name'],['../classCustomErrorCategory.html#a9fe259d274429e5256f240d9c3dadc32',1,'CustomErrorCategory::name()']]],
+  ['name_20sanitization_20and_20deduplication_1',['Name sanitization and deduplication',['../otlp_http_logger.html#autotoc_md41',1,'']]],
+  ['names_2',['Weekday and Month Names',['../api_reference.html#weekday_month_flags',1,'']]],
+  ['naming_3',['naming',['../structlogit_1_1FileLogger_1_1Config.html#ad0b34a04249f25bfde8ea21f97e5cf6e',1,'logit::FileLogger::Config']]],
+  ['nc_4',['NC',['../example__logit__basic_8cpp.html#ab983350d6d1201c0ebd709320e7a0d50a90581d96b500fd2d3fd701a583409cb8',1,'NC:&#160;example_logit_basic.cpp'],['../example__logit__short__macros_8cpp.html#ab983350d6d1201c0ebd709320e7a0d50a90581d96b500fd2d3fd701a583409cb8',1,'NC:&#160;example_logit_short_macros.cpp']]],
+  ['ndc_5',['Diagnostic context (MDC/NDC)',['../api_reference.html#macro_examples_context',1,'']]],
+  ['nesteddiagnosticcontext_6',['NestedDiagnosticContext',['../structlogit_1_1FormatInstruction.html#a6a3644a7970741bbdd4750d30a8e4ad8ab3fead35747deb42dd1da40140c005ba',1,'logit::FormatInstruction']]],
+  ['next_5frecord_5fkey_5flocked_7',['next_record_key_locked',['../classlogit_1_1MdbxLogger.html#a3481fb278dc1940fdbb7b0ffe14e4ef1',1,'logit::MdbxLogger']]],
+  ['no_20pthreads_8',['6. Emscripten (no pthreads)',['../task_executor.html#autotoc_md65',1,'']]],
+  ['noargsfallback_9',['NoArgsFallback',['../structlogit_1_1FormatInstruction.html#a9a66c50ca010deee5b94a0dca9ef90a0a96b478a8849dce13336d625f3201b61d',1,'logit::FormatInstruction']]],
+  ['none_10',['NONE',['../namespacelogit.html#ab8611526189e601694eed72b0139f47cab50339a10e1de285ac99d4c3990b8693',1,'logit']]],
+  ['none_11',['None',['../namespacelogit.html#a5cef84bdcbcdc9edff829a77084018a5a6adf97f83acf6453d4a6a4b1070f3754',1,'logit::None'],['../namespacelogit.html#a314eec838235b151614e9a9732865a8ca6adf97f83acf6453d4a6a4b1070f3754',1,'logit::None']]],
+  ['normalize_5fconfig_12',['normalize_config',['../classlogit_1_1MdbxLogger.html#a047b8ed7261ba24c6ef419d447201d70',1,'logit::MdbxLogger']]],
+  ['normalize_5fpath_5fseparators_13',['normalize_path_separators',['../classlogit_1_1FileLogger.html#a436ebc7876775806a30c683b7130bf80',1,'logit::FileLogger::normalize_path_separators()'],['../classlogit_1_1UniqueFileLogger.html#a13657e5ac0957769693019cae3628184',1,'logit::UniqueFileLogger::normalize_path_separators()']]],
+  ['notes_14',['Notes',['../otlp_http_logger.html#autotoc_md46',1,'Notes'],['../task_executor.html',1,'TaskExecutor Implementation Notes'],['../task_executor.html#autotoc_md56',1,'TaskExecutor Implementation Notes']]],
+  ['notice_15',['Deprecation notice',['../otlp_http_logger.html#autotoc_md44',1,'']]],
+  ['notify_5fcallbacks_16',['notify_callbacks',['../classlogit_1_1MdbxLogger.html#aa275b9f86218ee67e06269286e329a83',1,'logit::MdbxLogger::notify_callbacks()'],['../classlogit_1_1MemoryLogger.html#a53f7425df59d3e3b3ccb8e707c582bd6',1,'logit::MemoryLogger::notify_callbacks()']]]
 ];

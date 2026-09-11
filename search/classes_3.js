@@ -1,7 +1,6 @@
 var searchData=
 [
-  ['logger_0',['Logger',['../classlogit_1_1Logger.html',1,'logit']]],
-  ['loggerstrategy_1',['LoggerStrategy',['../structlogit_1_1Logger_1_1LoggerStrategy.html',1,'logit::Logger']]],
-  ['logrecord_2',['LogRecord',['../structlogit_1_1LogRecord.html',1,'logit']]],
-  ['logstream_3',['LogStream',['../classlogit_1_1LogStream.html',1,'logit']]]
+  ['filelogger_0',['FileLogger',['../classlogit_1_1FileLogger.html',1,'logit']]],
+  ['filesortkey_1',['FileSortKey',['../structlogit_1_1FileLogger_1_1FileSortKey.html',1,'logit::FileLogger']]],
+  ['formatinstruction_2',['FormatInstruction',['../structlogit_1_1FormatInstruction.html',1,'logit']]]
 ];

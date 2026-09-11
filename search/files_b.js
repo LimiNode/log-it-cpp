@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['uniquefilelogger_2ehpp_0',['UniqueFileLogger.hpp',['../UniqueFileLogger_8hpp.html',1,'']]],
-  ['utils_2ehpp_1',['utils.hpp',['../utils_8hpp.html',1,'']]]
+  ['queuepolicy_2ehpp_0',['QueuePolicy.hpp',['../QueuePolicy_8hpp.html',1,'']]],
+  ['quickstart_2emd_1',['quickstart.md',['../quickstart_8md.html',1,'']]]
 ];

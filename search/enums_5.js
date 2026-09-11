@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['valuetype_0',['ValueType',['../structlogit_1_1VariableValue.html#aadabf80a158fd1569ca3f761c673c6e9',1,'logit::VariableValue']]]
+  ['prometheusmetrictype_0',['PrometheusMetricType',['../namespacelogit.html#a45826cef6908e2eb2506be7ac6cd62f0',1,'logit']]]
 ];

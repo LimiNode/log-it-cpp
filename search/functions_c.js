@@ -1,7 +1,14 @@
 var searchData=
 [
-  ['remove_5fansi_5fescape_5fcodes_0',['remove_ansi_escape_codes',['../structlogit_1_1FormatInstruction.html#acea0c9eb68183459fb6ba3caddf02b4e',1,'logit::FormatInstruction']]],
-  ['remove_5fold_5flogs_1',['remove_old_logs',['../classlogit_1_1FileLogger.html#a21b8741d411d770d6c208b74b0987336',1,'logit::FileLogger::remove_old_logs()'],['../classlogit_1_1UniqueFileLogger.html#ad7a74dbb7bc17d7468b2a11673bdbe8c',1,'logit::UniqueFileLogger::remove_old_logs()']]],
-  ['reset_5fcolor_2',['reset_color',['../classlogit_1_1ConsoleLogger.html#afaa7f2349fe56e9fc22b9a979016addc',1,'logit::ConsoleLogger']]],
-  ['rotate_5fcurrent_5ffile_3',['rotate_current_file',['../classlogit_1_1FileLogger.html#a42c7e23ed4cc60327cdb569894f2efa3',1,'logit::FileLogger']]]
+  ['pendingenqueue_0',['PendingEnqueue',['../classlogit_1_1ConsoleLogger_1_1PendingEnqueue.html#a6a5d130935eb7c26f13840dee7597689',1,'logit::ConsoleLogger::PendingEnqueue::PendingEnqueue(ConsoleLogger &amp;logger)'],['../classlogit_1_1ConsoleLogger_1_1PendingEnqueue.html#a8bd8bca7c3ee2388a9eca9f40d133954',1,'logit::ConsoleLogger::PendingEnqueue::PendingEnqueue(const PendingEnqueue &amp;)=delete']]],
+  ['print_1',['print',['../classlogit_1_1Logger.html#a927cd02c1a64be24186e7649c21c45ae',1,'logit::Logger::print(const LogRecord &amp;record)'],['../classlogit_1_1Logger.html#af9ae40695451f21281d47cd2cfeac199',1,'logit::Logger::print(const LogRecord &amp;record, Ts const &amp;... args)']]],
+  ['prometheus_5fescape_5fhelp_2',['prometheus_escape_help',['../namespacelogit.html#a3c359d33f92b7991ad18e566bd6d6a8e',1,'logit']]],
+  ['prometheus_5fescape_5flabel_5fvalue_3',['prometheus_escape_label_value',['../namespacelogit.html#a131874d5a163a9d657b701da0f2853b6',1,'logit']]],
+  ['prometheus_5fformat_5fvalue_4',['prometheus_format_value',['../namespacelogit.html#a5a83fa6aec53cc451fd4ea49402eb1cb',1,'logit']]],
+  ['prometheus_5fsanitize_5flabel_5fname_5',['prometheus_sanitize_label_name',['../namespacelogit.html#a3b05a0b935811801044e73e47e4716a0',1,'logit']]],
+  ['prometheus_5fsanitize_5fmetric_5fname_6',['prometheus_sanitize_metric_name',['../namespacelogit.html#a19aea67a0023ac48a96a0151bd46abf5',1,'logit']]],
+  ['prometheus_5fwrite_5fmetric_5ffamily_7',['prometheus_write_metric_family',['../namespacelogit.html#a8ed39ff08626b648e5f82d8ef2a56bf8',1,'logit']]],
+  ['prometheushttpserverlogger_8',['PrometheusHttpServerLogger',['../classlogit_1_1PrometheusHttpServerLogger.html#a838f2d5a8bccf53f0365d50693d53797',1,'logit::PrometheusHttpServerLogger::PrometheusHttpServerLogger()'],['../classlogit_1_1PrometheusHttpServerLogger.html#ac5c71eb0fdc8ecd1922dac02c1d265df',1,'logit::PrometheusHttpServerLogger::PrometheusHttpServerLogger(const Config &amp;config)'],['../classlogit_1_1PrometheusHttpServerLogger.html#a28b812854c84a0ea913d586e0ae15e59',1,'logit::PrometheusHttpServerLogger::PrometheusHttpServerLogger(const PrometheusHttpServerLogger &amp;)=delete']]],
+  ['prometheuspayloadlogger_9',['PrometheusPayloadLogger',['../classlogit_1_1PrometheusPayloadLogger.html#aa141c2af1555401bb1b4f3d42898e9e7',1,'logit::PrometheusPayloadLogger::PrometheusPayloadLogger()'],['../classlogit_1_1PrometheusPayloadLogger.html#a1d81d2bc26fa024276120d1448f50570',1,'logit::PrometheusPayloadLogger::PrometheusPayloadLogger(const Config &amp;config)'],['../classlogit_1_1PrometheusPayloadLogger.html#a46beae80c61a9c2ab4329345a0b620a6',1,'logit::PrometheusPayloadLogger::PrometheusPayloadLogger(const PrometheusPayloadLogger &amp;)=delete']]],
+  ['prometheusregistry_10',['PrometheusRegistry',['../classlogit_1_1PrometheusRegistry.html#a1b0344799d09bdd73ecde6bd88c5a4b0',1,'logit::PrometheusRegistry']]]
 ];

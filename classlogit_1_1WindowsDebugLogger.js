@@ -1,0 +1,25 @@
+var classlogit_1_1WindowsDebugLogger =
+[
+    [ "Config", "structlogit_1_1WindowsDebugLogger_1_1Config.html", "structlogit_1_1WindowsDebugLogger_1_1Config" ],
+    [ "WindowsDebugLogger", "classlogit_1_1WindowsDebugLogger.html#a319f40ff24c4ea3c273ec76bd365e172", null ],
+    [ "WindowsDebugLogger", "classlogit_1_1WindowsDebugLogger.html#a8198f58ee23f83fba36a90a58373ed81", null ],
+    [ "WindowsDebugLogger", "classlogit_1_1WindowsDebugLogger.html#a3dd32dc6a0641fffcfaaa70386803c65", null ],
+    [ "get_float_param", "classlogit_1_1WindowsDebugLogger.html#a94ecdbf566fb02e0e96e21f0a102d7ee", null ],
+    [ "get_int_param", "classlogit_1_1WindowsDebugLogger.html#a6386a2ed128c8113cd36099308637252", null ],
+    [ "get_log_level", "classlogit_1_1WindowsDebugLogger.html#a81e7bcca388a0c414f43bcbe19c0ed7b", null ],
+    [ "get_string_param", "classlogit_1_1WindowsDebugLogger.html#ab35b8de848594cb573f6ef22512b9367", null ],
+    [ "log", "classlogit_1_1WindowsDebugLogger.html#aec7a86dbae137b6838a8d2024b4ea091", null ],
+    [ "make_config", "classlogit_1_1WindowsDebugLogger.html#a7b6b7acc6fb5e7268e8160920e682c34", null ],
+    [ "set_config", "classlogit_1_1WindowsDebugLogger.html#aa69487b4223b0b40dbd8f1e4d97b0a92", null ],
+    [ "set_log_level", "classlogit_1_1WindowsDebugLogger.html#a5286c804930f62c12d1cc9ef8074e972", null ],
+    [ "set_queue_config", "classlogit_1_1WindowsDebugLogger.html#ac2844d54b1edcbc3420e650c5c1720c0", null ],
+    [ "shutdown", "classlogit_1_1WindowsDebugLogger.html#a236965daa6f35b28d153080ad2c32a98", null ],
+    [ "wait", "classlogit_1_1WindowsDebugLogger.html#aca9871530819f02433f159ad429a26ac", null ],
+    [ "write_impl", "classlogit_1_1WindowsDebugLogger.html#a4517cbfd4809e7ab149265665a2083fa", null ],
+    [ "m_config", "classlogit_1_1WindowsDebugLogger.html#a1d1990b755c21a591d88bc5999613c8a", null ],
+    [ "m_executor", "classlogit_1_1WindowsDebugLogger.html#a2332e3fc4921eff78fb9fba649f88d6a", null ],
+    [ "m_last_log_ts", "classlogit_1_1WindowsDebugLogger.html#a19d7707079263b45f1753fc0a2f5f0f3", null ],
+    [ "m_lifecycle_mutex", "classlogit_1_1WindowsDebugLogger.html#a2051d52e5273f5b9a501a6dfb9ae841b", null ],
+    [ "m_log_level", "classlogit_1_1WindowsDebugLogger.html#acbac2f2af7e59cd50640d773ce15d573", null ],
+    [ "m_shutdown", "classlogit_1_1WindowsDebugLogger.html#a133455b71d72c64743e3f8f1dddffcae", null ]
+];

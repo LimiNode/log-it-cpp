@@ -1,10 +1,9 @@
 var searchData=
 [
-  ['of_20formatting_20patterns_0',['Examples of Formatting Patterns',['../index.html#pattern_example',1,'']]],
-  ['on_5fexit_5fhandler_1',['on_exit_handler',['../classlogit_1_1Logger.html#aba08f203435bb262e029f554dc180f36',1,'logit::Logger']]],
-  ['open_5flog_5ffile_2',['open_log_file',['../classlogit_1_1FileLogger.html#abef1a66fa8f1fd1cde468cce8e82f8d8',1,'logit::FileLogger']]],
-  ['operator_3c_3c_3',['operator&lt;&lt;',['../classlogit_1_1LogStream.html#a199cea90a80f3386c73e262e36528abc',1,'logit::LogStream::operator&lt;&lt;(const T &amp;value)'],['../classlogit_1_1LogStream.html#ae57de7f0308363d47ff56633a304d72e',1,'logit::LogStream::operator&lt;&lt;(std::ostream &amp;(*manip)(std::ostream &amp;))'],['../example__logit__basic_8cpp.html#ae09d6484db2244c3eb317883ba8abca1',1,'operator&lt;&lt;():&#160;example_logit_basic.cpp']]],
-  ['operator_3d_4',['operator=',['../classlogit_1_1detail_1_1TaskExecutor.html#a5019cccb69d29cd52d43c9ce66c9c6ee',1,'logit::detail::TaskExecutor::operator=(const TaskExecutor &amp;)=delete'],['../classlogit_1_1detail_1_1TaskExecutor.html#a87508601908e420b4b821836ed3a0135',1,'logit::detail::TaskExecutor::operator=(TaskExecutor &amp;&amp;)=delete'],['../classlogit_1_1Logger.html#a5be1e4fe455bcdadee4fa88866a99f7e',1,'logit::Logger::operator=(const Logger &amp;)=delete'],['../classlogit_1_1Logger.html#ac6f33c7d76748f2056584f02c99b3565',1,'logit::Logger::operator=(Logger &amp;&amp;)=delete'],['../structlogit_1_1VariableValue.html#a3c2642e81f29b8db75e9127ddc2af657',1,'logit::VariableValue::operator=()']]],
-  ['optional_5',['Step 4: Using fmt (Optional)',['../index.html#step4',1,'']]],
-  ['optional_5fval_6',['OPTIONAL_VAL',['../structlogit_1_1VariableValue.html#aadabf80a158fd1569ca3f761c673c6e9a37107d8e0690bf391b47c833378ae096',1,'logit::VariableValue']]]
+  ['kdefaultbuffersize_0',['kDefaultBufferSize',['../classlogit_1_1CrashPosixLogger.html#ae5ac528f313ba4aeac0f15aa78b9edfb',1,'logit::CrashPosixLogger::kDefaultBufferSize'],['../classlogit_1_1CrashWindowsLogger.html#adc0c905864712a205fe3e2168bb770f0',1,'logit::CrashWindowsLogger::kDefaultBufferSize']]],
+  ['kind_1',['kind',['../structlogit_1_1ConsoleStreamRoute.html#af35a31ef9870603e3e200fc6d27e32f5',1,'logit::ConsoleStreamRoute']]],
+  ['kind_5frank_2',['kind_rank',['../structlogit_1_1FileLogger_1_1FileSortKey.html#aedd7f3af18064ed94ed395e1f38540c1',1,'logit::FileLogger::FileSortKey']]],
+  ['kmaxbuffersize_3',['kMaxBufferSize',['../classlogit_1_1CrashPosixLogger.html#af6f9c3c2049362e2787604e156e878b9',1,'logit::CrashPosixLogger::kMaxBufferSize'],['../classlogit_1_1CrashWindowsLogger.html#ac63852eb903b6c2c4aaea0caaf07903d',1,'logit::CrashWindowsLogger::kMaxBufferSize']]],
+  ['kurlyk_5fhttp_5fsupport_4',['KURLYK_HTTP_SUPPORT',['../OtlpHttpLogger_8hpp.html#a579201de2b5c9ead25f761a41bd0209e',1,'OtlpHttpLogger.hpp']]],
+  ['kurlyk_5fwebsocket_5fsupport_5',['KURLYK_WEBSOCKET_SUPPORT',['../OtlpHttpLogger_8hpp.html#a834d5ca366d54e6fe2aa587896933beb',1,'OtlpHttpLogger.hpp']]]
 ];

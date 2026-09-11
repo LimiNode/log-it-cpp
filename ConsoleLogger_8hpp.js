@@ -1,5 +1,6 @@
 var ConsoleLogger_8hpp =
 [
     [ "logit::ConsoleLogger::Config", "structlogit_1_1ConsoleLogger_1_1Config.html", "structlogit_1_1ConsoleLogger_1_1Config" ],
-    [ "_LOGIT_CONSOLE_LOGGER_HPP_INCLUDED", "ConsoleLogger_8hpp.html#ac6c4043e6e8e6e80d174718d3c7605c8", null ]
+    [ "logit::ConsoleLogger::PendingEnqueue", "classlogit_1_1ConsoleLogger_1_1PendingEnqueue.html", "classlogit_1_1ConsoleLogger_1_1PendingEnqueue" ],
+    [ "LOGIT_CPP_HEADER_LOGIT_CPP_LOGIT_LOGGERS_CONSOLELOGGER_HPP_INCLUDED", "ConsoleLogger_8hpp.html#a4c6fed94440cb6bbeb38154e31bd3d84", null ]
 ];

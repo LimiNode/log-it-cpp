@@ -1,4 +1,23 @@
 var searchData=
 [
-  ['width_0',['width',['../structlogit_1_1FormatInstruction.html#a0dfac7e47e27be071b72040f76674600',1,'logit::FormatInstruction']]]
+  ['samples_0',['samples',['../structlogit_1_1PrometheusMetricFamily.html#a2286f664eb5430ab5314ce4b00eddcaa',1,'logit::PrometheusMetricFamily']]],
+  ['schema_5fversion_1',['schema_version',['../structlogit_1_1MdbxLogger_1_1SessionView.html#ab6f4f4d2c7fd2cd2600aab59b1ded360',1,'logit::MdbxLogger::SessionView::schema_version'],['../structlogit_1_1MdbxLogger_1_1Session.html#ac1362adf14908369b0087f3fd9a4b91b',1,'logit::MdbxLogger::Session::schema_version']]],
+  ['secondary_2',['secondary',['../structlogit_1_1FileLogger_1_1FileSortKey.html#ab43ca36048c9526524b066fdbb22533f',1,'logit::FileLogger::FileSortKey']]],
+  ['seq_5fwidth_3',['seq_width',['../structlogit_1_1FileLogger_1_1Config.html#a26a754a5adcbaaf2d0d3bd6274204556',1,'logit::FileLogger::Config']]],
+  ['sequence_4',['sequence',['../structlogit_1_1LogRecordSnapshot.html#a2bb94c47ca774e9d04f1e8b9d3d056d4',1,'logit::LogRecordSnapshot::sequence'],['../structlogit_1_1MdbxLogger_1_1Record.html#ad3b6f7977d52bf79321c294f1866d9af',1,'logit::MdbxLogger::Record::sequence']]],
+  ['service_5finstance_5fid_5',['service_instance_id',['../structlogit_1_1OtlpJsonFormatConfig.html#a9885a281c23ed8db7c028bce30a5d4c3',1,'logit::OtlpJsonFormatConfig']]],
+  ['service_5fname_6',['service_name',['../structlogit_1_1OtlpJsonFormatConfig.html#afd37a61724542886ca74f5459f83c9da',1,'logit::OtlpJsonFormatConfig']]],
+  ['service_5fnamespace_7',['service_namespace',['../structlogit_1_1OtlpJsonFormatConfig.html#a7fdb60e0f0db1fff2bd2a52a297983c0',1,'logit::OtlpJsonFormatConfig']]],
+  ['session_5fid_8',['session_id',['../structlogit_1_1LogRecordSnapshot.html#aa1ae04fc8504a262527e3b0265e14ccc',1,'logit::LogRecordSnapshot::session_id'],['../structlogit_1_1MdbxLogger_1_1Config.html#a75629ebb25346971e5b735bb820ae66e',1,'logit::MdbxLogger::Config::session_id'],['../structlogit_1_1MdbxLogger_1_1Record.html#abcbde3328964b5414bcf59416f6fb3d5',1,'logit::MdbxLogger::Record::session_id']]],
+  ['single_5fmode_9',['single_mode',['../structlogit_1_1Logger_1_1LoggerStrategy.html#aa9d7a0e2f285e0302f52ddd327ce4181',1,'logit::Logger::LoggerStrategy']]],
+  ['source_10',['source',['../structlogit_1_1EventLogLogger_1_1Config.html#add74724a4d3fb00875888bfef07fe87c',1,'logit::EventLogLogger::Config']]],
+  ['space_5fcv_11',['space_cv',['../structlogit_1_1OtlpHttpLoggerState.html#a191f36d893d5aa4338a700be2686009b',1,'logit::OtlpHttpLoggerState']]],
+  ['start_5fimmediately_12',['start_immediately',['../structlogit_1_1PrometheusHttpServerLogger_1_1Config.html#a88f4d3e88e32c0b1fa635780ebe46a58',1,'logit::PrometheusHttpServerLogger::Config']]],
+  ['start_5ftime_5fms_13',['start_time_ms',['../structlogit_1_1MdbxLogger_1_1SessionView.html#a21862878178436eb8f91f927b9bbb4b6',1,'logit::MdbxLogger::SessionView::start_time_ms'],['../structlogit_1_1MdbxLogger_1_1Session.html#a0b571797b596fab377a13fd659728b6f',1,'logit::MdbxLogger::Session::start_time_ms']]],
+  ['static_5ftext_14',['static_text',['../structlogit_1_1FormatInstruction.html#a1d7880701961d480a82b53de2962bdaa',1,'logit::FormatInstruction']]],
+  ['status_15',['status',['../structlogit_1_1LogClearResult.html#a47ce140a4f870dcdc22d6b3fa997f80f',1,'logit::LogClearResult']]],
+  ['stopping_16',['stopping',['../structlogit_1_1OtlpHttpLoggerState.html#a8b5e43972d4e2d5df3b4f4eaaa192833',1,'logit::OtlpHttpLoggerState']]],
+  ['store_5flarge_5fpayloads_5fseparately_17',['store_large_payloads_separately',['../structlogit_1_1MdbxLogger_1_1Config.html#a21e3eea198c8eee4f6c8ca11e97e9769',1,'logit::MdbxLogger::Config']]],
+  ['string_5fvalue_18',['string_value',['../structlogit_1_1VariableValue.html#a8aea95a0ccfc7a71d04ea6447f948173',1,'logit::VariableValue']]],
+  ['strip_5fansi_19',['strip_ansi',['../structlogit_1_1FormatInstruction.html#a3533ffecf52adc87e5ae551770f8c005',1,'logit::FormatInstruction']]]
 ];
