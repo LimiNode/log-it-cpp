@@ -34,7 +34,9 @@ async function inspectViewport(page, name, viewport) {
             toggleLeft: toggle?.left ?? 0,
             toggleRight: toggle?.right ?? 0,
             searchTop: search?.top ?? 0,
+            searchBottom: search?.bottom ?? 0,
             toggleTop: toggle?.top ?? 0,
+            toggleBottom: toggle?.bottom ?? 0,
             searchWidth: search?.width ?? 0,
             spacingMedium: parseFloat(getComputedStyle(root).getPropertyValue("--spacing-medium")),
             toggleParentId: toggle?.parentElement?.id ?? "",
@@ -50,7 +52,11 @@ async function inspectViewport(page, name, viewport) {
     assert(within(layout.toggleLeft, 0, layout.viewportWidth) &&
         within(layout.toggleRight, 0, layout.viewportWidth),
         `${name}: dark-mode toggle is outside the viewport`);
-    assert(layout.searchRight <= layout.toggleLeft + 1 || layout.toggleRight <= layout.searchLeft + 1,
+    const separated = layout.searchRight <= layout.toggleLeft + 1 ||
+        layout.toggleRight <= layout.searchLeft + 1 ||
+        layout.searchBottom <= layout.toggleTop + 1 ||
+        layout.toggleBottom <= layout.searchTop + 1;
+    assert(separated,
         `${name}: search box and dark-mode toggle overlap`);
     assert(layout.toggleTop < layout.searchTop,
         `${name}: dark-mode toggle is not above the search box`);
