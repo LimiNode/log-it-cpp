@@ -18,12 +18,8 @@
 }
 
 @media screen and (min-width: 768px) {
-    /* Keep the search field on its own full sidebar row. */
-    #MSearchBox {
-        width: calc(var(--side-nav-fixed-width) - calc(2 * var(--spacing-medium))) !important;
-    }
-
-    #MSearchField {
-        width: calc(var(--side-nav-fixed-width) - calc(2 * var(--spacing-medium)) - 65px) !important;
+    /* The two-line project brief needs more room than the theme default. */
+    html {
+        --top-height: 140px;
     }
 }

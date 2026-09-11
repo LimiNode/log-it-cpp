@@ -25,6 +25,7 @@ async function inspectViewport(page, name, viewport) {
 
     const layout = await page.evaluate(() => {
         const sideNav = document.querySelector("#side-nav")?.getBoundingClientRect();
+        const top = document.querySelector("#top")?.getBoundingClientRect();
         const search = document.querySelector("#MSearchBox")?.getBoundingClientRect();
         const toggle = document.querySelector("doxygen-awesome-dark-mode-toggle")?.getBoundingClientRect();
         const root = document.documentElement;
@@ -34,6 +35,8 @@ async function inspectViewport(page, name, viewport) {
             sidebarWidth: sideNav?.width ?? 0,
             sidebarLeft: sideNav?.left ?? 0,
             sidebarRight: sideNav?.right ?? 0,
+            topHeight: top?.height ?? 0,
+            topBottom: top?.bottom ?? 0,
             searchLeft: search?.left ?? 0,
             searchRight: search?.right ?? 0,
             toggleLeft: toggle?.left ?? 0,
@@ -72,6 +75,8 @@ async function inspectViewport(page, name, viewport) {
         `${name}: expected one dark-mode toggle, got ${layout.toggleCount}`);
 
     if (viewport.width >= 768) {
+        assert(layout.searchBottom <= layout.topBottom + 1,
+            `${name}: search box is clipped by #top (search bottom ${layout.searchBottom}px, #top bottom ${layout.topBottom}px)`);
         assert(Math.abs(layout.cssSidebarWidth - 335) <= 1,
             `${name}: expected --side-nav-fixed-width to be 335px, got ${layout.cssSidebarWidth}px`);
         assert(Math.abs(layout.sidebarWidth - 335) <= 1,
@@ -87,7 +92,7 @@ async function inspectViewport(page, name, viewport) {
             `${name}: dark-mode toggle is not contained by the sidebar`);
     }
 
-    console.log(`${name}: layout OK`);
+    console.log(`${name}: layout OK (top height ${layout.topHeight}px, search ${layout.searchTop}-${layout.searchBottom}px, top bottom ${layout.topBottom}px)`);
 }
 
 (async () => {
