@@ -18,12 +18,13 @@
 }
 
 @media screen and (min-width: 768px) {
-    /* Keep the search field on its own full sidebar row. */
-    #MSearchBox {
-        width: calc(var(--side-nav-fixed-width) - calc(2 * var(--spacing-medium))) !important;
+    /* The two-line project brief needs more room than the theme default. */
+    html {
+        --top-height: 140px;
     }
 
-    #MSearchField {
-        width: calc(var(--side-nav-fixed-width) - calc(2 * var(--spacing-medium)) - 65px) !important;
+    /* Keep the theme toggle opposite the search box, as in the original sidebar layout. */
+    #logit-theme-toggle {
+        top: calc(100% + var(--spacing-small) + 1.5px);
     }
 }

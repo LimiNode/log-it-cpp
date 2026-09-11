@@ -25,6 +25,7 @@ async function inspectViewport(page, name, viewport) {
 
     const layout = await page.evaluate(() => {
         const sideNav = document.querySelector("#side-nav")?.getBoundingClientRect();
+        const top = document.querySelector("#top")?.getBoundingClientRect();
         const search = document.querySelector("#MSearchBox")?.getBoundingClientRect();
         const toggle = document.querySelector("doxygen-awesome-dark-mode-toggle")?.getBoundingClientRect();
         const root = document.documentElement;
@@ -34,6 +35,8 @@ async function inspectViewport(page, name, viewport) {
             sidebarWidth: sideNav?.width ?? 0,
             sidebarLeft: sideNav?.left ?? 0,
             sidebarRight: sideNav?.right ?? 0,
+            topHeight: top?.height ?? 0,
+            topBottom: top?.bottom ?? 0,
             searchLeft: search?.left ?? 0,
             searchRight: search?.right ?? 0,
             toggleLeft: toggle?.left ?? 0,
@@ -44,6 +47,7 @@ async function inspectViewport(page, name, viewport) {
             toggleBottom: toggle?.bottom ?? 0,
             searchWidth: search?.width ?? 0,
             spacingMedium: parseFloat(getComputedStyle(root).getPropertyValue("--spacing-medium")),
+            searchbarHeight: parseFloat(getComputedStyle(root).getPropertyValue("--searchbar-height")),
             toggleCount: document.querySelectorAll("doxygen-awesome-dark-mode-toggle").length,
             targetContainsToggle: Boolean(document.querySelector("#logit-theme-toggle > doxygen-awesome-dark-mode-toggle")),
             cssSidebarWidth: parseFloat(getComputedStyle(root).getPropertyValue("--side-nav-fixed-width")),
@@ -64,21 +68,27 @@ async function inspectViewport(page, name, viewport) {
         layout.toggleBottom <= layout.searchTop + 1;
     assert(separated,
         `${name}: search box and dark-mode toggle overlap`);
-    assert(layout.toggleTop < layout.searchTop,
-        `${name}: dark-mode toggle is not above the search box`);
-    assert(layout.targetContainsToggle && layout.toggleTop < layout.searchTop,
+    assert(layout.targetContainsToggle,
         `${name}: dark-mode toggle is not anchored in the header area`);
     assert(layout.toggleCount === 1,
         `${name}: expected one dark-mode toggle, got ${layout.toggleCount}`);
 
     if (viewport.width >= 768) {
+        assert(layout.searchBottom <= layout.topBottom + 1,
+            `${name}: search box is clipped by #top (search bottom ${layout.searchBottom}px, #top bottom ${layout.topBottom}px)`);
         assert(Math.abs(layout.cssSidebarWidth - 335) <= 1,
             `${name}: expected --side-nav-fixed-width to be 335px, got ${layout.cssSidebarWidth}px`);
         assert(Math.abs(layout.sidebarWidth - 335) <= 1,
             `${name}: expected sidebar width to be 335px, got ${layout.sidebarWidth}px`);
-        const expectedSearchWidth = layout.sidebarWidth - 2 * layout.spacingMedium;
+        const expectedSearchWidth = layout.sidebarWidth - 2 * layout.spacingMedium - layout.searchbarHeight - 1;
         assert(layout.searchWidth >= expectedSearchWidth - 2,
             `${name}: search box is too narrow (${layout.searchWidth}px; expected about ${expectedSearchWidth}px)`);
+        assert(Math.abs(layout.toggleTop - layout.searchTop) <= 5,
+            `${name}: dark-mode toggle is not opposite the search box`);
+        const searchCenter = (layout.searchTop + layout.searchBottom) / 2;
+        const toggleCenter = (layout.toggleTop + layout.toggleBottom) / 2;
+        assert(Math.abs(toggleCenter - searchCenter) <= 1,
+            `${name}: dark-mode toggle is not vertically centered with the search box`);
         assert(layout.searchLeft >= layout.sidebarLeft - 1 &&
             layout.searchRight <= layout.sidebarRight + 1,
             `${name}: search box is not contained by the sidebar`);
@@ -87,7 +97,7 @@ async function inspectViewport(page, name, viewport) {
             `${name}: dark-mode toggle is not contained by the sidebar`);
     }
 
-    console.log(`${name}: layout OK`);
+    console.log(`${name}: layout OK (top height ${layout.topHeight}px, search ${layout.searchTop}-${layout.searchBottom}px, top bottom ${layout.topBottom}px)`);
 }
 
 (async () => {
