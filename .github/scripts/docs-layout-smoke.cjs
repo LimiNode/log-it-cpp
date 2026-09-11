@@ -16,7 +16,10 @@ async function inspectViewport(page, name, viewport) {
     await page.setViewportSize(viewport);
     await page.goto(`${baseUrl}/index.html`, { waitUntil: "networkidle" });
     await page.locator("#MSearchBox").waitFor();
-    await page.locator("#logit-theme-toggle > doxygen-awesome-dark-mode-toggle").waitFor();
+    await page.waitForFunction(() => {
+        const toggles = document.querySelectorAll("doxygen-awesome-dark-mode-toggle");
+        return toggles.length === 1 && toggles[0].parentElement?.id === "logit-theme-toggle";
+    });
 
     const layout = await page.evaluate(() => {
         const sideNav = document.querySelector("#side-nav")?.getBoundingClientRect();
@@ -39,6 +42,7 @@ async function inspectViewport(page, name, viewport) {
             toggleBottom: toggle?.bottom ?? 0,
             searchWidth: search?.width ?? 0,
             spacingMedium: parseFloat(getComputedStyle(root).getPropertyValue("--spacing-medium")),
+            toggleCount: document.querySelectorAll("doxygen-awesome-dark-mode-toggle").length,
             toggleParentId: toggle?.parentElement?.id ?? "",
             cssSidebarWidth: parseFloat(getComputedStyle(root).getPropertyValue("--side-nav-fixed-width")),
         };
@@ -62,6 +66,8 @@ async function inspectViewport(page, name, viewport) {
         `${name}: dark-mode toggle is not above the search box`);
     assert(layout.toggleParentId === "logit-theme-toggle",
         `${name}: dark-mode toggle is not in the header container`);
+    assert(layout.toggleCount === 1,
+        `${name}: expected one dark-mode toggle, got ${layout.toggleCount}`);
 
     if (viewport.width >= 768) {
         assert(Math.abs(layout.cssSidebarWidth - 335) <= 1,

@@ -1,9 +1,14 @@
 (function () {
     function moveThemeToggle() {
         var target = document.getElementById("logit-theme-toggle");
-        var toggle = document.querySelector("doxygen-awesome-dark-mode-toggle");
-        if (target && toggle && toggle.parentNode !== target) {
-            target.appendChild(toggle);
+        var toggles = document.querySelectorAll("doxygen-awesome-dark-mode-toggle");
+        if (!target || toggles.length === 0) {
+            return;
+        }
+
+        target.appendChild(toggles[0]);
+        for (var i = 1; i < toggles.length; ++i) {
+            toggles[i].remove();
         }
     }
 
