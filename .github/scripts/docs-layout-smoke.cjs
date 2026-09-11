@@ -45,13 +45,10 @@ async function inspectViewport(page, name, viewport) {
             searchWidth: search?.width ?? 0,
             spacingMedium: parseFloat(getComputedStyle(root).getPropertyValue("--spacing-medium")),
             toggleCount: document.querySelectorAll("doxygen-awesome-dark-mode-toggle").length,
-            toggleParentId: toggle?.parentElement?.id ?? "",
-            toggleParentTag: toggle?.parentElement?.tagName ?? "",
             targetContainsToggle: Boolean(document.querySelector("#logit-theme-toggle > doxygen-awesome-dark-mode-toggle")),
             cssSidebarWidth: parseFloat(getComputedStyle(root).getPropertyValue("--side-nav-fixed-width")),
         };
     });
-    console.log(`${name}: metrics ${JSON.stringify(layout)}`);
 
     assert(layout.scrollWidth <= layout.viewportWidth + 1,
         `${name}: horizontal overflow (${layout.scrollWidth}px > ${layout.viewportWidth}px)`);
