@@ -6,14 +6,16 @@
             return;
         }
 
-        target.appendChild(toggles[0]);
+        if (toggles[0].parentNode !== target) {
+            target.appendChild(toggles[0]);
+        }
         for (var i = 1; i < toggles.length; ++i) {
             toggles[i].remove();
         }
     }
 
     function scheduleMove() {
-        window.requestAnimationFrame(moveThemeToggle);
+        moveThemeToggle();
     }
 
     document.addEventListener("DOMContentLoaded", function () {
