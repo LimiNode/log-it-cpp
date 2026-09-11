@@ -33,6 +33,11 @@ async function inspectViewport(page, name, viewport) {
             searchRight: search?.right ?? 0,
             toggleLeft: toggle?.left ?? 0,
             toggleRight: toggle?.right ?? 0,
+            searchTop: search?.top ?? 0,
+            toggleTop: toggle?.top ?? 0,
+            searchWidth: search?.width ?? 0,
+            spacingMedium: parseFloat(getComputedStyle(root).getPropertyValue("--spacing-medium")),
+            toggleParentId: toggle?.parentElement?.id ?? "",
             cssSidebarWidth: parseFloat(getComputedStyle(root).getPropertyValue("--side-nav-fixed-width")),
         };
     });
@@ -47,12 +52,19 @@ async function inspectViewport(page, name, viewport) {
         `${name}: dark-mode toggle is outside the viewport`);
     assert(layout.searchRight <= layout.toggleLeft + 1 || layout.toggleRight <= layout.searchLeft + 1,
         `${name}: search box and dark-mode toggle overlap`);
+    assert(layout.toggleTop < layout.searchTop,
+        `${name}: dark-mode toggle is not above the search box`);
+    assert(layout.toggleParentId === "logit-theme-toggle",
+        `${name}: dark-mode toggle is not in the header container`);
 
-    if (name === "desktop") {
+    if (viewport.width >= 768) {
         assert(Math.abs(layout.cssSidebarWidth - 335) <= 1,
             `${name}: expected --side-nav-fixed-width to be 335px, got ${layout.cssSidebarWidth}px`);
         assert(Math.abs(layout.sidebarWidth - 335) <= 1,
             `${name}: expected sidebar width to be 335px, got ${layout.sidebarWidth}px`);
+        const expectedSearchWidth = layout.sidebarWidth - 2 * layout.spacingMedium;
+        assert(layout.searchWidth >= expectedSearchWidth - 2,
+            `${name}: search box is too narrow (${layout.searchWidth}px; expected about ${expectedSearchWidth}px)`);
         assert(layout.searchLeft >= layout.sidebarLeft - 1 &&
             layout.searchRight <= layout.sidebarRight + 1,
             `${name}: search box is not contained by the sidebar`);
@@ -69,6 +81,7 @@ async function inspectViewport(page, name, viewport) {
     try {
         const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
         await inspectViewport(page, "desktop", { width: 1440, height: 900 });
+        await inspectViewport(page, "wide-desktop", { width: 1745, height: 864 });
         await inspectViewport(page, "mobile", { width: 390, height: 844 });
     } finally {
         await browser.close();

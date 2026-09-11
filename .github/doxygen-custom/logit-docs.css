@@ -1,0 +1,29 @@
+/* Project-specific layout adjustments layered after Doxygen Awesome. */
+
+#titlearea {
+    position: relative;
+}
+
+#logit-theme-toggle {
+    position: absolute;
+    top: var(--spacing-medium);
+    right: var(--spacing-medium);
+    z-index: 2;
+    width: var(--searchbar-height);
+    height: var(--searchbar-height);
+}
+
+#logit-theme-toggle > doxygen-awesome-dark-mode-toggle {
+    margin: 0;
+}
+
+@media screen and (min-width: 768px) {
+    /* Keep the search field on its own full sidebar row. */
+    #MSearchBox {
+        width: calc(var(--side-nav-fixed-width) - calc(2 * var(--spacing-medium))) !important;
+    }
+
+    #MSearchField {
+        width: calc(var(--side-nav-fixed-width) - calc(2 * var(--spacing-medium)) - 65px) !important;
+    }
+}
