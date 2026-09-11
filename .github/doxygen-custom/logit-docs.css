@@ -22,4 +22,9 @@
     html {
         --top-height: 140px;
     }
+
+    /* Keep the theme toggle opposite the search box, as in the original sidebar layout. */
+    #logit-theme-toggle {
+        top: calc(100% + var(--spacing-small));
+    }
 }

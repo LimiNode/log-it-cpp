@@ -47,6 +47,7 @@ async function inspectViewport(page, name, viewport) {
             toggleBottom: toggle?.bottom ?? 0,
             searchWidth: search?.width ?? 0,
             spacingMedium: parseFloat(getComputedStyle(root).getPropertyValue("--spacing-medium")),
+            searchbarHeight: parseFloat(getComputedStyle(root).getPropertyValue("--searchbar-height")),
             toggleCount: document.querySelectorAll("doxygen-awesome-dark-mode-toggle").length,
             targetContainsToggle: Boolean(document.querySelector("#logit-theme-toggle > doxygen-awesome-dark-mode-toggle")),
             cssSidebarWidth: parseFloat(getComputedStyle(root).getPropertyValue("--side-nav-fixed-width")),
@@ -81,9 +82,11 @@ async function inspectViewport(page, name, viewport) {
             `${name}: expected --side-nav-fixed-width to be 335px, got ${layout.cssSidebarWidth}px`);
         assert(Math.abs(layout.sidebarWidth - 335) <= 1,
             `${name}: expected sidebar width to be 335px, got ${layout.sidebarWidth}px`);
-        const expectedSearchWidth = layout.sidebarWidth - 2 * layout.spacingMedium;
+        const expectedSearchWidth = layout.sidebarWidth - 2 * layout.spacingMedium - layout.searchbarHeight - 1;
         assert(layout.searchWidth >= expectedSearchWidth - 2,
             `${name}: search box is too narrow (${layout.searchWidth}px; expected about ${expectedSearchWidth}px)`);
+        assert(Math.abs(layout.toggleTop - layout.searchTop) <= 5,
+            `${name}: dark-mode toggle is not opposite the search box`);
         assert(layout.searchLeft >= layout.sidebarLeft - 1 &&
             layout.searchRight <= layout.sidebarRight + 1,
             `${name}: search box is not contained by the sidebar`);
