@@ -16,7 +16,7 @@ async function inspectViewport(page, name, viewport) {
     await page.setViewportSize(viewport);
     await page.goto(`${baseUrl}/index.html`, { waitUntil: "networkidle" });
     await page.locator("#MSearchBox").waitFor();
-    await page.locator("doxygen-awesome-dark-mode-toggle").waitFor();
+    await page.locator("#logit-theme-toggle > doxygen-awesome-dark-mode-toggle").waitFor();
 
     const layout = await page.evaluate(() => {
         const sideNav = document.querySelector("#side-nav")?.getBoundingClientRect();
