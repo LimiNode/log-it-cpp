@@ -45,6 +45,8 @@ async function inspectViewport(page, name, viewport) {
     assert(within(layout.toggleLeft, 0, layout.viewportWidth) &&
         within(layout.toggleRight, 0, layout.viewportWidth),
         `${name}: dark-mode toggle is outside the viewport`);
+    assert(layout.searchRight <= layout.toggleLeft + 1 || layout.toggleRight <= layout.searchLeft + 1,
+        `${name}: search box and dark-mode toggle overlap`);
 
     if (name === "desktop") {
         assert(Math.abs(layout.cssSidebarWidth - 335) <= 1,
@@ -57,8 +59,6 @@ async function inspectViewport(page, name, viewport) {
         assert(layout.toggleLeft >= layout.sidebarLeft - 1 &&
             layout.toggleRight <= layout.sidebarRight + 1,
             `${name}: dark-mode toggle is not contained by the sidebar`);
-        assert(layout.searchRight <= layout.toggleLeft + 1 || layout.toggleRight <= layout.searchLeft + 1,
-            `${name}: search box and dark-mode toggle overlap`);
     }
 
     console.log(`${name}: layout OK`);
