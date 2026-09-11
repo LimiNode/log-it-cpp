@@ -81,6 +81,19 @@ jobs:
               print("\n".join(missing))
               raise SystemExit(1)
           PY
+      - name: Install browser for documentation layout smoke test
+        run: |
+          PLAYWRIGHT_DIR="$RUNNER_TEMP/logit-doc-layout"
+          npm install --prefix "$PLAYWRIGHT_DIR" --no-save playwright@1.55.0
+          "$PLAYWRIGHT_DIR/node_modules/.bin/playwright" install --with-deps chromium
+          echo "PLAYWRIGHT_DIR=$PLAYWRIGHT_DIR" >> "$GITHUB_ENV"
+      - name: Verify documentation layout
+        run: |
+          python3 -m http.server 8765 --directory docs/html > "$RUNNER_TEMP/docs-http.log" 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID"' EXIT
+          sleep 1
+          NODE_PATH="$PLAYWRIGHT_DIR/node_modules" node .github/scripts/docs-layout-smoke.cjs
       - name: Publish generated content to GitHub Pages
         if: github.event_name != 'pull_request'
         uses: peaceiris/actions-gh-pages@v3
