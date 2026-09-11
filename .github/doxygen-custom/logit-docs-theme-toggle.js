@@ -24,5 +24,6 @@
 
         var observer = new MutationObserver(scheduleMove);
         observer.observe(document.body, { childList: true, subtree: true });
+        window.setInterval(moveThemeToggle, 100);
     });
 })();

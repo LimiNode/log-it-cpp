@@ -20,7 +20,7 @@ async function inspectViewport(page, name, viewport) {
         const toggles = document.querySelectorAll("doxygen-awesome-dark-mode-toggle");
         return toggles.length === 1 && toggles[0].parentElement?.id === "logit-theme-toggle";
     });
-    await page.waitForTimeout(250);
+    await page.waitForTimeout(500);
 
     const layout = await page.evaluate(() => {
         const sideNav = document.querySelector("#side-nav")?.getBoundingClientRect();
