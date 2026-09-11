@@ -68,9 +68,7 @@ async function inspectViewport(page, name, viewport) {
         layout.toggleBottom <= layout.searchTop + 1;
     assert(separated,
         `${name}: search box and dark-mode toggle overlap`);
-    assert(layout.toggleTop < layout.searchTop,
-        `${name}: dark-mode toggle is not above the search box`);
-    assert(layout.targetContainsToggle && layout.toggleTop < layout.searchTop,
+    assert(layout.targetContainsToggle,
         `${name}: dark-mode toggle is not anchored in the header area`);
     assert(layout.toggleCount === 1,
         `${name}: expected one dark-mode toggle, got ${layout.toggleCount}`);
@@ -87,6 +85,10 @@ async function inspectViewport(page, name, viewport) {
             `${name}: search box is too narrow (${layout.searchWidth}px; expected about ${expectedSearchWidth}px)`);
         assert(Math.abs(layout.toggleTop - layout.searchTop) <= 5,
             `${name}: dark-mode toggle is not opposite the search box`);
+        const searchCenter = (layout.searchTop + layout.searchBottom) / 2;
+        const toggleCenter = (layout.toggleTop + layout.toggleBottom) / 2;
+        assert(Math.abs(toggleCenter - searchCenter) <= 1,
+            `${name}: dark-mode toggle is not vertically centered with the search box`);
         assert(layout.searchLeft >= layout.sidebarLeft - 1 &&
             layout.searchRight <= layout.sidebarRight + 1,
             `${name}: search box is not contained by the sidebar`);
