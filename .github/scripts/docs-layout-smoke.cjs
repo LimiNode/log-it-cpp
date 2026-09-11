@@ -48,6 +48,7 @@ async function inspectViewport(page, name, viewport) {
             cssSidebarWidth: parseFloat(getComputedStyle(root).getPropertyValue("--side-nav-fixed-width")),
         };
     });
+    console.log(`${name}: metrics ${JSON.stringify(layout)}`);
 
     assert(layout.scrollWidth <= layout.viewportWidth + 1,
         `${name}: horizontal overflow (${layout.scrollWidth}px > ${layout.viewportWidth}px)`);
