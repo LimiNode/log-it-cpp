@@ -85,6 +85,20 @@ The prepared-message/direct-dispatch pipeline and a true public macro benchmark 
 calls `LOGIT_INFO(...)` are separate scenarios with different work contracts;
 their results must not be presented as one number.
 
+`logit_public_macro_bench` is the focused public-API smoke benchmark. It invokes
+`LOGIT_INFO(...)` from multiple producer threads and therefore includes argument
+name parsing, `args_array` construction, formatting, and dispatch. Configure it
+with `LOGIT_PUBLIC_BENCH_TOTAL` and `LOGIT_PUBLIC_BENCH_PRODUCERS`; its throughput
+is reported separately from `latency.csv` and is intended for before/after
+hot-path experiments on identical hardware.
+
+`logit_hotpath_bench` and `logit_hotpath_bench_legacy` provide a controlled A/B
+measurement for the registry read path. Both run the same prepared `LogRecord`
+workload; the legacy target is compiled with `LOGIT_BENCH_LEGACY_REGISTRY` and
+uses the pre-optimization mutex-plus-copy path, while the default target uses
+the immutable snapshot. Compare their `ns_per_call` output on the same run and
+toolchain. This is a measurement harness, not a supported production option.
+
 The prepared-message path is also the first target for the logger hot-path
 regression checks. Logger strategy lists are published as an immutable
 copy-on-write snapshot, so a normal dispatch no longer takes the registry lock
@@ -94,3 +108,9 @@ existing formatter/backend execution mutex. That mutex remains intentional:
 custom formatters and backends are not assumed to be safe for concurrent
 invocation. Any future lock-elision experiment must advertise and test an
 explicit concurrency contract rather than infer one from a benchmark sink.
+
+The flush regression target uses an intentionally delayed asynchronous sink and
+asserts that `flush()` does not return before every queued message has reached
+that sink. `benchmark_validation_test` covers the comparative-protocol guardrails
+(`queue_capacity=0` and legacy CSV schema rejection) without relying on packages
+installed on the host.

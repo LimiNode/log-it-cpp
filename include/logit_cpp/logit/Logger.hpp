@@ -14,6 +14,7 @@
 #include <sstream>
 #include <atomic>
 #include <cstddef>
+#include <vector>
 
 #if __cplusplus >= 201703L
 #include <shared_mutex>
@@ -41,6 +42,9 @@ namespace logit {
     /// Provides methods to log messages using these strategies and supports
     /// both synchronous and asynchronous logging. Class is thread-safe.
     class Logger {
+        struct LoggerStrategy;
+        using StrategyList = std::vector<std::shared_ptr<LoggerStrategy>>;
+
     public:
 
         /// \brief Retrieves singleton instance of Logger.
@@ -163,8 +167,16 @@ namespace logit {
             if (m_shutdown.load(std::memory_order_acquire)) return;
 
             const bool targeted = record.logger_index >= 0;
+#ifdef LOGIT_BENCH_LEGACY_REGISTRY
+            std::shared_ptr<const StrategyList> snapshot;
+            {
+                LoggerReadLock legacy_lock(m_loggers_mx);
+                snapshot.reset(new StrategyList(m_loggers));
+            }
+#else
             const auto snapshot = std::atomic_load_explicit(
                     &m_loggers_snapshot, std::memory_order_acquire);
+#endif
             if (!snapshot) return;
 
             if (targeted) {
@@ -564,7 +576,6 @@ namespace logit {
         }
 
         std::vector<std::shared_ptr<LoggerStrategy>> m_loggers;        ///< Container for logger-formatter pairs.
-        using StrategyList = std::vector<std::shared_ptr<LoggerStrategy>>;
         std::shared_ptr<const StrategyList> m_loggers_snapshot; ///< Immutable read-mostly strategy list.
         mutable LoggerMutex m_loggers_mx;                        ///< Protects access to logger strategies.
         std::atomic<bool> m_shutdown = ATOMIC_VAR_INIT(false); ///< Flag indicating if shutdown was requested.
