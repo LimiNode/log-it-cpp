@@ -4,7 +4,7 @@
 
 ## Requirements
 
-LogIt++ requires CMake 3.18 or newer and **TimeShield 2.0.0 or newer**. The
+LogIt++ requires CMake 3.18 or newer and **TimeShield 2.0.x (minimum 2.0.0)**. The
 core library and most built-in backends use C++11. OTLP, the Prometheus HTTP
 server, and MDBX integrations require C++17.
 

@@ -306,17 +306,32 @@ jobs:
             vcpkg
             vcpkg/downloads
             vcpkg/installed
-          key: ${{ runner.os }}-vcpkg-${{ env.VCPKG_TAG }}-${{ hashFiles('vcpkg-overlay/ports/**', 'external/time-shield-cpp/vcpkg-overlay/ports/**') }}
+          key: ${{ runner.os }}-vcpkg-${{ env.VCPKG_TAG }}-${{ github.sha }}-${{ hashFiles('vcpkg-overlay/ports/**', 'external/time-shield-cpp/vcpkg-overlay/ports/**') }}
       - name: Install vcpkg
         if: matrix.suite == 'vcpkg-install' && steps.cache-vcpkg.outputs.cache-hit != 'true'
         run: |
           git clone https://github.com/microsoft/vcpkg.git --branch $VCPKG_TAG --single-branch
           ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
-      - name: Validate port
+      - name: Prepare current-source vcpkg port
+        if: matrix.suite == 'vcpkg-install'
+        env:
+          SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p .ci/vcpkg-overlay/ports/log-it-cpp
+          cp vcpkg-overlay/ports/log-it-cpp/vcpkg.json .ci/vcpkg-overlay/ports/log-it-cpp/vcpkg.json
+          cp vcpkg-overlay/ports/log-it-cpp/portfile.cmake .ci/vcpkg-overlay/ports/log-it-cpp/portfile.cmake
+          archive_sha512=$(curl --fail --silent --show-error -L \
+            "https://github.com/LimiNode/log-it-cpp/archive/${SOURCE_SHA}.tar.gz" | sha512sum | awk '{print $1}')
+          sed -i "s#REF .*#REF ${SOURCE_SHA}#; s#SHA512 .*#SHA512 ${archive_sha512}#" \
+            .ci/vcpkg-overlay/ports/log-it-cpp/portfile.cmake
+          sed -i 's/"version-string": "1.0.1"/"version-string": "1.0.2-dev"/' \
+            .ci/vcpkg-overlay/ports/log-it-cpp/vcpkg.json
+      - name: Validate current-source port
         if: matrix.suite == 'vcpkg-install'
         run: |
           ./vcpkg/vcpkg install log-it-cpp \
-            --overlay-ports=vcpkg-overlay/ports \
+            --overlay-ports=.ci/vcpkg-overlay/ports \
             --overlay-ports=external/time-shield-cpp/vcpkg-overlay/ports
       - name: Configure consumer project
         if: matrix.suite == 'vcpkg-install'
@@ -332,7 +347,7 @@ jobs:
             vcpkg
             vcpkg/downloads
             vcpkg/installed
-          key: ${{ runner.os }}-vcpkg-${{ env.VCPKG_TAG }}-${{ hashFiles('vcpkg-overlay/ports/**', 'external/time-shield-cpp/vcpkg-overlay/ports/**') }}
+          key: ${{ runner.os }}-vcpkg-${{ env.VCPKG_TAG }}-${{ github.sha }}-${{ hashFiles('vcpkg-overlay/ports/**', 'external/time-shield-cpp/vcpkg-overlay/ports/**') }}
       - name: Upload logs
         if: failure()
         uses: actions/upload-artifact@v4

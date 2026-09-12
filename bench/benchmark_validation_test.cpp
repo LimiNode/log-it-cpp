@@ -1,6 +1,5 @@
 #include "BenchmarkValidation.hpp"
 
-#include <cassert>
 #include <stdexcept>
 #include <string>
 
@@ -13,7 +12,7 @@ int main() {
     } catch (const std::invalid_argument&) {
         rejected_capacity = true;
     }
-    assert(rejected_capacity);
+    if (!rejected_capacity) return 1;
     validate_queue_capacity(1);
 
     bool rejected_legacy_schema = false;
@@ -23,7 +22,7 @@ int main() {
     } catch (const std::runtime_error&) {
         rejected_legacy_schema = true;
     }
-    assert(rejected_legacy_schema);
+    if (!rejected_legacy_schema) return 2;
 
     validate_latency_csv_header(std::string(latency_csv_header()) + "\r");
     validate_latency_csv_header(latency_csv_header());

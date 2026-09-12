@@ -42,6 +42,7 @@ namespace logit {
     /// Provides methods to log messages using these strategies and supports
     /// both synchronous and asynchronous logging. Class is thread-safe.
     class Logger {
+    private:
         struct LoggerStrategy;
         using StrategyList = std::vector<std::shared_ptr<LoggerStrategy>>;
 
@@ -168,20 +169,28 @@ namespace logit {
 
             const bool targeted = record.logger_index >= 0;
 #ifdef LOGIT_BENCH_LEGACY_REGISTRY
-            std::shared_ptr<const StrategyList> snapshot;
+            StrategyList legacy_snapshot;
             {
                 LoggerReadLock legacy_lock(m_loggers_mx);
-                snapshot.reset(new StrategyList(m_loggers));
+                if (targeted) {
+                    if (record.logger_index < static_cast<int>(m_loggers.size())) {
+                        legacy_snapshot.push_back(m_loggers[record.logger_index]);
+                    }
+                } else {
+                    legacy_snapshot = m_loggers;
+                }
             }
+            const StrategyList* strategies = &legacy_snapshot;
 #else
             const auto snapshot = std::atomic_load_explicit(
                     &m_loggers_snapshot, std::memory_order_acquire);
+            const StrategyList* strategies = snapshot ? snapshot.get() : nullptr;
 #endif
-            if (!snapshot) return;
+            if (!strategies) return;
 
             if (targeted) {
-                if (record.logger_index >= static_cast<int>(snapshot->size())) return;
-                const auto& strategy = (*snapshot)[record.logger_index];
+                if (record.logger_index >= static_cast<int>(strategies->size())) return;
+                const auto& strategy = (*strategies)[record.logger_index];
                 if (!strategy) return;
 
                 std::lock_guard<std::mutex> exec_lock(strategy->exec_mx);
@@ -193,7 +202,7 @@ namespace logit {
                 return;
             }
 
-            for (const auto& strategy : *snapshot) {
+            for (const auto& strategy : *strategies) {
                 if (!strategy) continue;
 
                 std::lock_guard<std::mutex> exec_lock(strategy->exec_mx);

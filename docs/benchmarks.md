@@ -87,7 +87,10 @@ their results must not be presented as one number.
 
 `logit_public_macro_bench` is the focused public-API smoke benchmark. It invokes
 `LOGIT_INFO(...)` from multiple producer threads and therefore includes argument
-name parsing, `args_array` construction, formatting, and dispatch. Configure it
+name parsing, `args_array` construction, and dispatch. Its passthrough formatter
+intentionally bypasses formatter work, so this is a public macro
+record-construction + dispatch benchmark rather than a formatting benchmark.
+Configure it
 with `LOGIT_PUBLIC_BENCH_TOTAL` and `LOGIT_PUBLIC_BENCH_PRODUCERS`; its throughput
 is reported separately from `latency.csv` and is intended for before/after
 hot-path experiments on identical hardware.
