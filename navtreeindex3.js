@@ -1,5 +1,11 @@
 var NAVTREEINDEX3 =
 {
+"classlogit_1_1MdbxLogger.html#a557205fabc1bffb05bee2ed6f77e6c87":[13,0,0,21,10],
+"classlogit_1_1MdbxLogger.html#a55bf0f66de394ce490cd3616fd3a0d07":[12,0,3,21,42],
+"classlogit_1_1MdbxLogger.html#a55bf0f66de394ce490cd3616fd3a0d07":[13,0,0,21,42],
+"classlogit_1_1MdbxLogger.html#a56e42ee49913f3e39ba66d278e9e0c77":[12,0,3,21,71],
+"classlogit_1_1MdbxLogger.html#a56e42ee49913f3e39ba66d278e9e0c77":[13,0,0,21,71],
+"classlogit_1_1MdbxLogger.html#a593cc9985dffc651a53a68da62d7a0da":[12,0,3,21,85],
 "classlogit_1_1MdbxLogger.html#a593cc9985dffc651a53a68da62d7a0da":[13,0,0,21,85],
 "classlogit_1_1MdbxLogger.html#a59c6c343d26f513ea4bc2b01011d75ea":[12,0,3,21,27],
 "classlogit_1_1MdbxLogger.html#a59c6c343d26f513ea4bc2b01011d75ea":[13,0,0,21,27],
@@ -243,11 +249,5 @@ var NAVTREEINDEX3 =
 "classlogit_1_1PrometheusHttpServerLogger.html#aa7c41aabf21dd3164309913fa91147a0":[11,2,6,4],
 "classlogit_1_1PrometheusHttpServerLogger.html#aaa46a5c65ba6a2f4516cde57f08a2e22":[11,2,6,6],
 "classlogit_1_1PrometheusHttpServerLogger.html#ac369c71ab69bc57e01ced1e325e7a665":[11,2,6,8],
-"classlogit_1_1PrometheusHttpServerLogger.html#ac5c71eb0fdc8ecd1922dac02c1d265df":[11,2,6,3],
-"classlogit_1_1PrometheusHttpServerLogger.html#acdd0c3afd4ff60c6ad8ae640e46262af":[11,2,6,31],
-"classlogit_1_1PrometheusHttpServerLogger.html#ad276a38ee98f8ee4dd36f8d148e8a2f5":[11,2,6,19],
-"classlogit_1_1PrometheusHttpServerLogger.html#ae18c51edb7da28e556fb634508cb2e09":[11,2,6,25],
-"classlogit_1_1PrometheusHttpServerLogger.html#af43b519652554b0a09aee4b7a10a3dec":[11,2,6,32],
-"classlogit_1_1PrometheusHttpServerLogger.html#af6e5983d4ba8fba134a4c7fc7e8cc79c":[11,2,6,23],
-"classlogit_1_1PrometheusLoggerMetrics.html":[12,0,3,33]
+"classlogit_1_1PrometheusHttpServerLogger.html#ac5c71eb0fdc8ecd1922dac02c1d265df":[11,2,6,3]
 };

@@ -61,5 +61,6 @@ var searchData=
   ['prometheustextformatconfig_2ehpp_58',['PrometheusTextFormatConfig.hpp',['../PrometheusTextFormatConfig_8hpp.html',1,'']]],
   ['prometheustextserializer_2ehpp_59',['PrometheusTextSerializer.hpp',['../PrometheusTextSerializer_8hpp.html',1,'']]],
   ['pthreads_60',['pthreads',['../task_executor.html#autotoc_md65',1,'6. Emscripten (no pthreads)'],['../task_executor.html#autotoc_md60',1,'Emscripten builds without pthreads']]],
-  ['public_20api_20boundary_61',['Public API boundary',['../quickstart.html#autotoc_md3',1,'']]]
+  ['public_20api_20boundary_61',['Public API boundary',['../quickstart.html#autotoc_md3',1,'']]],
+  ['publish_5fstrategy_5fsnapshot_5flocked_62',['publish_strategy_snapshot_locked',['../classlogit_1_1Logger.html#a2d2e3ce77f9d5e9121a74bd10dfc680d',1,'logit::Logger']]]
 ];

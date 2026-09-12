@@ -6,7 +6,7 @@ var searchData=
   ['emscripten_20builds_20without_20pthreads_3',['Emscripten builds without pthreads',['../task_executor.html#autotoc_md60',1,'']]],
   ['emscripten_20no_20pthreads_4',['6. Emscripten (no pthreads)',['../task_executor.html#autotoc_md65',1,'']]],
   ['enable_5fhealth_5fendpoint_5',['enable_health_endpoint',['../structlogit_1_1PrometheusHttpServerLogger_1_1Config.html#a36f67eb9ce5d0a296834b233e01ce114',1,'logit::PrometheusHttpServerLogger::Config']]],
-  ['enabled_6',['enabled',['../structlogit_1_1Logger_1_1LoggerStrategy.html#afb09a02d639c99807141f9766bd845c5',1,'logit::Logger::LoggerStrategy']]],
+  ['enabled_6',['enabled',['../structlogit_1_1Logger_1_1LoggerStrategy.html#a809e6935ea3b3c17ca6fe2d5e8da3201',1,'logit::Logger::LoggerStrategy']]],
   ['encoding_5futils_2ehpp_7',['encoding_utils.hpp',['../encoding__utils_8hpp.html',1,'']]],
   ['end_5ftime_5fms_8',['end_time_ms',['../structlogit_1_1MdbxLogger_1_1SessionView.html#a2a340bdf325a395d38ab35cfae79679b',1,'logit::MdbxLogger::SessionView::end_time_ms'],['../structlogit_1_1MdbxLogger_1_1Session.html#a33f0345e4cb72273c6f3426b0aa34440',1,'logit::MdbxLogger::Session::end_time_ms']]],
   ['endcolor_9',['EndColor',['../structlogit_1_1FormatInstruction.html#a6a3644a7970741bbdd4750d30a8e4ad8a3cf2c4f1030c2974a1b3028ed71b5783',1,'logit::FormatInstruction']]],

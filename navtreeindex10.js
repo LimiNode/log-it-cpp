@@ -1,5 +1,11 @@
 var NAVTREEINDEX10 =
 {
+"structlogit_1_1FormatInstruction.html#a02acd24128bb2dafba5b7edbefb21d7e":[12,0,3,8,13],
+"structlogit_1_1FormatInstruction.html#a02acd24128bb2dafba5b7edbefb21d7e":[13,0,0,8,13],
+"structlogit_1_1FormatInstruction.html#a0dfac7e47e27be071b72040f76674600":[12,0,3,8,14],
+"structlogit_1_1FormatInstruction.html#a0dfac7e47e27be071b72040f76674600":[13,0,0,8,14],
+"structlogit_1_1FormatInstruction.html#a135c41afe872f8ab5dbfb07092063d63":[12,0,3,8,12],
+"structlogit_1_1FormatInstruction.html#a135c41afe872f8ab5dbfb07092063d63":[13,0,0,8,12],
 "structlogit_1_1FormatInstruction.html#a1d7880701961d480a82b53de2962bdaa":[12,0,3,8,10],
 "structlogit_1_1FormatInstruction.html#a1d7880701961d480a82b53de2962bdaa":[13,0,0,8,10],
 "structlogit_1_1FormatInstruction.html#a3533ffecf52adc87e5ae551770f8c005":[12,0,3,8,11],
@@ -186,14 +192,14 @@ var NAVTREEINDEX10 =
 "structlogit_1_1Logger_1_1LoggerStrategy.html":[13,0,0,17,0],
 "structlogit_1_1Logger_1_1LoggerStrategy.html#a35f1350858616f7b4ec8430114362d2c":[12,0,3,17,0,1],
 "structlogit_1_1Logger_1_1LoggerStrategy.html#a35f1350858616f7b4ec8430114362d2c":[13,0,0,17,0,1],
+"structlogit_1_1Logger_1_1LoggerStrategy.html#a7dafd35fddef89f1a6abce8fac876fcd":[12,0,3,17,0,4],
+"structlogit_1_1Logger_1_1LoggerStrategy.html#a7dafd35fddef89f1a6abce8fac876fcd":[13,0,0,17,0,4],
+"structlogit_1_1Logger_1_1LoggerStrategy.html#a809e6935ea3b3c17ca6fe2d5e8da3201":[12,0,3,17,0,0],
+"structlogit_1_1Logger_1_1LoggerStrategy.html#a809e6935ea3b3c17ca6fe2d5e8da3201":[13,0,0,17,0,0],
 "structlogit_1_1Logger_1_1LoggerStrategy.html#a8aa5132097aec9c2a87f31e27d71334a":[12,0,3,17,0,3],
 "structlogit_1_1Logger_1_1LoggerStrategy.html#a8aa5132097aec9c2a87f31e27d71334a":[13,0,0,17,0,3],
-"structlogit_1_1Logger_1_1LoggerStrategy.html#aa9d7a0e2f285e0302f52ddd327ce4181":[12,0,3,17,0,4],
-"structlogit_1_1Logger_1_1LoggerStrategy.html#aa9d7a0e2f285e0302f52ddd327ce4181":[13,0,0,17,0,4],
 "structlogit_1_1Logger_1_1LoggerStrategy.html#abaf5e1df5fa69c07fd7a6240a328263a":[12,0,3,17,0,2],
 "structlogit_1_1Logger_1_1LoggerStrategy.html#abaf5e1df5fa69c07fd7a6240a328263a":[13,0,0,17,0,2],
-"structlogit_1_1Logger_1_1LoggerStrategy.html#afb09a02d639c99807141f9766bd845c5":[12,0,3,17,0,0],
-"structlogit_1_1Logger_1_1LoggerStrategy.html#afb09a02d639c99807141f9766bd845c5":[13,0,0,17,0,0],
 "structlogit_1_1MdbxLogger_1_1Config.html":[12,0,3,21,0],
 "structlogit_1_1MdbxLogger_1_1Config.html":[13,0,0,21,0],
 "structlogit_1_1MdbxLogger_1_1Config.html#a142c53b6f8ed1af847c659b77716d3fb":[12,0,3,21,0,11],
@@ -243,11 +249,5 @@ var NAVTREEINDEX10 =
 "structlogit_1_1MdbxLogger_1_1Payload.html#a4713e28dc241c3c8024aad818fc07aa1":[12,0,3,21,2,0],
 "structlogit_1_1MdbxLogger_1_1Payload.html#a4713e28dc241c3c8024aad818fc07aa1":[13,0,0,21,2,0],
 "structlogit_1_1MdbxLogger_1_1Payload.html#a7b0fe390c66ccf6ffa0f3562b44cc8f4":[12,0,3,21,2,2],
-"structlogit_1_1MdbxLogger_1_1Payload.html#a7b0fe390c66ccf6ffa0f3562b44cc8f4":[13,0,0,21,2,2],
-"structlogit_1_1MdbxLogger_1_1Payload.html#a83069602fdd346c7459f2be72de32b58":[12,0,3,21,2,3],
-"structlogit_1_1MdbxLogger_1_1Payload.html#a83069602fdd346c7459f2be72de32b58":[13,0,0,21,2,3],
-"structlogit_1_1MdbxLogger_1_1Payload.html#adfdc0972f0d6a1ae365e3f17d398d312":[12,0,3,21,2,1],
-"structlogit_1_1MdbxLogger_1_1Payload.html#adfdc0972f0d6a1ae365e3f17d398d312":[13,0,0,21,2,1],
-"structlogit_1_1MdbxLogger_1_1Payload.html#af244b8e3743a95781ee754001ab6e1e4":[12,0,3,21,2,4],
-"structlogit_1_1MdbxLogger_1_1Payload.html#af244b8e3743a95781ee754001ab6e1e4":[13,0,0,21,2,4]
+"structlogit_1_1MdbxLogger_1_1Payload.html#a7b0fe390c66ccf6ffa0f3562b44cc8f4":[13,0,0,21,2,2]
 };

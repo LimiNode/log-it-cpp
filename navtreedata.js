@@ -226,16 +226,16 @@ var NAVTREEINDEX =
 "BufferedLogEntry_8hpp.html",
 "api_reference.html#color_flags",
 "classlogit_1_1FileLogger.html#ae5a0e21591b65367c85f9a444851996f",
-"classlogit_1_1MdbxLogger.html#a593cc9985dffc651a53a68da62d7a0da",
-"classlogit_1_1PrometheusLoggerMetrics.html",
-"classlogit_1_1detail_1_1MdbxByteReader.html#aa0e663e6e9edc259685f9f7e1cffac45",
-"encoding__utils_8hpp.html#a24cd325b25ce0c8638816505cc1f3791",
-"group__LoggingMacros.html#ga2af522d1f86df8db29f36762a522cb04",
-"log__macros_8hpp.html#a8314b49289c0087e81d006d86bae3203",
-"namespacelogit.html#a44f782ab5c6842c0d4d8e648c03f1a66ad3c7d6a92c7cc266c28c628ba85a31a8",
-"structlogit_1_1FormatInstruction.html#a1d7880701961d480a82b53de2962bdaa",
-"structlogit_1_1MdbxLogger_1_1PayloadView.html",
-"structlogit_1_1SimpleLogFormatter_1_1Config.html#aba08bc92f9c5a09c825c03371bc2a22d"
+"classlogit_1_1MdbxLogger.html#a557205fabc1bffb05bee2ed6f77e6c87",
+"classlogit_1_1PrometheusHttpServerLogger.html#acdd0c3afd4ff60c6ad8ae640e46262af",
+"classlogit_1_1detail_1_1MdbxByteReader.html#a0a28bec2661666899600c0ef0b44b48c",
+"dir_d28a4824dc47e487b107a5db32ef43c4.html",
+"group__LoggingMacros.html#ga0247b77eb0e8b91aa9512b5797ab70d7",
+"log__macros_8hpp.html#a7ef3045384a6d7775dd06931a0afde6f",
+"namespacelogit.html#a43e16f3ddf06e535296fbb8f5b55b919",
+"structlogit_1_1FormatInstruction.html#a02acd24128bb2dafba5b7edbefb21d7e",
+"structlogit_1_1MdbxLogger_1_1Payload.html#a83069602fdd346c7459f2be72de32b58",
+"structlogit_1_1PrometheusTextFormatConfig.html#ad889a7a1de34c62d9b3363dab742f7f2"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

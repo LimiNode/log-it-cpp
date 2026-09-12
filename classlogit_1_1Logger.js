@@ -1,6 +1,7 @@
 var classlogit_1_1Logger =
 [
     [ "LoggerStrategy", "structlogit_1_1Logger_1_1LoggerStrategy.html", "structlogit_1_1Logger_1_1LoggerStrategy" ],
+    [ "StrategyList", "classlogit_1_1Logger.html#ad9cb8fad46581c83980c29163d3c7c3e", null ],
     [ "Logger", "classlogit_1_1Logger.html#add155fc2fe41d02fc07a65fd514e7d8a", null ],
     [ "~Logger", "classlogit_1_1Logger.html#ac0f2ccc392e9a895e1a3ac9b1c79c01f", null ],
     [ "Logger", "classlogit_1_1Logger.html#a5e1b78ec258a758b582542b10acf5182", null ],
@@ -33,6 +34,7 @@ var classlogit_1_1Logger =
     [ "operator=", "classlogit_1_1Logger.html#ac6f33c7d76748f2056584f02c99b3565", null ],
     [ "print", "classlogit_1_1Logger.html#a927cd02c1a64be24186e7649c21c45ae", null ],
     [ "print", "classlogit_1_1Logger.html#af9ae40695451f21281d47cd2cfeac199", null ],
+    [ "publish_strategy_snapshot_locked", "classlogit_1_1Logger.html#a2d2e3ce77f9d5e9121a74bd10dfc680d", null ],
     [ "read_log_file", "classlogit_1_1Logger.html#a9e4a57c90bd24a1958aea56c7201976e", null ],
     [ "read_log_files", "classlogit_1_1Logger.html#a582a1fc7f9518a81040c1d5f0786c156", null ],
     [ "set_log_level", "classlogit_1_1Logger.html#a62a663b7fa63490b2f49d32d514631f5", null ],
@@ -44,5 +46,6 @@ var classlogit_1_1Logger =
     [ "wait", "classlogit_1_1Logger.html#a3084c4bb7dc11831dac3dfa1d5633103", null ],
     [ "m_loggers", "classlogit_1_1Logger.html#a45e888905eafae55e2cfd605d424dfdb", null ],
     [ "m_loggers_mx", "classlogit_1_1Logger.html#a4033586a56d115312f0980d3690c326d", null ],
+    [ "m_loggers_snapshot", "classlogit_1_1Logger.html#abb6c3159727b5ee3cb622a947d35bf9c", null ],
     [ "m_shutdown", "classlogit_1_1Logger.html#aa26a0f9acca5f4b4812e438d9c82ed20", null ]
 ];

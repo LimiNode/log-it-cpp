@@ -130,12 +130,12 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:abaf5e1df5fa69c07fd7a6240a328263a" id="r_abaf5e1df5fa69c07fd7a6240a328263a"><td class="memItemLeft" align="right" valign="top">std::unique_ptr&lt; <a class="el" href="classlogit_1_1ILogFormatter.html">ILogFormatter</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abaf5e1df5fa69c07fd7a6240a328263a">formatter</a></td></tr>
 <tr class="memdesc:abaf5e1df5fa69c07fd7a6240a328263a"><td class="mdescLeft">&#160;</td><td class="mdescRight">The formatter instance.  <br /></td></tr>
 <tr class="separator:abaf5e1df5fa69c07fd7a6240a328263a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa9d7a0e2f285e0302f52ddd327ce4181" id="r_aa9d7a0e2f285e0302f52ddd327ce4181"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa9d7a0e2f285e0302f52ddd327ce4181">single_mode</a> = false</td></tr>
-<tr class="memdesc:aa9d7a0e2f285e0302f52ddd327ce4181"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag indicating if the logger is in single mode.  <br /></td></tr>
-<tr class="separator:aa9d7a0e2f285e0302f52ddd327ce4181"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afb09a02d639c99807141f9766bd845c5" id="r_afb09a02d639c99807141f9766bd845c5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afb09a02d639c99807141f9766bd845c5">enabled</a> = true</td></tr>
-<tr class="memdesc:afb09a02d639c99807141f9766bd845c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag indicating if the logger is enabled.  <br /></td></tr>
-<tr class="separator:afb09a02d639c99807141f9766bd845c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7dafd35fddef89f1a6abce8fac876fcd" id="r_a7dafd35fddef89f1a6abce8fac876fcd"><td class="memItemLeft" align="right" valign="top">std::atomic&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7dafd35fddef89f1a6abce8fac876fcd">single_mode</a> {false}</td></tr>
+<tr class="memdesc:a7dafd35fddef89f1a6abce8fac876fcd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag indicating if the logger is in single mode.  <br /></td></tr>
+<tr class="separator:a7dafd35fddef89f1a6abce8fac876fcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a809e6935ea3b3c17ca6fe2d5e8da3201" id="r_a809e6935ea3b3c17ca6fe2d5e8da3201"><td class="memItemLeft" align="right" valign="top">std::atomic&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a809e6935ea3b3c17ca6fe2d5e8da3201">enabled</a> {true}</td></tr>
+<tr class="memdesc:a809e6935ea3b3c17ca6fe2d5e8da3201"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag indicating if the logger is enabled.  <br /></td></tr>
+<tr class="separator:a809e6935ea3b3c17ca6fe2d5e8da3201"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a35f1350858616f7b4ec8430114362d2c" id="r_a35f1350858616f7b4ec8430114362d2c"><td class="memItemLeft" align="right" valign="top">std::mutex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a35f1350858616f7b4ec8430114362d2c">exec_mx</a></td></tr>
 <tr class="memdesc:a35f1350858616f7b4ec8430114362d2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Protects formatter+logger invocation.  <br /></td></tr>
 <tr class="separator:a35f1350858616f7b4ec8430114362d2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -143,23 +143,23 @@ Public Attributes</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Structure to hold a logger-formatter pair. </p>
 
-<p class="definition">Definition at line <a class="el" href="Logger_8hpp_source.html#l00529">529</a> of file <a class="el" href="Logger_8hpp_source.html">Logger.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Logger_8hpp_source.html#l00522">522</a> of file <a class="el" href="Logger_8hpp_source.html">Logger.hpp</a>.</p>
 </div><h2 class="groupheader">Member Data Documentation</h2>
-<a id="afb09a02d639c99807141f9766bd845c5" name="afb09a02d639c99807141f9766bd845c5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afb09a02d639c99807141f9766bd845c5">&#9670;&#160;</a></span>enabled</h2>
+<a id="a809e6935ea3b3c17ca6fe2d5e8da3201" name="a809e6935ea3b3c17ca6fe2d5e8da3201"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a809e6935ea3b3c17ca6fe2d5e8da3201">&#9670;&#160;</a></span>enabled</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool logit::Logger::LoggerStrategy::enabled = true</td>
+          <td class="memname">std::atomic&lt;bool&gt; logit::Logger::LoggerStrategy::enabled {true}</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Flag indicating if the logger is enabled. </p>
 
-<p class="definition">Definition at line <a class="el" href="Logger_8hpp_source.html#l00533">533</a> of file <a class="el" href="Logger_8hpp_source.html">Logger.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Logger_8hpp_source.html#l00526">526</a> of file <a class="el" href="Logger_8hpp_source.html">Logger.hpp</a>.</p>
 
 </div>
 </div>
@@ -185,7 +185,7 @@ Public Attributes</h2></td></tr>
 
 <p>Protects formatter+logger invocation. </p>
 
-<p class="definition">Definition at line <a class="el" href="Logger_8hpp_source.html#l00534">534</a> of file <a class="el" href="Logger_8hpp_source.html">Logger.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Logger_8hpp_source.html#l00527">527</a> of file <a class="el" href="Logger_8hpp_source.html">Logger.hpp</a>.</p>
 
 </div>
 </div>
@@ -203,7 +203,7 @@ Public Attributes</h2></td></tr>
 
 <p>The formatter instance. </p>
 
-<p class="definition">Definition at line <a class="el" href="Logger_8hpp_source.html#l00531">531</a> of file <a class="el" href="Logger_8hpp_source.html">Logger.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Logger_8hpp_source.html#l00524">524</a> of file <a class="el" href="Logger_8hpp_source.html">Logger.hpp</a>.</p>
 
 </div>
 </div>
@@ -221,25 +221,25 @@ Public Attributes</h2></td></tr>
 
 <p>The logger instance. </p>
 
-<p class="definition">Definition at line <a class="el" href="Logger_8hpp_source.html#l00530">530</a> of file <a class="el" href="Logger_8hpp_source.html">Logger.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Logger_8hpp_source.html#l00523">523</a> of file <a class="el" href="Logger_8hpp_source.html">Logger.hpp</a>.</p>
 
 </div>
 </div>
-<a id="aa9d7a0e2f285e0302f52ddd327ce4181" name="aa9d7a0e2f285e0302f52ddd327ce4181"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa9d7a0e2f285e0302f52ddd327ce4181">&#9670;&#160;</a></span>single_mode</h2>
+<a id="a7dafd35fddef89f1a6abce8fac876fcd" name="a7dafd35fddef89f1a6abce8fac876fcd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7dafd35fddef89f1a6abce8fac876fcd">&#9670;&#160;</a></span>single_mode</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool logit::Logger::LoggerStrategy::single_mode = false</td>
+          <td class="memname">std::atomic&lt;bool&gt; logit::Logger::LoggerStrategy::single_mode {false}</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Flag indicating if the logger is in single mode. </p>
 
-<p class="definition">Definition at line <a class="el" href="Logger_8hpp_source.html#l00532">532</a> of file <a class="el" href="Logger_8hpp_source.html">Logger.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Logger_8hpp_source.html#l00525">525</a> of file <a class="el" href="Logger_8hpp_source.html">Logger.hpp</a>.</p>
 
 </div>
 </div>

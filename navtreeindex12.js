@@ -1,5 +1,11 @@
 var NAVTREEINDEX12 =
 {
+"structlogit_1_1PrometheusTextFormatConfig.html#ad889a7a1de34c62d9b3363dab742f7f2":[13,0,0,38,0],
+"structlogit_1_1PrometheusTextFormatConfig.html#ae96dadc3beb2cee03540a7a8a110b59a":[12,0,3,38,10],
+"structlogit_1_1PrometheusTextFormatConfig.html#ae96dadc3beb2cee03540a7a8a110b59a":[13,0,0,38,10],
+"structlogit_1_1SimpleLogFormatter_1_1Config.html":[12,0,3,39,0],
+"structlogit_1_1SimpleLogFormatter_1_1Config.html":[13,0,0,39,0],
+"structlogit_1_1SimpleLogFormatter_1_1Config.html#aba08bc92f9c5a09c825c03371bc2a22d":[12,0,3,39,0,0],
 "structlogit_1_1SimpleLogFormatter_1_1Config.html#aba08bc92f9c5a09c825c03371bc2a22d":[13,0,0,39,0,0],
 "structlogit_1_1SimpleLogFormatter_1_1Config.html#acbf8e737f237af8cb50b184cc443ad5a":[12,0,3,39,0,1],
 "structlogit_1_1SimpleLogFormatter_1_1Config.html#acbf8e737f237af8cb50b184cc443ad5a":[13,0,0,39,0,1],
