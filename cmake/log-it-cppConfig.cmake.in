@@ -2,7 +2,7 @@
 
 include(CMakeFindDependencyMacro)
 if(NOT TARGET time_shield::time_shield)
-    find_dependency(TimeShield 1.0.6 CONFIG)
+    find_dependency(TimeShield 2.0.0 CONFIG)
 endif()
 
 if(@LOGIT_WITH_FMT@ AND NOT TARGET fmt::fmt)
