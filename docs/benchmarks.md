@@ -72,7 +72,14 @@ through `LOGIT_BENCH_QUEUE_CAPACITY` (default: `max(8192, 2 * total)`). In
 async mode `adapter.flush()` is a drain barrier: the spdlog adapter waits for a
 worker-side flush marker, matching LogIt++'s executor drain. The measured
 throughput interval therefore ends only after all recorded messages reached the
-sink callback.
+sink callback. A queue capacity of `0` is rejected because it would mean an
+unlimited LogIt++ queue but a bounded spdlog queue and invalidate the
+comparison.
+
+The current CSV schema includes `queue_capacity`. Before appending, the harness
+validates the existing `bench/results/latency.csv` header and fails with a
+rename/remove instruction when it finds an older schema. Existing result files
+are never silently rewritten or mixed with rows from a different schema.
 
 The prepared-message/direct-dispatch pipeline and a true public macro benchmark that
 calls `LOGIT_INFO(...)` are separate scenarios with different work contracts;

@@ -305,15 +305,34 @@ void append_csv(
 {
     namespace fs = std::filesystem;
     const fs::path csv_path{"bench/results/latency.csv"};
+    const std::string expected_header =
+        "lib,async,sink,producers,msg_bytes,total,queue_capacity,"
+        "p50_ns,p99_ns,p999_ns,throughput";
     fs::create_directories(csv_path.parent_path());
 
     const bool write_header = !fs::exists(csv_path) || fs::file_size(csv_path) == 0;
+
+    if (!write_header) {
+        std::ifstream in(csv_path);
+        std::string header;
+        if (!in || !std::getline(in, header)) {
+            throw std::runtime_error("Failed to read latency.csv schema header");
+        }
+        if (!header.empty() && header.back() == '\r') {
+            header.pop_back();
+        }
+        if (header != expected_header) {
+            throw std::runtime_error(
+                "Unsupported bench/results/latency.csv schema; rename or remove "
+                "the existing file before running this benchmark");
+        }
+    }
 
     std::ofstream out(csv_path, std::ios::app);
     if (!out) throw std::runtime_error("Failed to open latency.csv for writing");
 
     if (write_header) {
-        out << "lib,async,sink,producers,msg_bytes,total,queue_capacity,p50_ns,p99_ns,p999_ns,throughput\n";
+        out << expected_header << '\n';
     }
     out << library << ','
         << (scenario.async ? 1 : 0) << ','
@@ -379,6 +398,11 @@ int main() {
         const std::size_t queue_capacity = get_env_size_t(
             "LOGIT_BENCH_QUEUE_CAPACITY",
             std::max<std::size_t>(8192, total_messages * 2));
+        if (queue_capacity == 0) {
+            throw std::invalid_argument(
+                "LOGIT_BENCH_QUEUE_CAPACITY must be greater than zero for "
+                "a comparative benchmark");
+        }
 
         const BenchFilter filter = load_filter();
 
