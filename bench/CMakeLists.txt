@@ -45,5 +45,13 @@ if(LOGIT_BENCH_WITH_SPDLOG)
     target_include_directories(logit_bench_flush_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
     target_compile_definitions(logit_bench_flush_test PRIVATE LOGIT_BENCH_HAVE_SPDLOG=1)
     target_link_libraries(logit_bench_flush_test PRIVATE spdlog::spdlog)
+    set_target_properties(logit_bench_flush_test PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+    foreach(config IN ITEMS DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
+        set_target_properties(logit_bench_flush_test PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY_${config} ${CMAKE_BINARY_DIR}
+        )
+    endforeach()
     add_test(NAME logit_bench_flush_test COMMAND logit_bench_flush_test)
 endif()

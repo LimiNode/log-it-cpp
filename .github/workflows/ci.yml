@@ -31,6 +31,8 @@ jobs:
       - name: Build benchmarks
         # if: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/stable') }}
         run: cmake --build build-bench --target logit_bench
+      - name: Run spdlog async flush regression
+        run: ./build-bench/logit_bench_flush_test
       - name: Run latency benchmarks
         # if: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/stable') }}
         timeout-minutes: 20
