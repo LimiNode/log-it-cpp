@@ -361,7 +361,7 @@ int main() {
         // Matrix
         const std::array<bool, 2> async_modes{false, true};
         const std::array<SinkKind, 2> sinks{SinkKind::Null, SinkKind::File};
-        const std::array<std::size_t, 3> producer_counts{1, 4, 16};
+        const std::array<std::size_t, 4> producer_counts{1, 4, 16, 32};
         const std::array<std::size_t, 3> message_sizes{40, 200, 1024};
 
         // Totals (can be overridden by env):

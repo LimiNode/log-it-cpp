@@ -147,10 +147,12 @@ universally better.
 
 ## Performance snapshot
 
-The repository currently has a reproducible adapter for LogIt++ and spdlog,
-not for every project in the feature table. The historical fixture below is
-therefore a **LogIt++/spdlog pipeline snapshot**, not a ranking of all six
-projects.
+The repository currently has a reproducible **prepared-record/dispatch
+pipeline** adapter for LogIt++ and spdlog, not for every project in the feature
+table. The historical fixture below is therefore a **LogIt++/spdlog pipeline
+snapshot**, not a ranking of all six projects. It does not measure the full
+public `LOGIT_INFO(...)` macro path; in particular, it omits argument-name
+parsing and `args_array` construction.
 
 | Mode | Sink | LogIt++ p50 | LogIt++ throughput | spdlog p50 | spdlog throughput |
 | --- | --- | ---: | ---: | ---: | ---: |
@@ -161,8 +163,8 @@ projects.
 
 Snapshot conditions: Release build, four producers, 200-byte messages,
 `LOGIT_BENCH_TOTAL=10000`, and the fixture recorded on 2025-12-05. The LogIt++
-path may include argument-name extraction and structured value packing, while
-the spdlog adapter receives a prepared string. Async values also include
+adapter receives a prepared `LogRecord`, while the spdlog adapter receives a
+prepared string. Async values also include
 enqueue, worker wake-up/scheduling, and sink work.
 
 See [`docs/benchmarks.md`](benchmarks.html) for the methodology and

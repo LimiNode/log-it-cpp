@@ -45,6 +45,7 @@ else()
         include_utils_nhr_test.cpp
         log_filters_tags_test.cpp
         logger_shutdown_race_test.cpp
+        logger_hot_path_state_test.cpp
         logger_snapshot_read_path_test.cpp
         logger_clear_api_test.cpp
         memory_logger_backend_test.cpp

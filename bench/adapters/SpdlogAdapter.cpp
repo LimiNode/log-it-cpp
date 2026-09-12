@@ -43,7 +43,9 @@ namespace logit_bench {
         }
     
         void log(const spdlog::details::log_msg& msg) override {
-            // slot is stored in msg.source.line
+            // Record sink-entry latency; file I/O happens below and is not
+            // part of this completion marker. The slot is stored in
+            // msg.source.line.
             const int line = msg.source.line;
             if (line >= 0 && m_recorder) {
                 m_recorder->complete_slot(static_cast<std::uint64_t>(line));

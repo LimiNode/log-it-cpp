@@ -12,19 +12,25 @@ cmake --build build --target logit_bench
 ./build/bench/logit_bench
 ```
 
-The harness records end-to-end latency from the logging call until delivery to
-the sink, together with aggregate throughput. It compares synchronous and
-asynchronous modes, null and file sinks, producer counts, and message sizes.
+The harness records latency from the logging call until the adapter enters its
+sink callback, together with aggregate throughput. This is a **sink-entry
+latency** metric: for the file scenario the marker is recorded before the
+`ofstream` write, so it is not a completed-write or durability measurement.
+It compares synchronous and asynchronous modes, null and file sinks, producer
+counts, and message sizes.
 Results are appended to `bench/results/latency.csv`; workload size can be
 reduced with `LOGIT_BENCH_TOTAL` and `LOGIT_BENCH_WARMUP`.
 
 ## Interpreting results
 
-The benchmark measures the complete path, not just formatter throughput. A
-LogIt++ call may parse argument names, build `args_array`, and optionally
-format values, while another logger may receive an already formatted string.
-Compare implementations within the same mode and configuration; these numbers
-are not a universal speed ranking.
+The default adapter measures a **prepared-record / dispatch pipeline**. It
+constructs a `LogRecord` whose message is already prepared and calls the
+dispatcher directly; it does not exercise the public `LOGIT_INFO(...)` macro
+path, argument-name parsing, or `args_array` construction. A separate public
+macro benchmark should be treated as a different scenario rather than mixed
+into this comparison. The spdlog adapter likewise receives an already prepared
+string. Compare implementations within the same mode and configuration; these
+numbers are not a universal speed ranking.
 
 The asynchronous measurement includes enqueue, worker wake-up/scheduling, and
 sink time. Results are sensitive to queue capacity, overflow policy, worker
@@ -52,3 +58,22 @@ library-selection decisions.
 producers and consumers. The LogIt adapter stores the benchmark slot in
 `LogRecord::line`; sinks call `LatencyRecorder::complete_slot()` when they
 observe a non-negative line number.
+
+The current matrix covers 1, 4, 16, and 32 producers. CI intentionally uses a
+short Release smoke workload (`LOGIT_BENCH_TOTAL=20000`) for predictable run
+time. Larger publication runs (for example, one million messages plus warmup)
+belong on fixed or self-hosted hardware, where the results can be reproduced.
+
+The prepared-record/dispatch pipeline and a true public macro benchmark that
+calls `LOGIT_INFO(...)` are separate scenarios with different work contracts;
+their results must not be presented as one number.
+
+The prepared-record path is also the first target for the logger hot-path
+regression checks. Logger strategy lists are published as an immutable
+copy-on-write snapshot, so a normal dispatch no longer takes the registry lock
+or allocates a temporary vector. `enabled` and `single_mode` are atomic state,
+which keeps concurrent configuration changes defined without changing the
+existing formatter/backend execution mutex. That mutex remains intentional:
+custom formatters and backends are not assumed to be safe for concurrent
+invocation. Any future lock-elision experiment must advertise and test an
+explicit concurrency contract rather than infer one from a benchmark sink.
