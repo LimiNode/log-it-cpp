@@ -31,9 +31,27 @@ if(LOGIT_BENCH_WITH_SPDLOG)
         include(FetchContent)
         FetchContent_Declare(spdlog
             GIT_REPOSITORY https://github.com/gabime/spdlog.git
-            GIT_TAG v1.12.0
+            GIT_TAG v1.17.0
         )
         FetchContent_MakeAvailable(spdlog)
     endif()
     target_link_libraries(logit_bench PRIVATE spdlog::spdlog)
+
+    add_executable(logit_bench_flush_test
+        spdlog_flush_test.cpp
+        adapters/SpdlogAdapter.cpp
+    )
+    target_compile_features(logit_bench_flush_test PRIVATE cxx_std_17)
+    target_include_directories(logit_bench_flush_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    target_compile_definitions(logit_bench_flush_test PRIVATE LOGIT_BENCH_HAVE_SPDLOG=1)
+    target_link_libraries(logit_bench_flush_test PRIVATE spdlog::spdlog)
+    set_target_properties(logit_bench_flush_test PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+    foreach(config IN ITEMS DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
+        set_target_properties(logit_bench_flush_test PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY_${config} ${CMAKE_BINARY_DIR}
+        )
+    endforeach()
+    add_test(NAME logit_bench_flush_test COMMAND logit_bench_flush_test)
 endif()

@@ -141,9 +141,14 @@ application diagnostics и severity/check macros. Это trade-offs област
 
 ## Снимок производительности
 
-Сейчас в репозитории есть воспроизводимый adapter только для LogIt++ и spdlog,
-а не для всех шести проектов. Поэтому таблица — **снимок LogIt++/spdlog
-pipeline**, а не рейтинг всех библиотек.
+Сейчас в репозитории есть воспроизводимый adapter для **pipeline подготовленного
+сообщения/direct dispatch** только для LogIt++ и spdlog, а не для всех шести
+проектов. Поэтому таблица — **legacy-снимок LogIt++/spdlog pipeline**, а не
+рейтинг всех библиотек. Полный публичный macro-путь `LOGIT_INFO(...)` здесь не
+измеряется: в частности, не учитываются разбор имён аргументов и построение
+`args_array`. В timed-вызове LogIt++ создаёт `LogRecord` и копирует сообщение в
+`std::string`, а spdlog получает подготовленный `string_view`; эти контракты
+намеренно описаны явно и не выдаются за одинаковый объём работы.
 
 | Режим | Sink | LogIt++ p50 | LogIt++ throughput | spdlog p50 | spdlog throughput |
 | --- | --- | ---: | ---: | ---: | ---: |
@@ -153,10 +158,16 @@ pipeline**, а не рейтинг всех библиотек.
 | Async | File | 255 323 ns | 651 384 msg/s | 5 001 140 ns | 1 153 976 msg/s |
 
 Условия snapshot: Release build, четыре producer-а, сообщения по 200 байт,
-`LOGIT_BENCH_TOTAL=10000`, fixture от 05.12.2025. Путь LogIt++ может включать
-извлечение имён аргументов и упаковку structured values, а spdlog adapter получает
-готовую строку. Async-результаты также включают enqueue, wake-up/scheduling worker-а
+`LOGIT_BENCH_TOTAL=10000`, fixture от 05.12.2025. В timed-вызове LogIt++
+создаёт `LogRecord` и владеющую копию сообщения, а spdlog получает
+подготовленный `string_view`.
+Async-результаты также включают enqueue, wake-up/scheduling worker-а
 и работу sink-а.
+
+Это legacy-fixture: в CSV не записаны версия spdlog, compiler/toolchain,
+commit harness, queue capacity и протокол async drain. Не используйте его как
+актуальное числовое сравнение; после изменения протокола нужно создать новый
+версионированный fixture.
 
 Методика описана в [`docs/benchmarks.md`](benchmarks.html), полный fixture — в
 [`latency-2025-12-05-10k.csv`](https://github.com/LimiNode/log-it-cpp/blob/main/bench/results/latency-2025-12-05-10k.csv).

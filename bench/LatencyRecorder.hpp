@@ -1,5 +1,9 @@
 #pragma once
 
+#if defined(_WIN32) && !defined(NOMINMAX)
+#define NOMINMAX
+#endif
+
 #include <algorithm>
 #include <atomic>
 #include <chrono>
@@ -10,6 +14,10 @@
 #include <stdexcept>
 #include <vector>
 #include <cmath>
+
+#ifdef max
+#undef max
+#endif
 
 namespace logit_bench {
 

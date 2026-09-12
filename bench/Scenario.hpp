@@ -24,6 +24,7 @@ struct Scenario {
     std::size_t producers      = 1;
     std::size_t message_bytes  = 0;
     std::size_t total_messages = 0;
+    std::size_t queue_capacity = 0;
 };
 
 } // namespace logit_bench

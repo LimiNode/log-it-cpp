@@ -27,10 +27,12 @@ jobs:
         run: ctest --test-dir build --output-on-failure
       - name: Configure benchmarks
         # if: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/stable') }}
-        run: cmake -S . -B build-bench -DLOGIT_BENCH_ENABLE=ON -DLOGIT_BENCH_WITH_SPDLOG=ON -DCMAKE_CXX_STANDARD=${{ matrix.std }} -DLOGIT_WITH_SYSLOG=ON -DLOGIT_WITH_WIN_EVENT_LOG=OFF
+        run: cmake -S . -B build-bench -DLOGIT_BENCH_ENABLE=ON -DLOGIT_BENCH_WITH_SPDLOG=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=${{ matrix.std }} -DLOGIT_WITH_SYSLOG=ON -DLOGIT_WITH_WIN_EVENT_LOG=OFF
       - name: Build benchmarks
         # if: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/stable') }}
-        run: cmake --build build-bench --target logit_bench
+        run: cmake --build build-bench --target logit_bench logit_bench_flush_test
+      - name: Run spdlog async flush regression
+        run: ./build-bench/logit_bench_flush_test
       - name: Run latency benchmarks
         # if: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/stable') }}
         timeout-minutes: 20

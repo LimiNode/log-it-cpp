@@ -105,7 +105,8 @@ namespace logit_bench {
         };
     
         void consume(int slot_line, std::string_view text) {
-            // slot-only completion
+            // Record sink-entry latency; file I/O happens below and is not
+            // part of this completion marker.
             if (slot_line >= 0 && m_recorder) {
                 m_recorder->complete_slot(static_cast<std::uint64_t>(slot_line));
             }

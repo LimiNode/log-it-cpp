@@ -70,6 +70,7 @@ namespace logit {
             LoggerWriteLock lock(m_loggers_mx);
             if (m_shutdown.load(std::memory_order_acquire)) return;
             m_loggers.push_back(std::move(strategy));
+            publish_strategy_snapshot_locked();
         }
 
         /// \brief Enables or disables a logger by index.
@@ -79,7 +80,7 @@ namespace logit {
             if (m_shutdown) return;
             LoggerWriteLock lock(m_loggers_mx);
             if (logger_index >= 0 && logger_index < static_cast<int>(m_loggers.size()) && m_loggers[logger_index]) {
-                m_loggers[logger_index]->enabled = enabled;
+                m_loggers[logger_index]->enabled.store(enabled, std::memory_order_relaxed);
             }
         }
 
@@ -89,7 +90,7 @@ namespace logit {
         bool is_logger_enabled(int logger_index) const {
             LoggerReadLock lock(m_loggers_mx);
             if (logger_index >= 0 && logger_index < static_cast<int>(m_loggers.size()) && m_loggers[logger_index]) {
-                return m_loggers[logger_index]->enabled;
+                return m_loggers[logger_index]->enabled.load(std::memory_order_relaxed);
             }
             return false;
         }
@@ -101,7 +102,7 @@ namespace logit {
             if (m_shutdown) return;
             LoggerWriteLock lock(m_loggers_mx);
             if (logger_index >= 0 && logger_index < static_cast<int>(m_loggers.size()) && m_loggers[logger_index]) {
-                m_loggers[logger_index]->single_mode = single_mode;
+                m_loggers[logger_index]->single_mode.store(single_mode, std::memory_order_relaxed);
             }
         }
 
@@ -148,7 +149,7 @@ namespace logit {
             if (m_shutdown) return false;
             LoggerReadLock lock(m_loggers_mx);
             if (logger_index >= 0 && logger_index < static_cast<int>(m_loggers.size()) && m_loggers[logger_index]) {
-                return m_loggers[logger_index]->single_mode;
+                return m_loggers[logger_index]->single_mode.load(std::memory_order_relaxed);
             }
             return false;
         }
@@ -162,39 +163,31 @@ namespace logit {
             if (m_shutdown.load(std::memory_order_acquire)) return;
 
             const bool targeted = record.logger_index >= 0;
-
-            std::vector<std::shared_ptr<LoggerStrategy>> snapshot;
-            snapshot.reserve(targeted ? 1 : 0);
-
-            LoggerReadLock lock(m_loggers_mx);
-            if (targeted) {
-                if (record.logger_index < static_cast<int>(m_loggers.size()))
-                    snapshot.push_back(m_loggers[record.logger_index]);
-            } else {
-                snapshot = m_loggers; // copy shared_ptrs
-            }
-            lock.unlock();
+            const auto snapshot = std::atomic_load_explicit(
+                    &m_loggers_snapshot, std::memory_order_acquire);
+            if (!snapshot) return;
 
             if (targeted) {
-                if (snapshot.empty() || !snapshot[0]) return;
-                auto& strategy = snapshot[0];
+                if (record.logger_index >= static_cast<int>(snapshot->size())) return;
+                const auto& strategy = (*snapshot)[record.logger_index];
+                if (!strategy) return;
 
                 std::lock_guard<std::mutex> exec_lock(strategy->exec_mx);
                 if (m_shutdown.load(std::memory_order_acquire)) return;
-                if (!strategy->enabled) return;
+                if (!strategy->enabled.load(std::memory_order_relaxed)) return;
                 if (!record.raw_mode &&
                     static_cast<int>(record.log_level) < static_cast<int>(strategy->logger->get_log_level())) return;
                 dispatch_to_strategy(*strategy, record);
                 return;
             }
 
-            for (const auto& strategy : snapshot) {
+            for (const auto& strategy : *snapshot) {
                 if (!strategy) continue;
 
                 std::lock_guard<std::mutex> exec_lock(strategy->exec_mx);
                 if (m_shutdown.load(std::memory_order_acquire)) return;
-                if (strategy->single_mode) continue;
-                if (!strategy->enabled) continue;
+                if (strategy->single_mode.load(std::memory_order_relaxed)) continue;
+                if (!strategy->enabled.load(std::memory_order_relaxed)) continue;
                 if (!record.raw_mode &&
                     static_cast<int>(record.log_level) < static_cast<int>(strategy->logger->get_log_level())) continue;
 
@@ -529,8 +522,8 @@ namespace logit {
         struct LoggerStrategy {
             std::unique_ptr<ILogger> logger;            ///< The logger instance.
             std::unique_ptr<ILogFormatter> formatter;   ///< The formatter instance.
-            bool single_mode = false;                   ///< Flag indicating if the logger is in single mode.
-            bool enabled = true;                        ///< Flag indicating if the logger is enabled.
+            std::atomic<bool> single_mode{false};       ///< Flag indicating if the logger is in single mode.
+            std::atomic<bool> enabled{true};            ///< Flag indicating if the logger is enabled.
             mutable std::mutex exec_mx;                 ///< Protects formatter+logger invocation.
         };
 
@@ -548,13 +541,21 @@ namespace logit {
         }
 
         std::shared_ptr<LoggerStrategy> get_strategy_snapshot(int logger_index) const {
-            LoggerReadLock lock(m_loggers_mx);
+            const auto snapshot = std::atomic_load_explicit(
+                    &m_loggers_snapshot, std::memory_order_acquire);
             if (logger_index >= 0 &&
-                logger_index < static_cast<int>(m_loggers.size()) &&
-                m_loggers[logger_index]) {
-                return m_loggers[logger_index];
+                snapshot && logger_index < static_cast<int>(snapshot->size()) &&
+                (*snapshot)[logger_index]) {
+                return (*snapshot)[logger_index];
             }
             return std::shared_ptr<LoggerStrategy>();
+        }
+
+        void publish_strategy_snapshot_locked() {
+            const std::shared_ptr<const StrategyList> snapshot(
+                    new StrategyList(m_loggers));
+            std::atomic_store_explicit(
+                    &m_loggers_snapshot, snapshot, std::memory_order_release);
         }
 
         std::vector<std::shared_ptr<LoggerStrategy>> get_all_strategy_snapshots() const {
@@ -563,6 +564,8 @@ namespace logit {
         }
 
         std::vector<std::shared_ptr<LoggerStrategy>> m_loggers;        ///< Container for logger-formatter pairs.
+        using StrategyList = std::vector<std::shared_ptr<LoggerStrategy>>;
+        std::shared_ptr<const StrategyList> m_loggers_snapshot; ///< Immutable read-mostly strategy list.
         mutable LoggerMutex m_loggers_mx;                        ///< Protects access to logger strategies.
         std::atomic<bool> m_shutdown = ATOMIC_VAR_INIT(false); ///< Flag indicating if shutdown was requested.
 
@@ -596,6 +599,10 @@ namespace logit {
 #endif
 
         Logger() {
+            std::atomic_store_explicit(
+                    &m_loggers_snapshot,
+                    std::shared_ptr<const StrategyList>(new StrategyList()),
+                    std::memory_order_release);
             std::atexit(Logger::on_exit_handler);
         }
 
