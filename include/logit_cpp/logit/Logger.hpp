@@ -14,6 +14,7 @@
 #include <sstream>
 #include <atomic>
 #include <cstddef>
+#include <vector>
 
 #if __cplusplus >= 201703L
 #include <shared_mutex>
@@ -41,6 +42,10 @@ namespace logit {
     /// Provides methods to log messages using these strategies and supports
     /// both synchronous and asynchronous logging. Class is thread-safe.
     class Logger {
+    private:
+        struct LoggerStrategy;
+        using StrategyList = std::vector<std::shared_ptr<LoggerStrategy>>;
+
     public:
 
         /// \brief Retrieves singleton instance of Logger.
@@ -163,13 +168,29 @@ namespace logit {
             if (m_shutdown.load(std::memory_order_acquire)) return;
 
             const bool targeted = record.logger_index >= 0;
+#ifdef LOGIT_BENCH_LEGACY_REGISTRY
+            StrategyList legacy_snapshot;
+            {
+                LoggerReadLock legacy_lock(m_loggers_mx);
+                if (targeted) {
+                    if (record.logger_index < static_cast<int>(m_loggers.size())) {
+                        legacy_snapshot.push_back(m_loggers[record.logger_index]);
+                    }
+                } else {
+                    legacy_snapshot = m_loggers;
+                }
+            }
+            const StrategyList* strategies = &legacy_snapshot;
+#else
             const auto snapshot = std::atomic_load_explicit(
                     &m_loggers_snapshot, std::memory_order_acquire);
-            if (!snapshot) return;
+            const StrategyList* strategies = snapshot ? snapshot.get() : nullptr;
+#endif
+            if (!strategies) return;
 
             if (targeted) {
-                if (record.logger_index >= static_cast<int>(snapshot->size())) return;
-                const auto& strategy = (*snapshot)[record.logger_index];
+                if (record.logger_index >= static_cast<int>(strategies->size())) return;
+                const auto& strategy = (*strategies)[record.logger_index];
                 if (!strategy) return;
 
                 std::lock_guard<std::mutex> exec_lock(strategy->exec_mx);
@@ -181,7 +202,7 @@ namespace logit {
                 return;
             }
 
-            for (const auto& strategy : *snapshot) {
+            for (const auto& strategy : *strategies) {
                 if (!strategy) continue;
 
                 std::lock_guard<std::mutex> exec_lock(strategy->exec_mx);
@@ -564,7 +585,6 @@ namespace logit {
         }
 
         std::vector<std::shared_ptr<LoggerStrategy>> m_loggers;        ///< Container for logger-formatter pairs.
-        using StrategyList = std::vector<std::shared_ptr<LoggerStrategy>>;
         std::shared_ptr<const StrategyList> m_loggers_snapshot; ///< Immutable read-mostly strategy list.
         mutable LoggerMutex m_loggers_mx;                        ///< Protects access to logger strategies.
         std::atomic<bool> m_shutdown = ATOMIC_VAR_INIT(false); ///< Flag indicating if shutdown was requested.

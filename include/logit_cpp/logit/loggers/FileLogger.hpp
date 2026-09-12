@@ -21,7 +21,7 @@
 #include <sstream>
 #include <iomanip>
 #include <regex>
-#include <time_shield/time_parser.hpp>
+#include <time_shield/text/time_parser.hpp>
 
 namespace logit {
 

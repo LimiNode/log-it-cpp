@@ -5,7 +5,7 @@
 /// \file VariableValue.hpp
 /// \brief Structure for storing variables of various types.
 
-#include <time_shield/time_formatting.hpp>
+#include <time_shield/text/time_formatting.hpp>
 #include <string>
 #include <iostream>
 #include <cstdint>

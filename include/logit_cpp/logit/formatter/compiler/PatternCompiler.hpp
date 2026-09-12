@@ -5,7 +5,7 @@
 /// \file PatternCompiler.hpp
 /// \brief Header file for the pattern compiler used in log formatting.
 
-#include <time_shield/time_conversions.hpp>
+#include <time_shield/conversions.hpp>
 #include <vector>
 #include <string>
 #include <sstream>

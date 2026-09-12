@@ -20,6 +20,7 @@
 #include <sstream>
 
 #include "LatencyRecorder.hpp"
+#include "BenchmarkValidation.hpp"
 #include "Scenario.hpp"
 #include "adapters/LogItAdapter.hpp"
 
@@ -305,9 +306,7 @@ void append_csv(
 {
     namespace fs = std::filesystem;
     const fs::path csv_path{"bench/results/latency.csv"};
-    const std::string expected_header =
-        "lib,async,sink,producers,msg_bytes,total,queue_capacity,"
-        "p50_ns,p99_ns,p999_ns,throughput";
+    const std::string expected_header = latency_csv_header();
     fs::create_directories(csv_path.parent_path());
 
     const bool write_header = !fs::exists(csv_path) || fs::file_size(csv_path) == 0;
@@ -318,14 +317,7 @@ void append_csv(
         if (!in || !std::getline(in, header)) {
             throw std::runtime_error("Failed to read latency.csv schema header");
         }
-        if (!header.empty() && header.back() == '\r') {
-            header.pop_back();
-        }
-        if (header != expected_header) {
-            throw std::runtime_error(
-                "Unsupported bench/results/latency.csv schema; rename or remove "
-                "the existing file before running this benchmark");
-        }
+        validate_latency_csv_header(header);
     }
 
     std::ofstream out(csv_path, std::ios::app);
@@ -398,11 +390,7 @@ int main() {
         const std::size_t queue_capacity = get_env_size_t(
             "LOGIT_BENCH_QUEUE_CAPACITY",
             std::max<std::size_t>(8192, total_messages * 2));
-        if (queue_capacity == 0) {
-            throw std::invalid_argument(
-                "LOGIT_BENCH_QUEUE_CAPACITY must be greater than zero for "
-                "a comparative benchmark");
-        }
+        validate_queue_capacity(queue_capacity);
 
         const BenchFilter filter = load_filter();
 

@@ -6,7 +6,7 @@ Choose a backend by delivery model, platform, and dependency requirements.
 Every backend implements `ILogger`; stored-log backends may additionally
 implement `ILogReader` and `ILogSubscriber`.
 
-All LogIt++ builds require **TimeShield 1.0.6 or newer**. The dependency column
+All LogIt++ builds require **TimeShield 2.0.x (minimum 2.0.0)**. The dependency column
 below lists only feature-specific dependencies.
 
 | Backend | Enablement | Standard | Feature-specific dependency | Platform and packaging notes |

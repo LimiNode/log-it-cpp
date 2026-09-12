@@ -38,7 +38,7 @@ endif()
 
 # Dependency: TimeShield
 if(NOT TARGET time_shield::time_shield)
-    find_package(TimeShield 1.0.6 QUIET CONFIG)
+    find_package(TimeShield 2.0.0 QUIET CONFIG)
 endif()
 if(NOT TARGET time_shield::time_shield)
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/time-shield-cpp/CMakeLists.txt")

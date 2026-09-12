@@ -7,7 +7,7 @@
 
 #include "ILogFormatter.hpp"
 #include "compiler/PatternCompiler.hpp"
-#include <time_shield/time_conversions.hpp>
+#include <time_shield/conversions.hpp>
 #include <atomic>  // for std::atomic
 
 namespace logit {
