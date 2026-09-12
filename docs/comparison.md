@@ -147,12 +147,15 @@ universally better.
 
 ## Performance snapshot
 
-The repository currently has a reproducible **prepared-record/dispatch
+The repository currently has a reproducible **prepared-message/direct-dispatch
 pipeline** adapter for LogIt++ and spdlog, not for every project in the feature
-table. The historical fixture below is therefore a **LogIt++/spdlog pipeline
-snapshot**, not a ranking of all six projects. It does not measure the full
-public `LOGIT_INFO(...)` macro path; in particular, it omits argument-name
-parsing and `args_array` construction.
+table. The historical fixture below is therefore a **legacy LogIt++/spdlog
+pipeline snapshot**, not a ranking of all six projects. It does not measure the
+full public `LOGIT_INFO(...)` macro path; in particular, it omits argument-name
+parsing and `args_array` construction. The LogIt++ adapter constructs its
+`LogRecord` and copies the message into `std::string` during the timed call,
+while spdlog receives a prepared `string_view`; those call contracts are
+intentionally documented rather than presented as identical.
 
 | Mode | Sink | LogIt++ p50 | LogIt++ throughput | spdlog p50 | spdlog throughput |
 | --- | --- | ---: | ---: | ---: | ---: |
@@ -162,10 +165,15 @@ parsing and `args_array` construction.
 | Async | File | 255,323 ns | 651,384 msg/s | 5,001,140 ns | 1,153,976 msg/s |
 
 Snapshot conditions: Release build, four producers, 200-byte messages,
-`LOGIT_BENCH_TOTAL=10000`, and the fixture recorded on 2025-12-05. The LogIt++
-adapter receives a prepared `LogRecord`, while the spdlog adapter receives a
-prepared string. Async values also include
+`LOGIT_BENCH_TOTAL=10000`, and the fixture recorded on 2025-12-05. The timed
+LogIt++ adapter constructs a `LogRecord` and owns a message copy, while the
+spdlog adapter receives a prepared `string_view`. Async values also include
 enqueue, worker wake-up/scheduling, and sink work.
+
+The CSV is a legacy fixture: its spdlog version, compiler/toolchain, harness
+commit, queue capacity, and async drain protocol were not recorded. Do not use
+it as a current numeric comparison; regenerate a versioned fixture after the
+benchmark protocol changes.
 
 See [`docs/benchmarks.md`](benchmarks.html) for the methodology and
 [`bench/results/latency-2025-12-05-10k.csv`](https://github.com/LimiNode/log-it-cpp/blob/main/bench/results/latency-2025-12-05-10k.csv)

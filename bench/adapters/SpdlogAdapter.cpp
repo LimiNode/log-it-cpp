@@ -9,6 +9,7 @@
 #include <limits>
 #include <memory>
 #include <mutex>
+#include <condition_variable>
 #include <string>
 #include <string_view>
 
@@ -65,17 +66,37 @@ namespace logit_bench {
     
         void flush() override {
             std::lock_guard<std::mutex> lock(m_mutex);
+            flush_file_locked();
+            ++m_flush_generation;
+            m_flush_cv.notify_all();
+        }
+
+        std::uint64_t flush_generation() const {
+            std::lock_guard<std::mutex> lock(m_mutex);
+            return m_flush_generation;
+        }
+
+        void wait_for_flush(std::uint64_t generation) const {
+            std::unique_lock<std::mutex> lock(m_mutex);
+            m_flush_cv.wait(lock, [&]() {
+                return m_flush_generation > generation;
+            });
+        }
+
+    private:
+        void flush_file_locked() {
             if (m_file.is_open()) {
                 m_file.flush();
             }
         }
-    
-    private:
+
         SinkKind m_sink = SinkKind::Null;
         std::shared_ptr<LatencyRecorder> m_recorder;
-    
+
         std::ofstream m_file;
-        std::mutex m_mutex;
+        mutable std::mutex m_mutex;
+        mutable std::condition_variable m_flush_cv;
+        std::uint64_t m_flush_generation = 0;
     };
     
     SpdlogAdapter::SpdlogAdapter() = default;
@@ -106,8 +127,9 @@ namespace logit_bench {
     
         std::string logger_name = m_async ? "logit_bench_async" : "logit_bench_sync";
         if (m_async) {
-            const std::size_t queue_size =
-                std::max<std::size_t>(kDefaultQueue, scenario.total_messages * 2);
+            const std::size_t queue_size = scenario.queue_capacity > 0
+                ? scenario.queue_capacity
+                : kDefaultQueue;
     
             spdlog::init_thread_pool(queue_size, 1);
     
@@ -148,10 +170,15 @@ namespace logit_bench {
     
     void SpdlogAdapter::flush() {
         if (m_logger) {
-            m_logger->flush();
-        }
-        if (m_sink) {
-            m_sink->flush();
+            if (m_async && m_sink) {
+                const auto generation = m_sink->flush_generation();
+                m_logger->flush();
+                // async_logger::flush() enqueues a marker. The sink-side
+                // generation is advanced only when the worker executes it.
+                m_sink->wait_for_flush(generation);
+            } else {
+                m_logger->flush();
+            }
         }
     }
 

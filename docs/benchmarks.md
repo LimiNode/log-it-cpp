@@ -23,14 +23,16 @@ reduced with `LOGIT_BENCH_TOTAL` and `LOGIT_BENCH_WARMUP`.
 
 ## Interpreting results
 
-The default adapter measures a **prepared-record / dispatch pipeline**. It
-constructs a `LogRecord` whose message is already prepared and calls the
-dispatcher directly; it does not exercise the public `LOGIT_INFO(...)` macro
-path, argument-name parsing, or `args_array` construction. A separate public
-macro benchmark should be treated as a different scenario rather than mixed
-into this comparison. The spdlog adapter likewise receives an already prepared
-string. Compare implementations within the same mode and configuration; these
-numbers are not a universal speed ranking.
+The default adapter measures a **prepared-message / direct-dispatch pipeline**.
+It constructs a `LogRecord` inside the timed `adapter.log()` call, copies the
+message into owned `std::string` storage, and calls the dispatcher directly. It
+does not exercise the public `LOGIT_INFO(...)` macro path, argument-name
+parsing, or `args_array` construction. The spdlog adapter receives a
+`string_view` over the prepared message. This is a deliberate comparison of
+these two call contracts, not a claim that they do identical work. A separate
+public macro benchmark should be treated as a different scenario.
+Compare implementations within the same mode and configuration; these numbers
+are not a universal speed ranking.
 
 The asynchronous measurement includes enqueue, worker wake-up/scheduling, and
 sink time. Results are sensitive to queue capacity, overflow policy, worker
@@ -38,7 +40,7 @@ count, filesystem cache state, compiler, operating system, and hardware.
 
 ## Historical snapshot
 
-The repository includes a comparison snapshot from 2025-12-05 in
+The repository includes a **legacy** comparison snapshot from 2025-12-05 in
 `bench/results/latency-2025-12-05-10k.csv`:
 
 - workload: `LOGIT_BENCH_TOTAL=10000`, four producers, 200-byte messages;
@@ -46,9 +48,11 @@ The repository includes a comparison snapshot from 2025-12-05 in
   second;
 - timestamp: 2025-12-05 03:18 UTC.
 
-This is a historical, reproducible fixture rather than a current performance
-claim. Re-run the harness on the target hardware before making deployment or
-library-selection decisions.
+This fixture predates the current benchmark dependency metadata and does not
+record the spdlog version, compiler/toolchain, or harness commit. Treat it as
+legacy context rather than a reproducible current performance claim. New
+published figures must include the dependency versions, toolchain, harness
+commit, queue capacity, and flush semantics used for the run.
 
 ## Harness details
 
@@ -63,12 +67,18 @@ The current matrix covers 1, 4, 16, and 32 producers. CI intentionally uses a
 short Release smoke workload (`LOGIT_BENCH_TOTAL=20000`) for predictable run
 time. Larger publication runs (for example, one million messages plus warmup)
 belong on fixed or self-hosted hardware, where the results can be reproduced.
+Both adapters receive the same explicit blocking queue capacity, configurable
+through `LOGIT_BENCH_QUEUE_CAPACITY` (default: `max(8192, 2 * total)`). In
+async mode `adapter.flush()` is a drain barrier: the spdlog adapter waits for a
+worker-side flush marker, matching LogIt++'s executor drain. The measured
+throughput interval therefore ends only after all recorded messages reached the
+sink callback.
 
-The prepared-record/dispatch pipeline and a true public macro benchmark that
+The prepared-message/direct-dispatch pipeline and a true public macro benchmark that
 calls `LOGIT_INFO(...)` are separate scenarios with different work contracts;
 their results must not be presented as one number.
 
-The prepared-record path is also the first target for the logger hot-path
+The prepared-message path is also the first target for the logger hot-path
 regression checks. Logger strategy lists are published as an immutable
 copy-on-write snapshot, so a normal dispatch no longer takes the registry lock
 or allocates a temporary vector. `enabled` and `single_mode` are atomic state,

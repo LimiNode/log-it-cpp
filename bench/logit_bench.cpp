@@ -1,4 +1,5 @@
 #include <array>
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
@@ -206,6 +207,11 @@ std::chrono::nanoseconds run_workload(
     adapter.flush();
     touch_watchdog();
 
+    if (record_latency && recorder.completed() != recorder.recorded()) {
+        throw std::runtime_error(
+            "adapter.flush() returned before all recorded messages reached the sink");
+    }
+
     if (!measure_duration) return std::chrono::nanoseconds(0);
     auto t1 = std::chrono::steady_clock::now();
     return std::chrono::duration_cast<std::chrono::nanoseconds>(t1 - t0);
@@ -307,7 +313,7 @@ void append_csv(
     if (!out) throw std::runtime_error("Failed to open latency.csv for writing");
 
     if (write_header) {
-        out << "lib,async,sink,producers,msg_bytes,total,p50_ns,p99_ns,p999_ns,throughput\n";
+        out << "lib,async,sink,producers,msg_bytes,total,queue_capacity,p50_ns,p99_ns,p999_ns,throughput\n";
     }
     out << library << ','
         << (scenario.async ? 1 : 0) << ','
@@ -315,6 +321,7 @@ void append_csv(
         << scenario.producers << ','
         << scenario.message_bytes << ','
         << scenario.total_messages << ','
+        << scenario.queue_capacity << ','
         << summary.p50_ns << ','
         << summary.p99_ns << ','
         << summary.p999_ns << ','
@@ -333,6 +340,7 @@ void print_summary(
         << " producers=" << scenario.producers
         << " bytes=" << scenario.message_bytes
         << " total=" << scenario.total_messages
+        << " queue=" << scenario.queue_capacity
         << " p50=" << result.summary.p50_ns
         << "ns p99=" << result.summary.p99_ns
         << "ns p999=" << result.summary.p999_ns
@@ -368,10 +376,14 @@ int main() {
         const std::size_t total_messages  = get_env_size_t("LOGIT_BENCH_TOTAL", 200000);
         const std::size_t warmup_messages = get_env_size_t("LOGIT_BENCH_WARMUP", 4096);
         const std::size_t timeout_seconds = get_env_size_t("LOGIT_BENCH_TIMEOUT_SEC", 1200);
+        const std::size_t queue_capacity = get_env_size_t(
+            "LOGIT_BENCH_QUEUE_CAPACITY",
+            std::max<std::size_t>(8192, total_messages * 2));
 
         const BenchFilter filter = load_filter();
 
-        LOGIT_SET_MAX_QUEUE(total_messages);
+        LOGIT_SET_MAX_QUEUE(queue_capacity);
+        LOGIT_SET_QUEUE_POLICY(LOGIT_QUEUE_BLOCK);
 
         if (timeout_seconds > 0) {
             watchdog = std::thread([timeout_seconds, &watchdog_done, &watchdog_progress]() {
@@ -405,6 +417,12 @@ int main() {
                             scenario.producers      = producers;
                             scenario.message_bytes  = msg_bytes;
                             scenario.total_messages = total_messages;
+                            scenario.queue_capacity = queue_capacity;
+
+                            // Keep the global LogIt executor on the same
+                            // bounded/blocking contract as the spdlog adapter.
+                            LOGIT_SET_MAX_QUEUE(scenario.queue_capacity);
+                            LOGIT_SET_QUEUE_POLICY(LOGIT_QUEUE_BLOCK);
 
                             {
                                 std::ostringstream oss;

@@ -36,4 +36,14 @@ if(LOGIT_BENCH_WITH_SPDLOG)
         FetchContent_MakeAvailable(spdlog)
     endif()
     target_link_libraries(logit_bench PRIVATE spdlog::spdlog)
+
+    add_executable(logit_bench_flush_test
+        spdlog_flush_test.cpp
+        adapters/SpdlogAdapter.cpp
+    )
+    target_compile_features(logit_bench_flush_test PRIVATE cxx_std_17)
+    target_include_directories(logit_bench_flush_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    target_compile_definitions(logit_bench_flush_test PRIVATE LOGIT_BENCH_HAVE_SPDLOG=1)
+    target_link_libraries(logit_bench_flush_test PRIVATE spdlog::spdlog)
+    add_test(NAME logit_bench_flush_test COMMAND logit_bench_flush_test)
 endif()
