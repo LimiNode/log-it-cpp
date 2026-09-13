@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['2_20backpressure_20semantics_0',['2. Backpressure semantics',['../task_executor.html#autotoc_md61',1,'']]],
-  ['2_3a_20include_20the_20logit_20headers_20in_20your_20project_1',['Step 2: Include the LogIt++ Headers in Your Project',['../api_reference.html#step2',1,'']]]
+  ['1_20implementation_20variants_0',['1. Implementation variants',['../task_executor.html#autotoc_md57',1,'']]],
+  ['1_3a_20clone_20the_20repository_1',['Step 1: Clone the Repository',['../api_reference.html#step1',1,'']]]
 ];

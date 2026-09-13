@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['windowsdebuglogger_2ehpp_0',['WindowsDebugLogger.hpp',['../WindowsDebugLogger_8hpp.html',1,'']]]
+  ['variablevalue_2ehpp_0',['VariableValue.hpp',['../VariableValue_8hpp.html',1,'']]]
 ];

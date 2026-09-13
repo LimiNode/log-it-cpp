@@ -186,6 +186,50 @@ var NAVTREE =
     [ "Queue Back-Pressure Controls", "backpressure.html", [
       [ "Queue Back-Pressure Controls", "backpressure.html#autotoc_md70", null ]
     ] ],
+    [ "Roadmap and delivery checklist — LogIt++", "md_docs_2future-plans.html", [
+      [ "Delivered", "md_docs_2future-plans.html#autotoc_md72", null ],
+      [ "Next planned work", "md_docs_2future-plans.html#autotoc_md73", null ],
+      [ "Intentionally deferred", "md_docs_2future-plans.html#autotoc_md74", null ],
+      [ "How to update this document", "md_docs_2future-plans.html#autotoc_md75", null ]
+    ] ],
+    [ "ADR NNNN: Short decision title", "md_docs_2adr_20000-template.html", [
+      [ "Context", "md_docs_2adr_20000-template.html#autotoc_md77", null ],
+      [ "Decision", "md_docs_2adr_20000-template.html#autotoc_md78", null ],
+      [ "Consequences", "md_docs_2adr_20000-template.html#autotoc_md79", null ],
+      [ "Alternatives considered", "md_docs_2adr_20000-template.html#autotoc_md80", null ],
+      [ "References", "md_docs_2adr_20000-template.html#autotoc_md81", null ]
+    ] ],
+    [ "ADR 0001: Aggregate-first public headers and API boundary", "md_docs_2adr_20001-aggregate-first-public-headers.html", [
+      [ "Context", "md_docs_2adr_20001-aggregate-first-public-headers.html#autotoc_md83", null ],
+      [ "Decision", "md_docs_2adr_20001-aggregate-first-public-headers.html#autotoc_md84", null ],
+      [ "Consequences", "md_docs_2adr_20001-aggregate-first-public-headers.html#autotoc_md85", null ],
+      [ "Alternatives considered", "md_docs_2adr_20001-aggregate-first-public-headers.html#autotoc_md86", null ]
+    ] ],
+    [ "ADR 0002: Shared and dedicated asynchronous executors", "md_docs_2adr_20002-async-executor-model.html", [
+      [ "Context", "md_docs_2adr_20002-async-executor-model.html#autotoc_md88", null ],
+      [ "Decision", "md_docs_2adr_20002-async-executor-model.html#autotoc_md89", null ],
+      [ "Consequences", "md_docs_2adr_20002-async-executor-model.html#autotoc_md90", null ]
+    ] ],
+    [ "ADR 0003: Immutable logger registry snapshots", "md_docs_2adr_20003-immutable-registry-snapshots.html", [
+      [ "Context", "md_docs_2adr_20003-immutable-registry-snapshots.html#autotoc_md92", null ],
+      [ "Decision", "md_docs_2adr_20003-immutable-registry-snapshots.html#autotoc_md93", null ],
+      [ "Consequences", "md_docs_2adr_20003-immutable-registry-snapshots.html#autotoc_md94", null ]
+    ] ],
+    [ "ADR 0004: TimeShield compatibility and dependency reuse", "md_docs_2adr_20004-timeshield-compatibility.html", [
+      [ "Context", "md_docs_2adr_20004-timeshield-compatibility.html#autotoc_md96", null ],
+      [ "Decision", "md_docs_2adr_20004-timeshield-compatibility.html#autotoc_md97", null ],
+      [ "Consequences", "md_docs_2adr_20004-timeshield-compatibility.html#autotoc_md98", null ]
+    ] ],
+    [ "ADR 0005: Benchmark evidence and comparison methodology", "md_docs_2adr_20005-benchmark-methodology.html", [
+      [ "Context", "md_docs_2adr_20005-benchmark-methodology.html#autotoc_md100", null ],
+      [ "Decision", "md_docs_2adr_20005-benchmark-methodology.html#autotoc_md101", null ],
+      [ "Consequences", "md_docs_2adr_20005-benchmark-methodology.html#autotoc_md102", null ]
+    ] ],
+    [ "Architecture Decision Records", "md_docs_2adr_2README.html", [
+      [ "Statuses", "md_docs_2adr_2README.html#autotoc_md104", null ],
+      [ "Creating an ADR", "md_docs_2adr_2README.html#autotoc_md105", null ],
+      [ "Accepted decisions", "md_docs_2adr_2README.html#autotoc_md106", null ]
+    ] ],
     [ "Topics", "topics.html", "topics" ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", "namespaces_dup" ],
@@ -229,13 +273,14 @@ var NAVTREEINDEX =
 "classlogit_1_1MdbxLogger.html#a557205fabc1bffb05bee2ed6f77e6c87",
 "classlogit_1_1PrometheusHttpServerLogger.html#acdd0c3afd4ff60c6ad8ae640e46262af",
 "classlogit_1_1detail_1_1MdbxByteReader.html#a0a28bec2661666899600c0ef0b44b48c",
-"dir_d28a4824dc47e487b107a5db32ef43c4.html",
-"group__LoggingMacros.html#ga0247b77eb0e8b91aa9512b5797ab70d7",
-"log__macros_8hpp.html#a7ef3045384a6d7775dd06931a0afde6f",
-"namespacelogit.html#a43e16f3ddf06e535296fbb8f5b55b919",
-"structlogit_1_1FormatInstruction.html#a02acd24128bb2dafba5b7edbefb21d7e",
-"structlogit_1_1MdbxLogger_1_1Payload.html#a83069602fdd346c7459f2be72de32b58",
-"structlogit_1_1PrometheusTextFormatConfig.html#ad889a7a1de34c62d9b3363dab742f7f2"
+"dir_c80fae293bdf57c1c67b4874c22574b2.html",
+"group__LoggingMacros.html",
+"log__macros_8hpp.html#a7d23d021eccdf2623e86bb9be70b469d",
+"md_docs_2future-plans.html",
+"structlogit_1_1CrashWindowsLogger_1_1Config.html#a819bf96d1febff1bd7a9aebd63f7f02d",
+"structlogit_1_1MdbxLogger_1_1Config.html#a8e348103b8079202457c69bd01e20d61",
+"structlogit_1_1PrometheusRegistry_1_1Entry.html#a226799e05cfba021ab49e941784419d9",
+"task_executor.html#autotoc_md65"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -1,0 +1,24 @@
+var searchData=
+[
+  ['_7ecompressionworker_0',['~CompressionWorker',['../classlogit_1_1detail_1_1CompressionWorker.html#ae0a9b52f978ef631512324b13d5be3a7',1,'logit::detail::CompressionWorker']]],
+  ['_7econsolelogger_1',['~ConsoleLogger',['../classlogit_1_1ConsoleLogger.html#ab90849bd1d14d0f31b300ad476ebd230',1,'logit::ConsoleLogger']]],
+  ['_7efilelogger_2',['~FileLogger',['../classlogit_1_1FileLogger.html#a712802dcc6732f057e52fbd49f208388',1,'logit::FileLogger']]],
+  ['_7eilogformatter_3',['~ILogFormatter',['../classlogit_1_1ILogFormatter.html#a2c3401af20fafec7d37fafa1e8e084f3',1,'logit::ILogFormatter']]],
+  ['_7eilogger_4',['~ILogger',['../classlogit_1_1ILogger.html#a7a261305932aebeaeffa26469b11f18f',1,'logit::ILogger']]],
+  ['_7eilogreader_5',['~ILogReader',['../classlogit_1_1ILogReader.html#ad53ec85431d294d04a9c3acda01c85e2',1,'logit::ILogReader']]],
+  ['_7eilogsubscriber_6',['~ILogSubscriber',['../classlogit_1_1ILogSubscriber.html#a721734f1e5ef9d5b0661df440e9b137b',1,'logit::ILogSubscriber']]],
+  ['_7elogger_7',['~Logger',['../classlogit_1_1Logger.html#ac0f2ccc392e9a895e1a3ac9b1c79c01f',1,'logit::Logger']]],
+  ['_7elogstream_8',['~LogStream',['../classlogit_1_1LogStream.html#ae4ba165e9a3c0ab59165029f6532ca8b',1,'logit::LogStream']]],
+  ['_7emdbxlogger_9',['~MdbxLogger',['../classlogit_1_1MdbxLogger.html#a048430a4b96797fe4e8d5f20c75f7c73',1,'logit::MdbxLogger']]],
+  ['_7empscringany_10',['~MpscRingAny',['../classlogit_1_1detail_1_1MpscRingAny.html#adc243ad29fb5e979f936adddfaa48d10',1,'logit::detail::MpscRingAny']]],
+  ['_7eotlphttplogger_11',['~OtlpHttpLogger',['../classlogit_1_1OtlpHttpLogger.html#a96c663dde228fd78b3d2534cff98f460',1,'logit::OtlpHttpLogger']]],
+  ['_7eotlppayloadlogger_12',['~OtlpPayloadLogger',['../classlogit_1_1OtlpPayloadLogger.html#a4b3db23c09542b94df1d5fd47cfa5076',1,'logit::OtlpPayloadLogger']]],
+  ['_7ependingenqueue_13',['~PendingEnqueue',['../classlogit_1_1ConsoleLogger_1_1PendingEnqueue.html#a0d334a8695f767dedda8211d7c80df95',1,'logit::ConsoleLogger::PendingEnqueue']]],
+  ['_7eprometheushttpserverlogger_14',['~PrometheusHttpServerLogger',['../classlogit_1_1PrometheusHttpServerLogger.html#aa7c41aabf21dd3164309913fa91147a0',1,'logit::PrometheusHttpServerLogger']]],
+  ['_7eprometheuspayloadlogger_15',['~PrometheusPayloadLogger',['../classlogit_1_1PrometheusPayloadLogger.html#a8380089f48dc9c273ad0423926a66a9e',1,'logit::PrometheusPayloadLogger']]],
+  ['_7escopetimer_16',['~ScopeTimer',['../classlogit_1_1detail_1_1ScopeTimer.html#a8e1dc86030b49bd8aec271b0cc393265',1,'logit::detail::ScopeTimer']]],
+  ['_7esinglethreadexecutor_17',['~SingleThreadExecutor',['../classlogit_1_1detail_1_1SingleThreadExecutor.html#a49116fce841a530e5e928905591f402b',1,'logit::detail::SingleThreadExecutor']]],
+  ['_7etaskexecutor_18',['~TaskExecutor',['../classlogit_1_1detail_1_1TaskExecutor.html#ad9375619019f204fa80715c8d10942a4',1,'logit::detail::TaskExecutor']]],
+  ['_7euniquefilelogger_19',['~UniqueFileLogger',['../classlogit_1_1UniqueFileLogger.html#a455edb3893f4d31d5a2a65720e4e714c',1,'logit::UniqueFileLogger']]],
+  ['_7evariablevalue_20',['~VariableValue',['../structlogit_1_1VariableValue.html#a72bd26fb9c5d55a32289955e62587115',1,'logit::VariableValue']]]
+];

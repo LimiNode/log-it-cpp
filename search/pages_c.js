@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['queue_20back_20pressure_20controls_0',['Queue Back-Pressure Controls',['../backpressure.html',1,'']]],
-  ['quick_20start_20and_20documentation_20map_1',['Quick start and documentation map',['../quickstart.html',1,'']]]
+  ['nnnn_3a_20short_20decision_20title_0',['ADR NNNN: Short decision title',['../md_docs_2adr_20000-template.html',1,'']]],
+  ['notes_1',['TaskExecutor Implementation Notes',['../task_executor.html',1,'']]]
 ];
