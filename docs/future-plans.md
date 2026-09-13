@@ -53,10 +53,10 @@ Legend:
   follow-up, not part of the first configuration API.
 - [ ] **Extended filtering** — evaluate source/file, message, tag/MDC, and
   range filters; define their cost and ordering before adding public API.
-- [ ] **Benchmark follow-up** — add a genuinely formatted public-macro scenario,
-  a versioned fixture containing compiler/toolchain/commit/queue/flush metadata,
-  and a broader 1/4/16/32-producer matrix. Keep publication numbers tied to a
-  fixed machine and toolchain.
+- [x] **Benchmark follow-up** — formatted and passthrough public-macro scenarios,
+  a versioned fixture contract with compiler/toolchain/commit/queue/flush
+  metadata, and a 1/4/16/32-producer matrix are now covered. Keep publication
+  numbers tied to a fixed machine and toolchain.
 - [ ] **Concurrency fast-path research** — only after documenting a formal
   thread-safety capability for formatters/backends. Do not remove `exec_mx`
   based on benchmark results alone.

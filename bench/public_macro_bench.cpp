@@ -40,6 +40,22 @@ public:
     bool is_passthrough() const noexcept override { return true; }
 };
 
+std::unique_ptr<logit::ILogFormatter> make_formatter() {
+#ifdef LOGIT_PUBLIC_BENCH_FORMATTED
+    return std::make_unique<logit::SimpleLogFormatter>("[%l] %v");
+#else
+    return std::make_unique<PassthroughFormatter>();
+#endif
+}
+
+const char* benchmark_mode() {
+#ifdef LOGIT_PUBLIC_BENCH_FORMATTED
+    return "formatted";
+#else
+    return "passthrough";
+#endif
+}
+
 std::size_t env_size(const char* name, std::size_t fallback) {
     if (const char* value = std::getenv(name)) {
         try { return static_cast<std::size_t>(std::stoull(value)); }
@@ -58,7 +74,7 @@ int main() {
     auto sink = std::make_unique<CountingLogger>();
     auto* sink_ptr = sink.get();
     logit::Logger::get_instance().add_logger(
-        std::move(sink), std::make_unique<PassthroughFormatter>());
+        std::move(sink), make_formatter());
 
     const auto start = std::chrono::steady_clock::now();
     std::vector<std::thread> workers;
@@ -79,7 +95,8 @@ int main() {
 
     if (sink_ptr->count() != total) return 1;
     const double throughput = static_cast<double>(total) * 1e9 / static_cast<double>(elapsed);
-    std::cout << "public-macro producers=" << producers
+    std::cout << "public-macro mode=" << benchmark_mode()
+              << " producers=" << producers
               << " total=" << total
               << " elapsed_ns=" << elapsed
               << " throughput=" << throughput << " msg/s\n";

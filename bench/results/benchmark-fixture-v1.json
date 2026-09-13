@@ -1,0 +1,33 @@
+{
+  "fixture_version": 1,
+  "name": "log-it-cpp-release-benchmark",
+  "metadata_required": [
+    "source_commit",
+    "compiler",
+    "toolchain",
+    "cxx_standard",
+    "platform",
+    "queue_capacity",
+    "queue_policy",
+    "flush_semantics"
+  ],
+  "latency_workload": {
+    "total_messages": 200000,
+    "warmup_messages": 4096,
+    "producer_counts": [1, 4, 16, 32],
+    "message_bytes": [40, 200, 1024],
+    "async_modes": [false, true],
+    "sinks": ["null", "file"],
+    "queue_policy": "block",
+    "flush_semantics": "adapter.flush drains the worker pipeline through sink entry"
+  },
+  "public_macro_workload": {
+    "total_messages": 20000,
+    "producer_counts": [1, 4, 16, 32],
+    "scenarios": [
+      "public macro record construction and dispatch with passthrough formatter",
+      "public macro record construction, dispatch, and SimpleLogFormatter formatting"
+    ]
+  },
+  "measurement_rule": "Compare runs only when all required metadata fields match; CI runs are regression smoke, not universal performance claims."
+}

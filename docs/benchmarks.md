@@ -85,15 +85,23 @@ The prepared-message/direct-dispatch pipeline and a true public macro benchmark 
 calls `LOGIT_INFO(...)` are separate scenarios with different work contracts;
 their results must not be presented as one number.
 
-`logit_public_macro_bench` is the focused public-API smoke benchmark. It invokes
-`LOGIT_INFO(...)` from multiple producer threads and therefore includes argument
-name parsing, `args_array` construction, and dispatch. Its passthrough formatter
-intentionally bypasses formatter work, so this is a public macro
-record-construction + dispatch benchmark rather than a formatting benchmark.
-Configure it
-with `LOGIT_PUBLIC_BENCH_TOTAL` and `LOGIT_PUBLIC_BENCH_PRODUCERS`; its throughput
-is reported separately from `latency.csv` and is intended for before/after
-hot-path experiments on identical hardware.
+`logit_public_macro_bench` and `logit_public_macro_formatted_bench` are focused
+public-API smoke benchmarks. Both invoke `LOGIT_INFO(...)` from multiple
+producer threads and therefore include argument-name parsing, `args_array`
+construction, and dispatch. The first uses a passthrough formatter and
+intentionally bypasses formatter work; the second uses `SimpleLogFormatter` and
+includes the formatter path. Their throughputs are separate scenarios and must
+not be presented as one number. Configure either with
+`LOGIT_PUBLIC_BENCH_TOTAL` and `LOGIT_PUBLIC_BENCH_PRODUCERS`; results are
+reported separately from `latency.csv` and are intended for before/after
+experiments on identical hardware.
+
+The checked-in [`benchmark-fixture-v1.json`](https://github.com/LimiNode/log-it-cpp/blob/main/bench/results/benchmark-fixture-v1.json)
+defines the required metadata and workload contract. `logit_bench` prints a
+versioned `benchmark-fixture` metadata line for each run, including compiler,
+platform, source commit (when `LOGIT_BENCH_COMMIT` or `GITHUB_SHA` is set), queue
+capacity, and flush semantics. Compare measurements only when those metadata
+fields match.
 
 `logit_hotpath_bench` and `logit_hotpath_bench_legacy` provide a controlled A/B
 measurement for the registry read path. Both run the same prepared `LogRecord`

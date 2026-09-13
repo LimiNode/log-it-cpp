@@ -32,6 +32,14 @@ set_target_properties(logit_public_macro_bench PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
+add_executable(logit_public_macro_formatted_bench public_macro_bench.cpp)
+target_compile_features(logit_public_macro_formatted_bench PRIVATE cxx_std_17)
+target_compile_definitions(logit_public_macro_formatted_bench PRIVATE LOGIT_PUBLIC_BENCH_FORMATTED=1)
+target_link_libraries(logit_public_macro_formatted_bench PRIVATE log-it-cpp::log-it-cpp)
+set_target_properties(logit_public_macro_formatted_bench PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+
 add_executable(logit_hotpath_bench logger_hotpath_bench.cpp)
 target_compile_features(logit_hotpath_bench PRIVATE cxx_std_17)
 target_link_libraries(logit_hotpath_bench PRIVATE log-it-cpp::log-it-cpp)
