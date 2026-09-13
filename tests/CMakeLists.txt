@@ -46,6 +46,7 @@ else()
         log_filters_tags_test.cpp
         logger_shutdown_race_test.cpp
         logger_hot_path_state_test.cpp
+        logger_legacy_targeted_path_test.cpp
         logger_snapshot_read_path_test.cpp
         logger_clear_api_test.cpp
         memory_logger_backend_test.cpp
@@ -128,6 +129,9 @@ else()
         add_test(NAME ${test_name} COMMAND ${test_name})
         if(test_name STREQUAL "file_logger_external_cmd_compression_test")
             set_tests_properties(${test_name} PROPERTIES SKIP_RETURN_CODE 77)
+        endif()
+        if(test_name STREQUAL "logger_legacy_targeted_path_test")
+            target_compile_definitions(${test_name} PRIVATE LOGIT_BENCH_LEGACY_REGISTRY=1)
         endif()
         if(LOGIT_WITH_OTLP AND test_name MATCHES "^otlp_http_logger_(integration|callback|gzip|zstd)_test$")
             target_include_directories(${test_name} PRIVATE

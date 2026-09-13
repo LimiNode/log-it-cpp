@@ -3,7 +3,9 @@
 #ifdef LOGIT_BENCH_HAVE_SPDLOG
 
 #include <algorithm>
+#include <chrono>
 #include <cstdint>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <limits>
@@ -12,6 +14,7 @@
 #include <condition_variable>
 #include <string>
 #include <string_view>
+#include <thread>
 
 #include <spdlog/async.h>
 #include <spdlog/async_logger.h>
@@ -31,6 +34,14 @@ namespace logit_bench {
         void configure(const Scenario& scenario, std::shared_ptr<LatencyRecorder> recorder) {
             m_sink = scenario.sink;
             m_recorder = std::move(recorder);
+            m_delay_ms = 0;
+            if (const char* delay = std::getenv("LOGIT_BENCH_SPDLOG_SINK_DELAY_MS")) {
+                try {
+                    m_delay_ms = static_cast<std::size_t>(std::stoull(delay));
+                } catch (...) {
+                    m_delay_ms = 0;
+                }
+            }
     
             if (m_sink == SinkKind::File) {
                 std::filesystem::create_directories("bench/results");
@@ -44,6 +55,9 @@ namespace logit_bench {
         }
     
         void log(const spdlog::details::log_msg& msg) override {
+            if (m_delay_ms > 0) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(m_delay_ms));
+            }
             // Record sink-entry latency; file I/O happens below and is not
             // part of this completion marker. The slot is stored in
             // msg.source.line.
@@ -92,6 +106,7 @@ namespace logit_bench {
 
         SinkKind m_sink = SinkKind::Null;
         std::shared_ptr<LatencyRecorder> m_recorder;
+        std::size_t m_delay_ms = 0;
 
         std::ofstream m_file;
         mutable std::mutex m_mutex;

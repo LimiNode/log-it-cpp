@@ -25,6 +25,29 @@ endforeach()
 
 target_link_libraries(logit_bench PRIVATE log-it-cpp::log-it-cpp)
 
+add_executable(logit_public_macro_bench public_macro_bench.cpp)
+target_compile_features(logit_public_macro_bench PRIVATE cxx_std_17)
+target_link_libraries(logit_public_macro_bench PRIVATE log-it-cpp::log-it-cpp)
+set_target_properties(logit_public_macro_bench PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+
+add_executable(logit_hotpath_bench logger_hotpath_bench.cpp)
+target_compile_features(logit_hotpath_bench PRIVATE cxx_std_17)
+target_link_libraries(logit_hotpath_bench PRIVATE log-it-cpp::log-it-cpp)
+set_target_properties(logit_hotpath_bench PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+add_executable(logit_hotpath_bench_legacy logger_hotpath_bench.cpp)
+target_compile_features(logit_hotpath_bench_legacy PRIVATE cxx_std_17)
+target_compile_definitions(logit_hotpath_bench_legacy PRIVATE LOGIT_BENCH_LEGACY_REGISTRY=1)
+target_link_libraries(logit_hotpath_bench_legacy PRIVATE log-it-cpp::log-it-cpp)
+set_target_properties(logit_hotpath_bench_legacy PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+add_executable(benchmark_validation_test benchmark_validation_test.cpp)
+target_compile_features(benchmark_validation_test PRIVATE cxx_std_17)
+set_target_properties(benchmark_validation_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+add_test(NAME benchmark_validation_test COMMAND benchmark_validation_test)
+
 if(LOGIT_BENCH_WITH_SPDLOG)
     target_compile_definitions(logit_bench PRIVATE LOGIT_BENCH_HAVE_SPDLOG=1)
     if(NOT TARGET spdlog::spdlog)
