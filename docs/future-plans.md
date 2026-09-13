@@ -73,7 +73,7 @@ Legend:
 ## How to update this document
 
 Move an item to `[x]` only when the implementation, tests, and user-facing
-documentation agree. Use an ADR in [`docs/adr/`](adr/) for architectural
+documentation agree. Use an ADR in [`docs/adr`](https://github.com/LimiNode/log-it-cpp/tree/main/docs/adr) for architectural
 decisions or compatibility changes; keep this file focused on status and next
 steps. Record measurements with their environment instead of turning one local
 run into a universal performance claim.
