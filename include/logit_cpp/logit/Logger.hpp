@@ -181,16 +181,23 @@ namespace logit {
                 }
             }
             const StrategyList* strategies = &legacy_snapshot;
+            // The targeted legacy snapshot contains only the selected strategy,
+            // so dispatch must address its sole element rather than the original
+            // registry index.  The production snapshot retains the full registry
+            // and continues to use record.logger_index below.
+            const int strategy_index = targeted ? 0 : record.logger_index;
 #else
             const auto snapshot = std::atomic_load_explicit(
                     &m_loggers_snapshot, std::memory_order_acquire);
             const StrategyList* strategies = snapshot ? snapshot.get() : nullptr;
+            const int strategy_index = record.logger_index;
 #endif
             if (!strategies) return;
 
             if (targeted) {
-                if (record.logger_index >= static_cast<int>(strategies->size())) return;
-                const auto& strategy = (*strategies)[record.logger_index];
+                if (strategy_index < 0 ||
+                    strategy_index >= static_cast<int>(strategies->size())) return;
+                const auto& strategy = (*strategies)[strategy_index];
                 if (!strategy) return;
 
                 std::lock_guard<std::mutex> exec_lock(strategy->exec_mx);
