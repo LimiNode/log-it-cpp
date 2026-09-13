@@ -7,7 +7,7 @@
 
 Copying the mutable logger registry under a read lock on every log call made
 the normal dispatch path pay synchronization and allocation costs. Logger
-registration and removal are infrequent compared with logging.
+registry mutations and reconfiguration are infrequent compared with logging.
 
 ## Decision
 
