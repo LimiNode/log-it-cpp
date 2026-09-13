@@ -21,6 +21,7 @@
 
 #include "LatencyRecorder.hpp"
 #include "BenchmarkValidation.hpp"
+#include "BenchmarkMetadata.hpp"
 #include "Scenario.hpp"
 #include "adapters/LogItAdapter.hpp"
 
@@ -49,80 +50,6 @@ std::size_t get_env_size_t(const char* name, std::size_t def) {
         }
     }
     return def;
-}
-
-std::string compiler_name() {
-#if defined(_MSC_VER)
-    return "MSVC";
-#elif defined(__clang__)
-    return "Clang";
-#elif defined(__GNUC__)
-    return "GCC";
-#else
-    return "unknown";
-#endif
-}
-
-std::string compiler_version() {
-#if defined(_MSC_VER)
-    return std::to_string(_MSC_VER);
-#elif defined(__clang__)
-    return std::to_string(__clang_major__) + "." +
-           std::to_string(__clang_minor__) + "." +
-           std::to_string(__clang_patchlevel__);
-#elif defined(__GNUC__)
-    return std::to_string(__GNUC__) + "." +
-           std::to_string(__GNUC_MINOR__) + "." +
-           std::to_string(__GNUC_PATCHLEVEL__);
-#else
-    return "unknown";
-#endif
-}
-
-std::string benchmark_commit() {
-    if (const char* value = std::getenv("LOGIT_BENCH_COMMIT")) {
-        return value;
-    }
-    if (const char* value = std::getenv("GITHUB_SHA")) {
-        return value;
-    }
-    return "unknown";
-}
-
-long cxx_standard() {
-#if defined(_MSVC_LANG)
-    return _MSVC_LANG;
-#else
-    return __cplusplus;
-#endif
-}
-
-void print_fixture_metadata(std::size_t queue_capacity,
-                            std::size_t total_messages,
-                            std::size_t warmup_messages) {
-    std::cout << "benchmark-fixture version=1"
-              << " source_commit=" << benchmark_commit()
-              << " compiler=" << compiler_name()
-              << " compiler_version=" << compiler_version()
-              << " toolchain=" << compiler_name() << "-" << compiler_version()
-              << " cxx_standard=" << cxx_standard()
-              << " platform=" <<
-#if defined(_WIN32)
-              "windows"
-#elif defined(__APPLE__)
-              "macos"
-#elif defined(__linux__)
-              "linux"
-#elif defined(__EMSCRIPTEN__)
-              "emscripten"
-#else
-              "unknown"
-#endif
-              << " queue_capacity=" << queue_capacity
-              << " queue_policy=block"
-              << " flush_semantics=adapter.flush-drain-to-sink-entry"
-              << " total=" << total_messages
-              << " warmup=" << warmup_messages << '\n';
 }
 
 struct BenchFilter {
@@ -468,7 +395,13 @@ int main() {
 
         const BenchFilter filter = load_filter();
 
-        print_fixture_metadata(queue_capacity, total_messages, warmup_messages);
+        const auto metadata = make_benchmark_metadata(
+            std::to_string(queue_capacity),
+            "block",
+            "sink-entry",
+            "all-prior-work-drained");
+        validate_comparable_metadata(metadata);
+        print_benchmark_metadata(std::cout, metadata, total_messages, warmup_messages);
 
         LOGIT_SET_MAX_QUEUE(queue_capacity);
         LOGIT_SET_QUEUE_POLICY(LOGIT_QUEUE_BLOCK);

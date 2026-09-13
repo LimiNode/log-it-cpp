@@ -1,4 +1,5 @@
 #include "BenchmarkValidation.hpp"
+#include "BenchmarkMetadata.hpp"
 
 #include <stdexcept>
 #include <string>
@@ -26,5 +27,31 @@ int main() {
 
     validate_latency_csv_header(std::string(latency_csv_header()) + "\r");
     validate_latency_csv_header(latency_csv_header());
+
+    const auto comparable = make_benchmark_metadata(
+        "8192", "block", "sink-entry", "all-prior-work-drained");
+    auto complete = comparable;
+    complete.source_commit = "test-commit";
+    complete.compiler = "test-compiler";
+    complete.compiler_version = "1";
+    complete.toolchain = "test-toolchain";
+    complete.cxx_standard = "201703";
+    complete.platform = "test-platform";
+    complete.build_type = "Release";
+    complete.architecture = "test-architecture";
+    complete.machine_id = "test-machine";
+    complete.cpu_model = "test-cpu";
+    validate_comparable_metadata(complete, true);
+
+    auto incomplete = complete;
+    incomplete.source_commit = "unknown";
+    bool rejected_unknown_metadata = false;
+    try {
+        validate_comparable_metadata(incomplete, true);
+    } catch (const std::runtime_error&) {
+        rejected_unknown_metadata = true;
+    }
+    if (!rejected_unknown_metadata) return 3;
+
     return 0;
 }

@@ -10,6 +10,7 @@ endif()
 add_executable(logit_bench ${LOGIT_BENCH_SOURCES})
 
 target_include_directories(logit_bench PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_definitions(logit_bench PRIVATE LOGIT_BENCH_BUILD_TYPE=\"$<CONFIG>\")
 
 target_compile_features(logit_bench PRIVATE cxx_std_17)
 
@@ -27,6 +28,7 @@ target_link_libraries(logit_bench PRIVATE log-it-cpp::log-it-cpp)
 
 add_executable(logit_public_macro_bench public_macro_bench.cpp)
 target_compile_features(logit_public_macro_bench PRIVATE cxx_std_17)
+target_compile_definitions(logit_public_macro_bench PRIVATE LOGIT_BENCH_BUILD_TYPE=\"$<CONFIG>\")
 target_link_libraries(logit_public_macro_bench PRIVATE log-it-cpp::log-it-cpp)
 set_target_properties(logit_public_macro_bench PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
@@ -34,7 +36,10 @@ set_target_properties(logit_public_macro_bench PROPERTIES
 
 add_executable(logit_public_macro_formatted_bench public_macro_bench.cpp)
 target_compile_features(logit_public_macro_formatted_bench PRIVATE cxx_std_17)
-target_compile_definitions(logit_public_macro_formatted_bench PRIVATE LOGIT_PUBLIC_BENCH_FORMATTED=1)
+target_compile_definitions(logit_public_macro_formatted_bench PRIVATE
+    LOGIT_PUBLIC_BENCH_FORMATTED=1
+    LOGIT_BENCH_BUILD_TYPE=\"$<CONFIG>\"
+)
 target_link_libraries(logit_public_macro_formatted_bench PRIVATE log-it-cpp::log-it-cpp)
 set_target_properties(logit_public_macro_formatted_bench PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}

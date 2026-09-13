@@ -37,11 +37,13 @@ jobs:
         env:
           LOGIT_PUBLIC_BENCH_TOTAL: 2000
           LOGIT_PUBLIC_BENCH_PRODUCERS: 4
+          LOGIT_PUBLIC_BENCH_WARMUP: 200
         run: ./build-bench/logit_public_macro_bench
       - name: Run formatted public macro benchmark smoke
         env:
           LOGIT_PUBLIC_BENCH_TOTAL: 2000
           LOGIT_PUBLIC_BENCH_PRODUCERS: 4
+          LOGIT_PUBLIC_BENCH_WARMUP: 200
         run: ./build-bench/logit_public_macro_formatted_bench
       - name: Run benchmark validation tests
         run: ./build-bench/benchmark_validation_test
