@@ -77,6 +77,8 @@ Detailed guides and documentation map:
 - [`docs/PrometheusLogger.md`](docs/PrometheusLogger.md) — payload/server backends, registry metrics, scrape configuration, and limitations.
 - [`docs/TaskExecutor.md`](docs/TaskExecutor.md) — queue variants, overflow policies, hot resize, and lifecycle guarantees.
 - [`docs/backpressure.md`](docs/backpressure.md) — application-facing queue tuning and drop counters.
+- [`docs/future-plans.md`](docs/future-plans.md) — checked roadmap separating delivered, planned, and deferred work.
+- [`docs/adr/README.md`](docs/adr/README.md) — architecture decisions, public-boundary rationale, and compatibility records.
 
 ## Macro Examples
 

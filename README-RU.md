@@ -61,6 +61,8 @@ scope-замер.
 - [`docs/PrometheusLogger.md`](docs/PrometheusLogger.md) — payload/server-бэкенды, registry, scrape и ограничения.
 - [`docs/TaskExecutor.md`](docs/TaskExecutor.md) — варианты очереди, политики переполнения, hot resize и lifecycle.
 - [`docs/backpressure.md`](docs/backpressure.md) — настройка очереди и счётчики отброшенных задач.
+- [`docs/future-plans.md`](docs/future-plans.md) — чеклист roadmap с разделением готовых, планируемых и отложенных задач.
+- [`docs/adr/README.md`](docs/adr/README.md) — архитектурные решения, границы публичного API и записи о совместимости.
 
 ## Примеры макросов
 

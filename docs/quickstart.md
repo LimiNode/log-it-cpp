@@ -40,6 +40,11 @@ dependency requirements are described in the [`Backend matrix`](backends.html).
   the historical snapshot disclaimer.
 - **Choosing a logging library** — [`Comparison with other C++ logging libraries`](comparison.html),
   including trade-offs and the scope of the comparison.
+- **Architecture decisions** — [`Architecture Decision Records`](https://github.com/LimiNode/log-it-cpp/tree/main/docs/adr),
+  including public API boundaries, executor ownership, snapshots, and
+  dependency compatibility.
+- **Roadmap** — [`delivery checklist`](https://github.com/LimiNode/log-it-cpp/blob/main/docs/future-plans.md),
+  separating delivered, planned, and intentionally deferred work.
 - **Examples** — browse the `examples/` directory in the source repository;
   each optional example states the feature macro it requires.
 
