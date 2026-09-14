@@ -51,8 +51,9 @@ The repository includes a **legacy** comparison snapshot from 2025-12-05 in
 This fixture predates the current benchmark dependency metadata and does not
 record the spdlog version, compiler/toolchain, or harness commit. Treat it as
 legacy context rather than a reproducible current performance claim. New
-published figures must include the dependency versions, toolchain, harness
-commit, queue capacity, and flush semantics used for the run.
+published figures must include the fixture metadata, dependency versions,
+toolchain, harness commit, build and hardware identity, queue settings, and
+separate latency-completion and flush-barrier semantics used for the run.
 
 ## Harness details
 
@@ -85,15 +86,42 @@ The prepared-message/direct-dispatch pipeline and a true public macro benchmark 
 calls `LOGIT_INFO(...)` are separate scenarios with different work contracts;
 their results must not be presented as one number.
 
-`logit_public_macro_bench` is the focused public-API smoke benchmark. It invokes
-`LOGIT_INFO(...)` from multiple producer threads and therefore includes argument
-name parsing, `args_array` construction, and dispatch. Its passthrough formatter
-intentionally bypasses formatter work, so this is a public macro
-record-construction + dispatch benchmark rather than a formatting benchmark.
-Configure it
-with `LOGIT_PUBLIC_BENCH_TOTAL` and `LOGIT_PUBLIC_BENCH_PRODUCERS`; its throughput
-is reported separately from `latency.csv` and is intended for before/after
-hot-path experiments on identical hardware.
+`logit_public_macro_bench` and `logit_public_macro_formatted_bench` are focused
+public-API smoke benchmarks. Both invoke `LOGIT_INFO(...)` from multiple
+producer threads and therefore include argument-name parsing, `args_array`
+construction, and dispatch. Producers are created before the timed interval,
+wait on a ready barrier, and are released together; thread creation and the
+startup skew are not part of the producer-scaling measurement. The optional
+`LOGIT_PUBLIC_BENCH_WARMUP` run is executed before the measured workload.
+The first target uses a passthrough formatter and intentionally bypasses
+formatter work; the second uses `SimpleLogFormatter` and includes the formatter
+path. Their throughputs are separate scenarios and must not be presented as one
+number. Configure either with `LOGIT_PUBLIC_BENCH_TOTAL`,
+`LOGIT_PUBLIC_BENCH_PRODUCERS`, and `LOGIT_PUBLIC_BENCH_WARMUP`; results are
+reported separately from `latency.csv` and are intended for before/after
+experiments on identical hardware. Both targets print the same fixture metadata
+line as `logit_bench`, using `not-applicable` for queue settings and explicit
+`backend-count` / `logger-wait` completion semantics.
+
+The checked-in [`benchmark-fixture-v1.json`](https://github.com/LimiNode/log-it-cpp/blob/main/bench/results/benchmark-fixture-v1.json)
+defines the required metadata and workload contract. All publication-capable
+benchmark binaries print a versioned `benchmark-fixture` metadata line for
+each run, including source commit, compiler/version, toolchain, C++ standard,
+platform, build type, architecture, machine identity, CPU model, queue
+settings, latency completion, and flush barrier. The commit defaults to
+`LOGIT_BENCH_COMMIT` or `GITHUB_SHA`; machine identity and CPU model can be
+provided through `LOGIT_BENCH_MACHINE_ID` and `LOGIT_BENCH_CPU_MODEL`.
+For a comparable/publication run, set `LOGIT_BENCH_REQUIRE_COMPARABLE=1` and
+provide all required metadata; public-macro runs may explicitly use
+`not-applicable` queue settings. Smoke runs may leave unavailable values as
+`unknown`. The fixture separates metadata that must be present from metadata
+that must match between runs: `source_commit` is required provenance and is
+expected to differ in before/after comparisons, while the fields listed in
+`metadata_must_match` (compiler, toolchain, platform, build, hardware, queue,
+and completion semantics) must be identical. `LOGIT_BENCH_REQUIRE_COMPARABLE=1`
+checks metadata completeness and known values; it does not enforce the
+canonical fixture workload values such as total messages, warmup, or producer
+matrix.
 
 `logit_hotpath_bench` and `logit_hotpath_bench_legacy` provide a controlled A/B
 measurement for the registry read path. Both run the same prepared `LogRecord`
@@ -114,6 +142,8 @@ explicit concurrency contract rather than infer one from a benchmark sink.
 
 The flush regression target uses an intentionally delayed asynchronous sink and
 asserts that `flush()` does not return before every queued message has reached
-that sink. `benchmark_validation_test` covers the comparative-protocol guardrails
+that sink. The fixture records latency completion and the flush barrier as
+separate semantics: the latency benchmark completes at sink entry, while the
+flush barrier drains all prior work. `benchmark_validation_test` covers the comparative-protocol guardrails
 (`queue_capacity=0` and legacy CSV schema rejection) without relying on packages
 installed on the host.

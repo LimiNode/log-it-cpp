@@ -21,6 +21,7 @@
 
 #include "LatencyRecorder.hpp"
 #include "BenchmarkValidation.hpp"
+#include "BenchmarkMetadata.hpp"
 #include "Scenario.hpp"
 #include "adapters/LogItAdapter.hpp"
 
@@ -393,6 +394,14 @@ int main() {
         validate_queue_capacity(queue_capacity);
 
         const BenchFilter filter = load_filter();
+
+        const auto metadata = make_benchmark_metadata(
+            std::to_string(queue_capacity),
+            "block",
+            "sink-entry",
+            "all-prior-work-drained");
+        validate_comparable_metadata(metadata);
+        print_benchmark_metadata(std::cout, metadata, total_messages, warmup_messages);
 
         LOGIT_SET_MAX_QUEUE(queue_capacity);
         LOGIT_SET_QUEUE_POLICY(LOGIT_QUEUE_BLOCK);
