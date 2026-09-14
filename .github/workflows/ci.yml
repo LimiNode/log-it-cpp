@@ -139,6 +139,44 @@ jobs:
             build-mdbx/Testing/Temporary/LastTest.log
           if-no-files-found: ignore
 
+  linux-otlp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - run: git submodule update --init --recursive
+      - name: Install OTLP build dependencies
+        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev libssl-dev
+      - name: Configure OTLP
+        run: >-
+          cmake -S . -B build-otlp
+          -DLOGIT_CPP_BUILD_TESTS=ON
+          -DLOGIT_WITH_OTLP=ON
+          -DLOGIT_USE_SUBMODULES=ON
+          -DKURLYK_USE_FALLBACK_ASIO=ON
+          -DKURLYK_USE_FALLBACK_SIMPLE_WS_SERVER=ON
+          -DKURLYK_AUTH_SUPPORT=OFF
+          -DKURLYK_OAUTH_SUPPORT=OFF
+          -DLOGIT_WITH_SYSLOG=OFF
+          -DLOGIT_WITH_WIN_EVENT_LOG=OFF
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_CXX_STANDARD=17
+      - name: Build OTLP tests
+        run: cmake --build build-otlp --parallel 2
+      - name: Run OTLP tests
+        run: ctest --test-dir build-otlp --output-on-failure -R '^otlp_'
+      - name: Upload OTLP logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-otlp
+          path: |
+            build-otlp/CMakeFiles/CMakeOutput.log
+            build-otlp/Testing/Temporary/LastTest.log
+          if-no-files-found: ignore
+
   windows:
     runs-on: windows-latest
     strategy:
