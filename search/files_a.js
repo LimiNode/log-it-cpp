@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['otlpcompression_2ehpp_0',['OtlpCompression.hpp',['../OtlpCompression_8hpp.html',1,'']]],
+  ['otlpcompressiontype_2ehpp_0',['OtlpCompressionType.hpp',['../OtlpCompressionType_8hpp.html',1,'']]],
   ['otlphttplogger_2ehpp_1',['OtlpHttpLogger.hpp',['../OtlpHttpLogger_8hpp.html',1,'']]],
   ['otlphttplogger_2emd_2',['OtlpHttpLogger.md',['../OtlpHttpLogger_8md.html',1,'']]],
   ['otlpjsonformatconfig_2ehpp_3',['OtlpJsonFormatConfig.hpp',['../OtlpJsonFormatConfig_8hpp.html',1,'']]],

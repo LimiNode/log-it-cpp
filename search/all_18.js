@@ -34,7 +34,7 @@ var searchData=
   ['otlp_5fwrite_5fstring_5fattr_31',['otlp_write_string_attr',['../namespacelogit.html#a43e16f3ddf06e535296fbb8f5b55b919',1,'logit']]],
   ['otlp_5fwrite_5fuint_5fattr_32',['otlp_write_uint_attr',['../namespacelogit.html#a1854f20b44157c576bea8c1e195d3d19',1,'logit']]],
   ['otlpcompression_33',['OtlpCompression',['../namespacelogit.html#a314eec838235b151614e9a9732865a8c',1,'logit']]],
-  ['otlpcompression_2ehpp_34',['OtlpCompression.hpp',['../OtlpCompression_8hpp.html',1,'']]],
+  ['otlpcompressiontype_2ehpp_34',['OtlpCompressionType.hpp',['../OtlpCompressionType_8hpp.html',1,'']]],
   ['otlphttplogger_35',['OtlpHttpLogger',['../classlogit_1_1OtlpHttpLogger.html',1,'logit::OtlpHttpLogger'],['../classlogit_1_1OtlpHttpLogger.html#a242dc55599f7c99d5a5db7fb07ff6889',1,'logit::OtlpHttpLogger::OtlpHttpLogger()'],['../classlogit_1_1OtlpHttpLogger.html#ada14f84591e1e1b0fa54310332191e9d',1,'logit::OtlpHttpLogger::OtlpHttpLogger(const Config &amp;config)'],['../classlogit_1_1OtlpHttpLogger.html#a131ccec1b258b36fa11aa1017b66de2f',1,'logit::OtlpHttpLogger::OtlpHttpLogger(const OtlpHttpLogger &amp;)=delete']]],
   ['otlphttplogger_2ehpp_36',['OtlpHttpLogger.hpp',['../OtlpHttpLogger_8hpp.html',1,'']]],
   ['otlphttplogger_2emd_37',['OtlpHttpLogger.md',['../OtlpHttpLogger_8md.html',1,'']]],
