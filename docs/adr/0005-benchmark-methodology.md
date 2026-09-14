@@ -23,6 +23,13 @@ build type, architecture, machine/CPU identity, queue settings, and separate
 latency-completion and flush-barrier semantics. Treat CI runs as regression
 smoke unless the environment is fixed.
 
+The fixture distinguishes required provenance from comparison identity:
+`source_commit` must be present and is expected to differ for before/after
+measurements, while the fields listed in `metadata_must_match` must match. The
+`LOGIT_BENCH_REQUIRE_COMPARABLE=1` mode checks metadata completeness and known
+values; it does not enforce the canonical fixture workload unless a separate
+workload-validation mode is requested.
+
 ## Consequences
 
 Benchmark documentation remains comparable and honest across changes. New

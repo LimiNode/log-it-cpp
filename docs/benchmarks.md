@@ -114,7 +114,14 @@ provided through `LOGIT_BENCH_MACHINE_ID` and `LOGIT_BENCH_CPU_MODEL`.
 For a comparable/publication run, set `LOGIT_BENCH_REQUIRE_COMPARABLE=1` and
 provide all required metadata; public-macro runs may explicitly use
 `not-applicable` queue settings. Smoke runs may leave unavailable values as
-`unknown`. Compare measurements only when all fixture metadata fields match.
+`unknown`. The fixture separates metadata that must be present from metadata
+that must match between runs: `source_commit` is required provenance and is
+expected to differ in before/after comparisons, while the fields listed in
+`metadata_must_match` (compiler, toolchain, platform, build, hardware, queue,
+and completion semantics) must be identical. `LOGIT_BENCH_REQUIRE_COMPARABLE=1`
+checks metadata completeness and known values; it does not enforce the
+canonical fixture workload values such as total messages, warmup, or producer
+matrix.
 
 `logit_hotpath_bench` and `logit_hotpath_bench_legacy` provide a controlled A/B
 measurement for the registry read path. Both run the same prepared `LogRecord`

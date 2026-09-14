@@ -17,6 +17,21 @@
     "latency_completion",
     "flush_barrier"
   ],
+  "metadata_must_match": [
+    "compiler",
+    "compiler_version",
+    "toolchain",
+    "cxx_standard",
+    "platform",
+    "build_type",
+    "architecture",
+    "machine_id",
+    "cpu_model",
+    "queue_capacity",
+    "queue_policy",
+    "latency_completion",
+    "flush_barrier"
+  ],
   "latency_workload": {
     "total_messages": 200000,
     "warmup_messages": 4096,
@@ -40,5 +55,5 @@
       "public macro record construction, dispatch, and SimpleLogFormatter formatting"
     ]
   },
-  "measurement_rule": "Compare runs only when all required metadata fields match; set LOGIT_BENCH_REQUIRE_COMPARABLE=1 for publication runs so unknown commit or machine metadata is rejected; CI runs are regression smoke, not universal performance claims."
+  "measurement_rule": "All required metadata fields must be present. Compare runs only when metadata_must_match fields match; source_commit is provenance and may differ between before/after runs. Set LOGIT_BENCH_REQUIRE_COMPARABLE=1 for publication runs so unknown metadata is rejected; CI runs are regression smoke, not universal performance claims."
 }
