@@ -40,7 +40,6 @@ else()
         include_log_file_read_result_nhr_test.cpp
         include_loggers_nhr_test.cpp
         include_memory_logger_nhr_test.cpp
-        include_otlp_compression_nhr_test.cpp
         include_otlp_compression_type_nhr_test.cpp
         include_only_ilogger_test.cpp
         include_quickstart_test.cpp
