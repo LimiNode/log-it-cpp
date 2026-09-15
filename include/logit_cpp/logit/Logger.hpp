@@ -71,6 +71,10 @@ namespace logit {
             strategy->formatter = std::move(formatter);
             strategy->single_mode = single_mode;
             strategy->enabled = true;
+            strategy->concurrent_dispatch =
+                    strategy->logger &&
+                    strategy->logger->supports_concurrent_log() &&
+                    (!strategy->formatter || strategy->formatter->supports_concurrent_format());
 
             LoggerWriteLock lock(m_loggers_mx);
             if (m_shutdown.load(std::memory_order_acquire)) return;
@@ -200,26 +204,14 @@ namespace logit {
                 const auto& strategy = (*strategies)[strategy_index];
                 if (!strategy) return;
 
-                std::lock_guard<std::mutex> exec_lock(strategy->exec_mx);
-                if (m_shutdown.load(std::memory_order_acquire)) return;
-                if (!strategy->enabled.load(std::memory_order_relaxed)) return;
-                if (!record.raw_mode &&
-                    static_cast<int>(record.log_level) < static_cast<int>(strategy->logger->get_log_level())) return;
-                dispatch_to_strategy(*strategy, record);
+                dispatch_to_strategy_if_allowed(*strategy, record, true);
                 return;
             }
 
             for (const auto& strategy : *strategies) {
                 if (!strategy) continue;
 
-                std::lock_guard<std::mutex> exec_lock(strategy->exec_mx);
-                if (m_shutdown.load(std::memory_order_acquire)) return;
-                if (strategy->single_mode.load(std::memory_order_relaxed)) continue;
-                if (!strategy->enabled.load(std::memory_order_relaxed)) continue;
-                if (!record.raw_mode &&
-                    static_cast<int>(record.log_level) < static_cast<int>(strategy->logger->get_log_level())) continue;
-
-                dispatch_to_strategy(*strategy, record);
+                dispatch_to_strategy_if_allowed(*strategy, record, false);
             }
         }
 
@@ -552,8 +544,34 @@ namespace logit {
             std::unique_ptr<ILogFormatter> formatter;   ///< The formatter instance.
             std::atomic<bool> single_mode{false};       ///< Flag indicating if the logger is in single mode.
             std::atomic<bool> enabled{true};            ///< Flag indicating if the logger is enabled.
+            bool concurrent_dispatch = false;           ///< Explicit formatter/backend lock-elision capability.
             mutable std::mutex exec_mx;                 ///< Protects formatter+logger invocation.
         };
+
+        void dispatch_to_strategy_if_allowed(
+                LoggerStrategy& strategy,
+                const LogRecord& record,
+                bool targeted) {
+            if (strategy.concurrent_dispatch) {
+                dispatch_to_strategy_if_allowed_unlocked(strategy, record, targeted);
+                return;
+            }
+
+            std::lock_guard<std::mutex> exec_lock(strategy.exec_mx);
+            dispatch_to_strategy_if_allowed_unlocked(strategy, record, targeted);
+        }
+
+        void dispatch_to_strategy_if_allowed_unlocked(
+                LoggerStrategy& strategy,
+                const LogRecord& record,
+                bool targeted) {
+            if (m_shutdown.load(std::memory_order_acquire)) return;
+            if (!targeted && strategy.single_mode.load(std::memory_order_relaxed)) return;
+            if (!strategy.enabled.load(std::memory_order_relaxed)) return;
+            if (!record.raw_mode &&
+                static_cast<int>(record.log_level) < static_cast<int>(strategy.logger->get_log_level())) return;
+            dispatch_to_strategy(strategy, record);
+        }
 
         void dispatch_to_strategy(LoggerStrategy& strategy, const LogRecord& record) {
             if (record.raw_mode) {

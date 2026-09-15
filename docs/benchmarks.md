@@ -86,6 +86,16 @@ The prepared-message/direct-dispatch pipeline and a true public macro benchmark 
 calls `LOGIT_INFO(...)` are separate scenarios with different work contracts;
 their results must not be presented as one number.
 
+`logit_exec_mx_bench` and `logit_exec_mx_bench_concurrent` are a guarded
+lock-elision experiment. They use the same prepared `LogRecord` and a small
+thread-safe counting backend/formatter pair; the first target keeps the default
+serialized path, while the second explicitly opts into the concurrency
+capabilities. Both report 1, 4, 16, and 32 producer runs. These binaries are
+research tools, not a recommendation to opt in arbitrary backends. A backend
+or formatter must satisfy the complete lifecycle contract in
+[`ADR 0006`](adr/0006-concurrent-dispatch-capability.md) before returning the
+capability flag.
+
 `logit_public_macro_bench` and `logit_public_macro_formatted_bench` are focused
 public-API smoke benchmarks. Both invoke `LOGIT_INFO(...)` from multiple
 producer threads and therefore include argument-name parsing, `args_array`

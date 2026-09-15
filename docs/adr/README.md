@@ -28,3 +28,4 @@ explains **why the current boundary or trade-off exists**.
 - [0003 — Immutable logger registry snapshots](0003-immutable-registry-snapshots.md)
 - [0004 — TimeShield compatibility and dependency reuse](0004-timeshield-compatibility.md)
 - [0005 — Benchmark evidence and comparison methodology](0005-benchmark-methodology.md)
+- [0006 — Explicit capability for concurrent dispatch](0006-concurrent-dispatch-capability.md)
