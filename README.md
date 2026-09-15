@@ -1074,6 +1074,20 @@ Pass `-DCMAKE_PREFIX_PATH=/path/to/install` when configuring the consumer.
 currently supported for source/build-tree development only; the install step
 rejects them rather than exporting a broken package.
 
+### pkg-config consumer
+
+The installation also provides a `log-it-cpp` pkg-config module. Set
+`PKG_CONFIG_PATH` to the installation's pkg-config directories and use the
+module's flags when compiling a consumer:
+
+```bash
+export PKG_CONFIG_PATH=/path/to/install/share/pkgconfig:/path/to/install/lib/pkgconfig
+c++ -std=c++11 $(pkg-config --cflags log-it-cpp) \
+    app.cpp $(pkg-config --libs log-it-cpp) -o app
+```
+
+The module declares the required `time-shield` dependency.
+
 4. (Optional) Enable fmt-style macros:
 
 LogIt++ includes the *fmt* library for `{}`-based formatting. To use the `LOGIT_FMT_*` and `LOGIT_SCOPE_FMT_*` macros, build the library with the CMake option `-DLOGIT_WITH_FMT=ON`.

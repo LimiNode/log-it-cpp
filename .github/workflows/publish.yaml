@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'
   pull_request:
     branches:
       - main
@@ -20,7 +22,7 @@ jobs:
         with:
           submodules: "true"
           fetch-depth: 0
-      - name: Inject development version into mainpage.dox
+      - name: Inject documentation version into mainpage.dox
         run: |
           VERSION=$(sed -n 's/^project(log-it-cpp VERSION \([^ ]*\).*/\1/p' CMakeLists.txt | head -n 1)
           if [ -z "$VERSION" ]; then
@@ -30,7 +32,16 @@ jobs:
               VERSION="0.0.0-untagged"
             fi
           fi
-          DOC_VERSION="${VERSION}-dev"
+          if [ "${GITHUB_EVENT_NAME:-}" = "push" ] && [ "${GITHUB_REF_TYPE:-}" = "tag" ]; then
+            TAG_VERSION="${GITHUB_REF_NAME#v}"
+            if [ "$TAG_VERSION" != "$VERSION" ]; then
+              echo "Release tag v${TAG_VERSION} does not match project version ${VERSION}."
+              exit 1
+            fi
+            DOC_VERSION="$TAG_VERSION"
+          else
+            DOC_VERSION="${VERSION}-dev"
+          fi
           echo "Using version: $DOC_VERSION"
           echo "DOC_VERSION=$DOC_VERSION" >> "$GITHUB_ENV"
           test -f docs/mainpage.dox || { echo "mainpage.dox not found!"; exit 1; }
