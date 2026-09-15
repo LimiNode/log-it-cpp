@@ -161,6 +161,8 @@ jobs:
           cmake -S . -B build-otlp
           -DLOGIT_CPP_BUILD_TESTS=ON
           -DLOGIT_WITH_OTLP=ON
+          -DLOGIT_WITH_GZIP=ON
+          -DLOGIT_WITH_ZSTD=ON
           -DLOGIT_USE_SUBMODULES=ON
           -DKURLYK_USE_FALLBACK_ASIO=ON
           -DKURLYK_USE_FALLBACK_SIMPLE_WS_SERVER=ON
