@@ -5,11 +5,11 @@
 подходит лучше компактного string-oriented логгера, общего event framework или
 диагностической macro-утилиты?**
 
-Сравнение проверено **10.09.2026** по следующим upstream-релизам:
+Сравнение проверено **15.09.2026** по следующим upstream-релизам:
 
 | Проект | Проверенная версия | Основная документация |
 | --- | --- | --- |
-| LogIt++ | `1.0.2-dev` (`main`) | [документация проекта](https://liminode.github.io/log-it-cpp/) |
+| LogIt++ | `v1.0.2` | [документация проекта](https://liminode.github.io/log-it-cpp/) |
 | spdlog | [`v1.17.0`](https://github.com/gabime/spdlog/releases/tag/v1.17.0) | [README](https://github.com/gabime/spdlog), [асинхронное логирование](https://github.com/gabime/spdlog/wiki/Asynchronous-logging) |
 | Quill | [`v13.0.0`](https://github.com/odygrd/quill/releases/tag/v13.0.0) | [документация проекта](https://quillcpp.readthedocs.io/) |
 | Boost.Log | [Boost `1.92.0`](https://www.boost.org/users/history/version_1_92_0.html) | [документация Boost.Log](https://www.boost.org/doc/libs/1_92_0/libs/log/doc/html/) |

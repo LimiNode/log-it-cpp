@@ -892,6 +892,20 @@ cmake --install build --prefix ./install
 поддерживаются только в source/build-tree; install намеренно завершается
 ошибкой вместо создания неработающего package.
 
+### Потребитель через pkg-config
+
+При установке также создаётся модуль pkg-config `log-it-cpp`. Добавьте
+каталоги pkg-config установленной библиотеки в `PKG_CONFIG_PATH` и используйте
+флаги модуля при сборке consumer-проекта:
+
+```bash
+export PKG_CONFIG_PATH=/path/to/install/share/pkgconfig:/path/to/install/lib/pkgconfig
+c++ -std=c++11 $(pkg-config --cflags log-it-cpp) \
+    app.cpp $(pkg-config --libs log-it-cpp) -o app
+```
+
+Модуль объявляет обязательную зависимость `time-shield`.
+
 4. (Необязательно) Включите макросы fmt:
 
 LogIt++ включает библиотеку *fmt* для форматирования с `{}`. Чтобы использовать макросы `LOGIT_FMT_*` и `LOGIT_SCOPE_FMT_*`, соберите библиотеку с опцией CMake `-DLOGIT_WITH_FMT=ON`.

@@ -50,6 +50,20 @@ target_link_libraries(my_app PRIVATE log-it-cpp::log-it-cpp)
 
 Pass `-DCMAKE_PREFIX_PATH=/path/to/install` when configuring the consumer.
 
+## pkg-config consumer
+
+The installation also provides a `log-it-cpp` pkg-config module. Set
+`PKG_CONFIG_PATH` to include the installation's `share/pkgconfig` and
+`lib/pkgconfig` directories, then use the module's flags when compiling:
+
+```bash
+export PKG_CONFIG_PATH=/path/to/install/share/pkgconfig:/path/to/install/lib/pkgconfig
+c++ -std=c++11 $(pkg-config --cflags log-it-cpp) \
+    app.cpp $(pkg-config --libs log-it-cpp) -o app
+```
+
+The module declares the required `time-shield` dependency.
+
 ## Optional dependencies and features
 
 Enable only the features needed by the application. `fmt`, zlib, and zstd can

@@ -7,11 +7,11 @@ answers a practical question: **when does LogIt++ fit better than a smaller
 formatted-string logger, a general event framework, or a diagnostic macro
 utility?**
 
-The comparison was checked on **2026-09-10** against these upstream releases:
+The comparison was checked on **2026-09-15** against these upstream releases:
 
 | Project | Release checked | Primary documentation |
 | --- | --- | --- |
-| LogIt++ | `1.0.2-dev` (`main`) | [project documentation](https://liminode.github.io/log-it-cpp/) |
+| LogIt++ | `v1.0.2` | [project documentation](https://liminode.github.io/log-it-cpp/) |
 | spdlog | [`v1.17.0`](https://github.com/gabime/spdlog/releases/tag/v1.17.0) | [README](https://github.com/gabime/spdlog), [async logging](https://github.com/gabime/spdlog/wiki/Asynchronous-logging) |
 | Quill | [`v13.0.0`](https://github.com/odygrd/quill/releases/tag/v13.0.0) | [project documentation](https://quillcpp.readthedocs.io/) |
 | Boost.Log | [Boost `1.92.0`](https://www.boost.org/users/history/version_1_92_0.html) | [Boost.Log documentation](https://www.boost.org/doc/libs/1_92_0/libs/log/doc/html/) |
@@ -235,7 +235,7 @@ Choose LogIt++ with its trade-offs in mind:
   backends.
 
 The [upstream `google/glog` repository](https://github.com/google/glog) was
-archived and made read-only as of the 2026-09-10 check; account for that
+archived and made read-only as of the 2026-09-15 check; account for that
 lifecycle status before adopting it as a new dependency.
 
 **Consider IceCream-Cpp when:**
