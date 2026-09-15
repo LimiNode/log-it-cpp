@@ -49,6 +49,7 @@ else()
         logger_legacy_targeted_path_test.cpp
         logger_snapshot_read_path_test.cpp
         logger_clear_api_test.cpp
+        logger_dispatch_capability_test.cpp
         memory_logger_backend_test.cpp
         memory_logger_callback_test.cpp
         memory_logger_concurrency_test.cpp
@@ -161,4 +162,10 @@ else()
             endif()
         endif()
     endforeach()
+
+    add_executable(logger_dispatch_concurrent_test logger_dispatch_capability_test.cpp)
+    target_compile_features(logger_dispatch_concurrent_test PRIVATE cxx_std_11)
+    target_compile_definitions(logger_dispatch_concurrent_test PRIVATE LOGIT_TEST_CONCURRENT_CAPABILITY=1)
+    target_link_libraries(logger_dispatch_concurrent_test PRIVATE log-it-cpp)
+    add_test(NAME logger_dispatch_concurrent_test COMMAND logger_dispatch_concurrent_test)
 endif()

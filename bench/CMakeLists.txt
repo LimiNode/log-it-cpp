@@ -56,6 +56,17 @@ target_compile_definitions(logit_hotpath_bench_legacy PRIVATE LOGIT_BENCH_LEGACY
 target_link_libraries(logit_hotpath_bench_legacy PRIVATE log-it-cpp::log-it-cpp)
 set_target_properties(logit_hotpath_bench_legacy PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
+add_executable(logit_exec_mx_bench logger_exec_mx_bench.cpp)
+target_compile_features(logit_exec_mx_bench PRIVATE cxx_std_17)
+target_link_libraries(logit_exec_mx_bench PRIVATE log-it-cpp::log-it-cpp)
+set_target_properties(logit_exec_mx_bench PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+add_executable(logit_exec_mx_bench_concurrent logger_exec_mx_bench.cpp)
+target_compile_features(logit_exec_mx_bench_concurrent PRIVATE cxx_std_17)
+target_compile_definitions(logit_exec_mx_bench_concurrent PRIVATE LOGIT_BENCH_CONCURRENT_DISPATCH=1)
+target_link_libraries(logit_exec_mx_bench_concurrent PRIVATE log-it-cpp::log-it-cpp)
+set_target_properties(logit_exec_mx_bench_concurrent PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 add_executable(benchmark_validation_test benchmark_validation_test.cpp)
 target_compile_features(benchmark_validation_test PRIVATE cxx_std_17)
 set_target_properties(benchmark_validation_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})

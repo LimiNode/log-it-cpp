@@ -57,9 +57,10 @@ Legend:
   a versioned fixture contract with compiler/toolchain/commit/queue/flush
   metadata, and a 1/4/16/32-producer matrix are now covered. Keep publication
   numbers tied to a fixed machine and toolchain.
-- [ ] **Concurrency fast-path research** — only after documenting a formal
-  thread-safety capability for formatters/backends. Do not remove `exec_mx`
-  based on benchmark results alone.
+- [x] **Concurrency fast-path research** — explicit formatter/backend capability
+  hooks, serialized fallback, lifecycle regression coverage, and a 1/4/16/32
+  producer A/B benchmark are documented in ADR 0006. Built-in backends remain
+  serialized until their complete contracts are audited.
 
 ## Intentionally deferred
 
