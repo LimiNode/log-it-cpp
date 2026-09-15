@@ -101,10 +101,10 @@ void run_probe(OverlapProbeLogger& probe, std::size_t workers) {
 } // namespace
 
 int main() {
-    auto probe = std::make_unique<OverlapProbeLogger>();
+    std::unique_ptr<OverlapProbeLogger> probe(new OverlapProbeLogger());
     auto* probe_ptr = probe.get();
     logit::Logger::get_instance().add_logger(
-            std::move(probe), std::make_unique<StatelessFormatter>());
+            std::move(probe), std::unique_ptr<StatelessFormatter>(new StatelessFormatter()));
 
     constexpr std::size_t workers = 8;
     run_probe(*probe_ptr, workers);
