@@ -25,6 +25,15 @@ vcpkg_cmake_config_fixup(PACKAGE_NAME log-it-cpp CONFIG_PATH lib/cmake/log-it-cp
 # the dedicated Linux pkg-config consumer job.
 vcpkg_fixup_pkgconfig(SKIP_CHECK)
 
+# Agent guidance belongs to the source repository, not to the installed package.
+file(GLOB_RECURSE _logit_agent_files
+    "${CURRENT_PACKAGES_DIR}/include/AGENTS.md"
+    "${CURRENT_PACKAGES_DIR}/include/*/AGENTS.md"
+)
+if(_logit_agent_files)
+    file(REMOVE ${_logit_agent_files})
+endif()
+
 vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE")
 
 file(REMOVE_RECURSE
