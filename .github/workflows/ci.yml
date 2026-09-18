@@ -220,6 +220,10 @@ jobs:
         run: |
           pkg-config --exists log-it-cpp
           test "$(pkg-config --modversion log-it-cpp)" = "1.0.2"
+          pkg-config --print-requires log-it-cpp
+          pkg-config --print-requires log-it-cpp | grep -Fx 'time-shield >= 2.0.0'
+          pkg-config --print-requires log-it-cpp | grep -Fx 'time-shield < 2.1.0'
+          pkg-config --atleast-version=2.0.0 time-shield
           cmake -S tests/pkgconfig_consumer -B build-pkgconfig
       - name: Build and run pkg-config consumer
         run: |

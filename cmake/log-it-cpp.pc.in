@@ -6,6 +6,6 @@ includedir=${prefix}/include
 Name: log-it-cpp
 Description: LogIt C++ logging library
 Version: @PROJECT_VERSION@
-Requires: time-shield
+Requires: time-shield >= 2.0.0, time-shield < 2.1.0
 Cflags: -I${includedir}/logit_cpp
 Libs:
