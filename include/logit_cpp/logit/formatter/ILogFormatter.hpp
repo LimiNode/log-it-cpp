@@ -42,6 +42,16 @@ namespace logit {
         /// this to enable fast-path handling without extra string copies.
         /// \return True if the formatter is passthrough, false otherwise.
         virtual bool is_passthrough() const noexcept { return false; }
+
+        /// \brief Indicates whether formatting may run concurrently with dispatch configuration.
+        ///
+        /// Returning true opts this formatter into the `Logger` lock-elision
+        /// path. Implementations must be safe for concurrent `format()` calls
+        /// and for concurrent calls to their configuration methods, including
+        /// `set_timestamp_offset()`. The default keeps the existing serialized
+        /// behavior for custom formatters.
+        /// \return True only when concurrent formatting and reconfiguration are safe.
+        virtual bool supports_concurrent_format() const noexcept { return false; }
     }; // ILogFormatter
 
 }; // namespace logit
