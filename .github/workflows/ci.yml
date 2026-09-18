@@ -186,6 +186,74 @@ jobs:
             build-otlp/Testing/Temporary/LastTest.log
           if-no-files-found: ignore
 
+  linux-package-consumers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - run: git submodule update --init --recursive
+      - name: Install package-consumer tools
+        run: sudo apt-get update && sudo apt-get install -y pkg-config
+      - name: Install TimeShield dependency
+        run: |
+          cmake -S external/time-shield-cpp -B build-timeshield \
+            -DTIME_SHIELD_CPP_BUILD_TESTS=OFF \
+            -DTIME_SHIELD_CPP_BUILD_EXAMPLES=OFF \
+            -DTIME_SHIELD_ENABLE_NTP_CLIENT=OFF \
+            -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/install-timeshield"
+          cmake --build build-timeshield
+          cmake --install build-timeshield
+      - name: Build and install source package
+        run: |
+          cmake -S . -B build-package \
+            -DLOGIT_CPP_BUILD_TESTS=OFF \
+            -DLOGIT_WITH_SYSLOG=OFF \
+            -DLOGIT_WITH_WIN_EVENT_LOG=OFF \
+            -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/install-logit" \
+            -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/install-timeshield"
+          cmake --build build-package
+          cmake --install build-package
+      - name: Configure pkg-config consumer
+        env:
+          PKG_CONFIG_PATH: ${{ github.workspace }}/install-logit/share/pkgconfig:${{ github.workspace }}/install-timeshield/lib/pkgconfig
+        run: |
+          pkg-config --exists log-it-cpp
+          test "$(pkg-config --modversion log-it-cpp)" = "1.0.2"
+          pkg-config --print-requires log-it-cpp
+          pkg-config --print-requires log-it-cpp | grep -Fx 'time-shield >= 2.0.0'
+          pkg-config --print-requires log-it-cpp | grep -Fx 'time-shield < 2.1.0'
+          pkg-config --atleast-version=2.0.0 time-shield
+          cmake -S tests/pkgconfig_consumer -B build-pkgconfig
+      - name: Build and run pkg-config consumer
+        run: |
+          cmake --build build-pkgconfig
+          ./build-pkgconfig/pkgconfig_consumer
+      - name: Create clean source archive
+        run: |
+          archive_root="$RUNNER_TEMP/logit-archive"
+          mkdir -p "$archive_root/source"
+          git archive --format=tar.gz --prefix=log-it-cpp/ HEAD > "$RUNNER_TEMP/log-it-cpp.tar.gz"
+          tar -xzf "$RUNNER_TEMP/log-it-cpp.tar.gz" -C "$archive_root/source"
+      - name: Build and install clean source archive
+        run: |
+          archive_source="$RUNNER_TEMP/logit-archive/source/log-it-cpp"
+          cmake -S "$archive_source" -B "$RUNNER_TEMP/logit-archive/build" \
+            -DLOGIT_CPP_BUILD_TESTS=OFF \
+            -DLOGIT_WITH_SYSLOG=OFF \
+            -DLOGIT_WITH_WIN_EVENT_LOG=OFF \
+            -DCMAKE_INSTALL_PREFIX="$RUNNER_TEMP/logit-archive/install" \
+            -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/install-timeshield"
+          cmake --build "$RUNNER_TEMP/logit-archive/build"
+          cmake --install "$RUNNER_TEMP/logit-archive/build"
+      - name: Build and run clean archive consumer
+        run: |
+          archive_source="$RUNNER_TEMP/logit-archive/source/log-it-cpp"
+          cmake -S "$archive_source/tests/install_consumer" -B "$RUNNER_TEMP/logit-archive/consumer" \
+            -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/logit-archive/install;$GITHUB_WORKSPACE/install-timeshield"
+          cmake --build "$RUNNER_TEMP/logit-archive/consumer"
+          "$RUNNER_TEMP/logit-archive/consumer/install_consumer"
+
   windows:
     runs-on: windows-latest
     strategy:

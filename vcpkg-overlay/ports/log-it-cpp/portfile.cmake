@@ -19,7 +19,11 @@ vcpkg_cmake_install()
 
 vcpkg_cmake_config_fixup(PACKAGE_NAME log-it-cpp CONFIG_PATH lib/cmake/log-it-cpp)
 
-vcpkg_fixup_pkgconfig()
+# vcpkg's isolated fixup check does not include the dependency port's
+# pkg-config directory, even though time-shield is declared in Requires.
+# The relocatable metadata is still rewritten; the dependency is validated by
+# the dedicated Linux pkg-config consumer job.
+vcpkg_fixup_pkgconfig(SKIP_CHECK)
 
 vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE")
 

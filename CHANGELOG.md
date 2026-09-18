@@ -2,9 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
-
-Target release: **v1.0.2**
+## [v1.0.2] - 2026-09-15
 
 ### Added
 
@@ -29,6 +27,8 @@ Target release: **v1.0.2**
 ### Packaging / Build
 
 - Refreshed bundled dependency revisions and canonical repository URLs.
+- Updated the required TimeShield dependency to the 2.0.x line (minimum 2.0.0)
+  and migrated to its v2 header layout.
 - Added fail-closed installation checks for unsupported bundled optional dependencies and source-tree-only Prometheus server headers.
 
 ### CI / Testing
