@@ -39,15 +39,16 @@ var NAVTREE =
         [ "Vendored checkout", "installation.html#autotoc_md6", null ],
         [ "Git submodule", "installation.html#autotoc_md7", null ],
         [ "Installed package", "installation.html#autotoc_md8", null ],
-        [ "Optional dependencies and features", "installation.html#autotoc_md9", null ],
-        [ "Install limitations", "installation.html#autotoc_md10", null ],
-        [ "Package managers", "installation.html#autotoc_md11", null ]
+        [ "pkg-config consumer", "installation.html#autotoc_md9", null ],
+        [ "Optional dependencies and features", "installation.html#autotoc_md10", null ],
+        [ "Install limitations", "installation.html#autotoc_md11", null ],
+        [ "Package managers", "installation.html#autotoc_md12", null ]
       ] ]
     ] ],
     [ "Backend matrix", "backends.html", [
-      [ "Backend matrix", "backends.html#autotoc_md12", [
-        [ "Delivery models", "backends.html#autotoc_md13", null ],
-        [ "Packaging", "backends.html#autotoc_md14", null ]
+      [ "Backend matrix", "backends.html#autotoc_md13", [
+        [ "Delivery models", "backends.html#autotoc_md14", null ],
+        [ "Packaging", "backends.html#autotoc_md15", null ]
       ] ]
     ] ],
     [ "API reference and concepts", "api_reference.html", [
@@ -76,8 +77,8 @@ var NAVTREE =
       [ "Usage", "api_reference.html#usage_sec", null ],
       [ "Customizing Log Formats", "api_reference.html#log_formatting_sec", [
         [ "Examples of Formatting Patterns", "api_reference.html#pattern_example", [
-          [ "Example for Setting a Custom Console Logger Format", "api_reference.html#autotoc_md15", null ],
-          [ "Example Using Macros for Simplicity", "api_reference.html#autotoc_md16", null ]
+          [ "Example for Setting a Custom Console Logger Format", "api_reference.html#autotoc_md16", null ],
+          [ "Example Using Macros for Simplicity", "api_reference.html#autotoc_md17", null ]
         ] ]
       ] ],
       [ "Log Message Formatting Flags", "api_reference.html#format_flags_sec", [
@@ -92,7 +93,7 @@ var NAVTREE =
         [ "Advanced Path Handling", "api_reference.html#advanced_path_handling", null ]
       ] ],
       [ "Shortened Logging Macros", "api_reference.html#short_macros", [
-        [ "Available TRACE-level macros:", "api_reference.html#autotoc_md17", null ]
+        [ "Available TRACE-level macros:", "api_reference.html#autotoc_md18", null ]
       ] ],
       [ "Configuration Macros", "api_reference.html#config_macros", null ],
       [ "Custom Logger Backend and Formatter", "api_reference.html#custom_backend_sec", [
@@ -114,121 +115,121 @@ var NAVTREE =
       [ "License", "api_reference.html#license_sec", null ]
     ] ],
     [ "Performance and benchmarks", "benchmarks.html", [
-      [ "Performance and benchmarks", "benchmarks.html#autotoc_md18", [
-        [ "Interpreting results", "benchmarks.html#autotoc_md19", null ],
-        [ "Historical snapshot", "benchmarks.html#autotoc_md20", null ],
-        [ "Harness details", "benchmarks.html#autotoc_md21", null ]
+      [ "Performance and benchmarks", "benchmarks.html#autotoc_md19", [
+        [ "Interpreting results", "benchmarks.html#autotoc_md20", null ],
+        [ "Historical snapshot", "benchmarks.html#autotoc_md21", null ],
+        [ "Harness details", "benchmarks.html#autotoc_md22", null ]
       ] ]
     ] ],
     [ "Comparison with other C++ logging libraries", "comparison.html", [
-      [ "LogIt++ compared with other C++ logging libraries", "comparison.html#autotoc_md22", [
-        [ "What LogIt++ optimizes for", "comparison.html#autotoc_md23", null ],
-        [ "Feature comparison", "comparison.html#autotoc_md24", null ],
-        [ "Developer ergonomics", "comparison.html#autotoc_md25", null ],
-        [ "Why IceCream-Cpp is a different comparison", "comparison.html#autotoc_md26", null ],
-        [ "Async delivery and queue semantics", "comparison.html#autotoc_md27", null ],
-        [ "Structured data, storage, and telemetry", "comparison.html#autotoc_md28", null ],
-        [ "Performance snapshot", "comparison.html#autotoc_md29", null ],
-        [ "Trade-offs", "comparison.html#autotoc_md30", null ],
-        [ "Which library should I choose?", "comparison.html#autotoc_md31", null ],
-        [ "Sources and reproducibility", "comparison.html#autotoc_md32", null ]
+      [ "LogIt++ compared with other C++ logging libraries", "comparison.html#autotoc_md23", [
+        [ "What LogIt++ optimizes for", "comparison.html#autotoc_md24", null ],
+        [ "Feature comparison", "comparison.html#autotoc_md25", null ],
+        [ "Developer ergonomics", "comparison.html#autotoc_md26", null ],
+        [ "Why IceCream-Cpp is a different comparison", "comparison.html#autotoc_md27", null ],
+        [ "Async delivery and queue semantics", "comparison.html#autotoc_md28", null ],
+        [ "Structured data, storage, and telemetry", "comparison.html#autotoc_md29", null ],
+        [ "Performance snapshot", "comparison.html#autotoc_md30", null ],
+        [ "Trade-offs", "comparison.html#autotoc_md31", null ],
+        [ "Which library should I choose?", "comparison.html#autotoc_md32", null ],
+        [ "Sources and reproducibility", "comparison.html#autotoc_md33", null ]
       ] ]
     ] ],
     [ "OTLP/HTTP logger", "otlp_http_logger.html", [
-      [ "OTLP/HTTP logger", "otlp_http_logger.html#autotoc_md33", [
-        [ "CMake", "otlp_http_logger.html#autotoc_md34", null ],
-        [ "Usage", "otlp_http_logger.html#autotoc_md35", null ],
-        [ "OtlpPayloadLogger callback exporter", "otlp_http_logger.html#autotoc_md36", null ],
-        [ "Export model", "otlp_http_logger.html#autotoc_md37", null ],
-        [ "Structured typed attributes", "otlp_http_logger.html#autotoc_md38", [
-          [ "Configuration flags", "otlp_http_logger.html#autotoc_md39", null ],
-          [ "Type mapping", "otlp_http_logger.html#autotoc_md40", null ],
-          [ "Name sanitization and deduplication", "otlp_http_logger.html#autotoc_md41", null ],
-          [ "Reserved prefix", "otlp_http_logger.html#autotoc_md42", null ],
-          [ "Cardinality warning", "otlp_http_logger.html#autotoc_md43", null ],
-          [ "Deprecation notice", "otlp_http_logger.html#autotoc_md44", null ]
+      [ "OTLP/HTTP logger", "otlp_http_logger.html#autotoc_md34", [
+        [ "CMake", "otlp_http_logger.html#autotoc_md35", null ],
+        [ "Usage", "otlp_http_logger.html#autotoc_md36", null ],
+        [ "OtlpPayloadLogger callback exporter", "otlp_http_logger.html#autotoc_md37", null ],
+        [ "Export model", "otlp_http_logger.html#autotoc_md38", null ],
+        [ "Structured typed attributes", "otlp_http_logger.html#autotoc_md39", [
+          [ "Configuration flags", "otlp_http_logger.html#autotoc_md40", null ],
+          [ "Type mapping", "otlp_http_logger.html#autotoc_md41", null ],
+          [ "Name sanitization and deduplication", "otlp_http_logger.html#autotoc_md42", null ],
+          [ "Reserved prefix", "otlp_http_logger.html#autotoc_md43", null ],
+          [ "Cardinality warning", "otlp_http_logger.html#autotoc_md44", null ],
+          [ "Deprecation notice", "otlp_http_logger.html#autotoc_md45", null ]
         ] ],
-        [ "Diagnostics", "otlp_http_logger.html#autotoc_md45", null ],
-        [ "Notes", "otlp_http_logger.html#autotoc_md46", null ]
+        [ "Diagnostics", "otlp_http_logger.html#autotoc_md46", null ],
+        [ "Notes", "otlp_http_logger.html#autotoc_md47", null ]
       ] ]
     ] ],
     [ "Prometheus Logger", "prometheus_logger.html", [
-      [ "Prometheus Logger", "prometheus_logger.html#autotoc_md47", [
-        [ "Overview", "prometheus_logger.html#autotoc_md48", null ],
-        [ "Built-in Metrics", "prometheus_logger.html#autotoc_md49", null ],
-        [ "CMake Options", "prometheus_logger.html#autotoc_md50", null ],
-        [ "Usage: PrometheusPayloadLogger", "prometheus_logger.html#autotoc_md51", null ],
-        [ "Usage: PrometheusHttpServerLogger", "prometheus_logger.html#autotoc_md52", null ],
-        [ "Custom Metrics", "prometheus_logger.html#autotoc_md53", null ],
-        [ "Prometheus Scrape Config", "prometheus_logger.html#autotoc_md54", null ],
-        [ "Limitations", "prometheus_logger.html#autotoc_md55", null ]
+      [ "Prometheus Logger", "prometheus_logger.html#autotoc_md48", [
+        [ "Overview", "prometheus_logger.html#autotoc_md49", null ],
+        [ "Built-in Metrics", "prometheus_logger.html#autotoc_md50", null ],
+        [ "CMake Options", "prometheus_logger.html#autotoc_md51", null ],
+        [ "Usage: PrometheusPayloadLogger", "prometheus_logger.html#autotoc_md52", null ],
+        [ "Usage: PrometheusHttpServerLogger", "prometheus_logger.html#autotoc_md53", null ],
+        [ "Custom Metrics", "prometheus_logger.html#autotoc_md54", null ],
+        [ "Prometheus Scrape Config", "prometheus_logger.html#autotoc_md55", null ],
+        [ "Limitations", "prometheus_logger.html#autotoc_md56", null ]
       ] ]
     ] ],
     [ "TaskExecutor Implementation Notes", "task_executor.html", [
-      [ "TaskExecutor Implementation Notes", "task_executor.html#autotoc_md56", [
-        [ "Implementation variants", "task_executor.html#autotoc_md57", [
-          [ "Default deque worker (without LOGIT_USE_MPSC_RING)", "task_executor.html#autotoc_md58", null ],
-          [ "Lock-free MPSC ring (LOGIT_USE_MPSC_RING)", "task_executor.html#autotoc_md59", null ],
-          [ "Emscripten builds without pthreads", "task_executor.html#autotoc_md60", null ]
+      [ "TaskExecutor Implementation Notes", "task_executor.html#autotoc_md57", [
+        [ "Implementation variants", "task_executor.html#autotoc_md58", [
+          [ "Default deque worker (without LOGIT_USE_MPSC_RING)", "task_executor.html#autotoc_md59", null ],
+          [ "Lock-free MPSC ring (LOGIT_USE_MPSC_RING)", "task_executor.html#autotoc_md60", null ],
+          [ "Emscripten builds without pthreads", "task_executor.html#autotoc_md61", null ]
         ] ],
-        [ "Backpressure semantics", "task_executor.html#autotoc_md61", null ],
-        [ "Hot queue resize (LOGIT_USE_MPSC_RING)", "task_executor.html#autotoc_md62", null ],
-        [ "Ordering and completion guarantees", "task_executor.html#autotoc_md63", null ],
-        [ "Singleton and lifetime management", "task_executor.html#autotoc_md64", null ],
-        [ "Emscripten (no pthreads)", "task_executor.html#autotoc_md65", null ],
-        [ "API surface and macros", "task_executor.html#autotoc_md66", [
-          [ "Examples", "task_executor.html#autotoc_md67", null ]
+        [ "Backpressure semantics", "task_executor.html#autotoc_md62", null ],
+        [ "Hot queue resize (LOGIT_USE_MPSC_RING)", "task_executor.html#autotoc_md63", null ],
+        [ "Ordering and completion guarantees", "task_executor.html#autotoc_md64", null ],
+        [ "Singleton and lifetime management", "task_executor.html#autotoc_md65", null ],
+        [ "Emscripten (no pthreads)", "task_executor.html#autotoc_md66", null ],
+        [ "API surface and macros", "task_executor.html#autotoc_md67", [
+          [ "Examples", "task_executor.html#autotoc_md68", null ]
         ] ],
-        [ "Thread-safety and TSAN considerations", "task_executor.html#autotoc_md68", null ],
-        [ "Performance and tuning", "task_executor.html#autotoc_md69", null ]
+        [ "Thread-safety and TSAN considerations", "task_executor.html#autotoc_md69", null ],
+        [ "Performance and tuning", "task_executor.html#autotoc_md70", null ]
       ] ]
     ] ],
     [ "Queue Back-Pressure Controls", "backpressure.html", [
-      [ "Queue Back-Pressure Controls", "backpressure.html#autotoc_md70", null ]
+      [ "Queue Back-Pressure Controls", "backpressure.html#autotoc_md71", null ]
     ] ],
     [ "Roadmap and delivery checklist — LogIt++", "md_docs_2future-plans.html", [
-      [ "Delivered", "md_docs_2future-plans.html#autotoc_md72", null ],
-      [ "Next planned work", "md_docs_2future-plans.html#autotoc_md73", null ],
-      [ "Intentionally deferred", "md_docs_2future-plans.html#autotoc_md74", null ],
-      [ "How to update this document", "md_docs_2future-plans.html#autotoc_md75", null ]
+      [ "Delivered", "md_docs_2future-plans.html#autotoc_md73", null ],
+      [ "Next planned work", "md_docs_2future-plans.html#autotoc_md74", null ],
+      [ "Intentionally deferred", "md_docs_2future-plans.html#autotoc_md75", null ],
+      [ "How to update this document", "md_docs_2future-plans.html#autotoc_md76", null ]
     ] ],
     [ "ADR NNNN: Short decision title", "md_docs_2adr_20000-template.html", [
-      [ "Context", "md_docs_2adr_20000-template.html#autotoc_md77", null ],
-      [ "Decision", "md_docs_2adr_20000-template.html#autotoc_md78", null ],
-      [ "Consequences", "md_docs_2adr_20000-template.html#autotoc_md79", null ],
-      [ "Alternatives considered", "md_docs_2adr_20000-template.html#autotoc_md80", null ],
-      [ "References", "md_docs_2adr_20000-template.html#autotoc_md81", null ]
+      [ "Context", "md_docs_2adr_20000-template.html#autotoc_md78", null ],
+      [ "Decision", "md_docs_2adr_20000-template.html#autotoc_md79", null ],
+      [ "Consequences", "md_docs_2adr_20000-template.html#autotoc_md80", null ],
+      [ "Alternatives considered", "md_docs_2adr_20000-template.html#autotoc_md81", null ],
+      [ "References", "md_docs_2adr_20000-template.html#autotoc_md82", null ]
     ] ],
     [ "ADR 0001: Aggregate-first public headers and API boundary", "md_docs_2adr_20001-aggregate-first-public-headers.html", [
-      [ "Context", "md_docs_2adr_20001-aggregate-first-public-headers.html#autotoc_md83", null ],
-      [ "Decision", "md_docs_2adr_20001-aggregate-first-public-headers.html#autotoc_md84", null ],
-      [ "Consequences", "md_docs_2adr_20001-aggregate-first-public-headers.html#autotoc_md85", null ],
-      [ "Alternatives considered", "md_docs_2adr_20001-aggregate-first-public-headers.html#autotoc_md86", null ]
+      [ "Context", "md_docs_2adr_20001-aggregate-first-public-headers.html#autotoc_md84", null ],
+      [ "Decision", "md_docs_2adr_20001-aggregate-first-public-headers.html#autotoc_md85", null ],
+      [ "Consequences", "md_docs_2adr_20001-aggregate-first-public-headers.html#autotoc_md86", null ],
+      [ "Alternatives considered", "md_docs_2adr_20001-aggregate-first-public-headers.html#autotoc_md87", null ]
     ] ],
     [ "ADR 0002: Shared and dedicated asynchronous executors", "md_docs_2adr_20002-async-executor-model.html", [
-      [ "Context", "md_docs_2adr_20002-async-executor-model.html#autotoc_md88", null ],
-      [ "Decision", "md_docs_2adr_20002-async-executor-model.html#autotoc_md89", null ],
-      [ "Consequences", "md_docs_2adr_20002-async-executor-model.html#autotoc_md90", null ]
+      [ "Context", "md_docs_2adr_20002-async-executor-model.html#autotoc_md89", null ],
+      [ "Decision", "md_docs_2adr_20002-async-executor-model.html#autotoc_md90", null ],
+      [ "Consequences", "md_docs_2adr_20002-async-executor-model.html#autotoc_md91", null ]
     ] ],
     [ "ADR 0003: Immutable logger registry snapshots", "md_docs_2adr_20003-immutable-registry-snapshots.html", [
-      [ "Context", "md_docs_2adr_20003-immutable-registry-snapshots.html#autotoc_md92", null ],
-      [ "Decision", "md_docs_2adr_20003-immutable-registry-snapshots.html#autotoc_md93", null ],
-      [ "Consequences", "md_docs_2adr_20003-immutable-registry-snapshots.html#autotoc_md94", null ]
+      [ "Context", "md_docs_2adr_20003-immutable-registry-snapshots.html#autotoc_md93", null ],
+      [ "Decision", "md_docs_2adr_20003-immutable-registry-snapshots.html#autotoc_md94", null ],
+      [ "Consequences", "md_docs_2adr_20003-immutable-registry-snapshots.html#autotoc_md95", null ]
     ] ],
     [ "ADR 0004: TimeShield compatibility and dependency reuse", "md_docs_2adr_20004-timeshield-compatibility.html", [
-      [ "Context", "md_docs_2adr_20004-timeshield-compatibility.html#autotoc_md96", null ],
-      [ "Decision", "md_docs_2adr_20004-timeshield-compatibility.html#autotoc_md97", null ],
-      [ "Consequences", "md_docs_2adr_20004-timeshield-compatibility.html#autotoc_md98", null ]
+      [ "Context", "md_docs_2adr_20004-timeshield-compatibility.html#autotoc_md97", null ],
+      [ "Decision", "md_docs_2adr_20004-timeshield-compatibility.html#autotoc_md98", null ],
+      [ "Consequences", "md_docs_2adr_20004-timeshield-compatibility.html#autotoc_md99", null ]
     ] ],
     [ "ADR 0005: Benchmark evidence and comparison methodology", "md_docs_2adr_20005-benchmark-methodology.html", [
-      [ "Context", "md_docs_2adr_20005-benchmark-methodology.html#autotoc_md100", null ],
-      [ "Decision", "md_docs_2adr_20005-benchmark-methodology.html#autotoc_md101", null ],
-      [ "Consequences", "md_docs_2adr_20005-benchmark-methodology.html#autotoc_md102", null ]
+      [ "Context", "md_docs_2adr_20005-benchmark-methodology.html#autotoc_md101", null ],
+      [ "Decision", "md_docs_2adr_20005-benchmark-methodology.html#autotoc_md102", null ],
+      [ "Consequences", "md_docs_2adr_20005-benchmark-methodology.html#autotoc_md103", null ]
     ] ],
     [ "Architecture Decision Records", "md_docs_2adr_2README.html", [
-      [ "Statuses", "md_docs_2adr_2README.html#autotoc_md104", null ],
-      [ "Creating an ADR", "md_docs_2adr_2README.html#autotoc_md105", null ],
-      [ "Accepted decisions", "md_docs_2adr_2README.html#autotoc_md106", null ]
+      [ "Statuses", "md_docs_2adr_2README.html#autotoc_md105", null ],
+      [ "Creating an ADR", "md_docs_2adr_2README.html#autotoc_md106", null ],
+      [ "Accepted decisions", "md_docs_2adr_2README.html#autotoc_md107", null ]
     ] ],
     [ "Topics", "topics.html", "topics" ],
     [ "Namespaces", "namespaces.html", [
@@ -275,11 +276,11 @@ var NAVTREEINDEX =
 "classlogit_1_1detail_1_1MdbxByteReader.html#a0a28bec2661666899600c0ef0b44b48c",
 "dir_c80fae293bdf57c1c67b4874c22574b2.html",
 "group__LoggingMacros.html",
-"log__macros_8hpp.html#a7d23d021eccdf2623e86bb9be70b469d",
-"md_docs_2future-plans.html",
+"log__macros_8hpp.html#a7d0c9befd2b6bd952a5f304fb6ed2c3c",
+"md_docs_2adr_2README.html#autotoc_md107",
 "structlogit_1_1CrashWindowsLogger_1_1Config.html#a819bf96d1febff1bd7a9aebd63f7f02d",
 "structlogit_1_1MdbxLogger_1_1Config.html#a8e348103b8079202457c69bd01e20d61",
-"structlogit_1_1PrometheusRegistry_1_1Entry.html#a226799e05cfba021ab49e941784419d9",
+"structlogit_1_1PrometheusRegistry_1_1Entry.html#a1ee081bfeaf05bfcf5c7aaacd97b4984",
 "task_executor.html#autotoc_md65"
 ];
 

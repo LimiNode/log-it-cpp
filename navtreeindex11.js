@@ -1,5 +1,6 @@
 var NAVTREEINDEX11 =
 {
+"structlogit_1_1MdbxLogger_1_1Config.html#a8e348103b8079202457c69bd01e20d61":[20,0,3,21,0,7],
 "structlogit_1_1MdbxLogger_1_1Config.html#a8e348103b8079202457c69bd01e20d61":[21,0,0,21,0,7],
 "structlogit_1_1MdbxLogger_1_1Config.html#a8fd95855213c7922e73a5c4d717079ca":[20,0,3,21,0,10],
 "structlogit_1_1MdbxLogger_1_1Config.html#a8fd95855213c7922e73a5c4d717079ca":[21,0,0,21,0,10],
@@ -248,6 +249,5 @@ var NAVTREEINDEX11 =
 "structlogit_1_1PrometheusRegistry_1_1Entry.html":[21,0,0,36,0],
 "structlogit_1_1PrometheusRegistry_1_1Entry.html#a00f9ee48e091e9fa800ce1f814eaee29":[20,0,3,36,0,2],
 "structlogit_1_1PrometheusRegistry_1_1Entry.html#a00f9ee48e091e9fa800ce1f814eaee29":[21,0,0,36,0,2],
-"structlogit_1_1PrometheusRegistry_1_1Entry.html#a1ee081bfeaf05bfcf5c7aaacd97b4984":[20,0,3,36,0,0],
-"structlogit_1_1PrometheusRegistry_1_1Entry.html#a1ee081bfeaf05bfcf5c7aaacd97b4984":[21,0,0,36,0,0]
+"structlogit_1_1PrometheusRegistry_1_1Entry.html#a1ee081bfeaf05bfcf5c7aaacd97b4984":[20,0,3,36,0,0]
 };

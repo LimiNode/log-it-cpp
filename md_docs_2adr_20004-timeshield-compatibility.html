@@ -115,18 +115,18 @@ $(function(){initNavTree('md_docs_2adr_20004-timeshield-compatibility.html','');
   <div class="headertitle"><div class="title">ADR 0004: TimeShield compatibility and dependency reuse</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="autotoc_md95"></a></p>
+<div class="textblock"><p><a class="anchor" id="autotoc_md96"></a></p>
 <ul>
 <li>Status: Accepted</li>
 <li>Date: 2026-09-14</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md96"></a>
+<h1><a class="anchor" id="autotoc_md97"></a>
 Context</h1>
 <p>The current TimeShield release is <code>v2.0.0</code>, whose CMake package uses <code>SameMinorVersion</code> compatibility. Consumers may provide dependency targets from a parent project or sibling build instead of installing another package configuration.</p>
-<h1><a class="anchor" id="autotoc_md97"></a>
+<h1><a class="anchor" id="autotoc_md98"></a>
 Decision</h1>
 <p>Pin the bundled submodule to the <code>v2.0.0</code> release and request <code>TimeShield 2.0.0</code>, which expresses the supported <code>2.0.x</code> line. Before package discovery, reuse an existing <code>time_shield::time_shield</code> target; installed dependency discovery follows the same target-reuse rule for optional packages.</p>
-<h1><a class="anchor" id="autotoc_md98"></a>
+<h1><a class="anchor" id="autotoc_md99"></a>
 Consequences</h1>
 <p>Build-tree and installed-package consumers remain composable, while the minimum supported TimeShield API is explicit. Moving to another minor line or changing the compatibility policy requires a new compatibility review and release note. </p>
 </div></div><!-- contents -->

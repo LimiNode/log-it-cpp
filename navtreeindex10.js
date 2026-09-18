@@ -1,5 +1,6 @@
 var NAVTREEINDEX10 =
 {
+"structlogit_1_1CrashWindowsLogger_1_1Config.html#a819bf96d1febff1bd7a9aebd63f7f02d":[20,0,3,5,0,1],
 "structlogit_1_1CrashWindowsLogger_1_1Config.html#a819bf96d1febff1bd7a9aebd63f7f02d":[21,0,0,5,0,1],
 "structlogit_1_1EventLogLogger_1_1Config.html":[20,0,3,6,0],
 "structlogit_1_1EventLogLogger_1_1Config.html":[21,0,0,6,0],
@@ -248,6 +249,5 @@ var NAVTREEINDEX10 =
 "structlogit_1_1MdbxLogger_1_1Config.html#a75629ebb25346971e5b735bb820ae66e":[20,0,3,21,0,12],
 "structlogit_1_1MdbxLogger_1_1Config.html#a75629ebb25346971e5b735bb820ae66e":[21,0,0,21,0,12],
 "structlogit_1_1MdbxLogger_1_1Config.html#a83d30de03645959848a77775e2ce82ff":[20,0,3,21,0,6],
-"structlogit_1_1MdbxLogger_1_1Config.html#a83d30de03645959848a77775e2ce82ff":[21,0,0,21,0,6],
-"structlogit_1_1MdbxLogger_1_1Config.html#a8e348103b8079202457c69bd01e20d61":[20,0,3,21,0,7]
+"structlogit_1_1MdbxLogger_1_1Config.html#a83d30de03645959848a77775e2ce82ff":[21,0,0,21,0,6]
 };

@@ -115,18 +115,18 @@ $(function(){initNavTree('md_docs_2adr_20002-async-executor-model.html',''); ini
   <div class="headertitle"><div class="title">ADR 0002: Shared and dedicated asynchronous executors</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="autotoc_md87"></a></p>
+<div class="textblock"><p><a class="anchor" id="autotoc_md88"></a></p>
 <ul>
 <li>Status: Accepted</li>
 <li>Date: 2026-09-14</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md88"></a>
+<h1><a class="anchor" id="autotoc_md89"></a>
 Context</h1>
 <p>Using one shared asynchronous executor is efficient for the default case, but a slow backend can delay unrelated backends. A separate worker per backend improves isolation at the cost of a thread and queue per opted-in backend.</p>
-<h1><a class="anchor" id="autotoc_md89"></a>
+<h1><a class="anchor" id="autotoc_md90"></a>
 Decision</h1>
 <p>The shared <code>TaskExecutor</code> remains the default. Backends that support it expose <code>Config::use_dedicated_executor</code>; when enabled for an asynchronous backend, it owns a <code>SingleThreadExecutor</code> with its own queue, policy, wait, and shutdown lifecycle. Platform-specific backends that cannot provide this behavior keep their documented limitations.</p>
-<h1><a class="anchor" id="autotoc_md90"></a>
+<h1><a class="anchor" id="autotoc_md91"></a>
 Consequences</h1>
 <p>Applications can choose throughput/resource sharing or isolation per backend. The feature is already tested for lifecycle, mixed shared/dedicated operation, and macro configuration. Changing the default is a separate compatibility and resource-usage decision. </p>
 </div></div><!-- contents -->

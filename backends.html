@@ -115,7 +115,7 @@ $(function(){initNavTree('backends.html',''); initResizable(true); });
   <div class="headertitle"><div class="title">Backend matrix</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><h1><a class="anchor" id="autotoc_md12"></a>
+<div class="textblock"><h1><a class="anchor" id="autotoc_md13"></a>
 Backend matrix</h1>
 <p>Choose a backend by delivery model, platform, and dependency requirements. Every backend implements <code>ILogger</code>; stored-log backends may additionally implement <code>ILogReader</code> and <code>ILogSubscriber</code>.</p>
 <p>All LogIt++ builds require <b>TimeShield 2.0.x (minimum 2.0.0)</b>. The dependency column below lists only feature-specific dependencies.</p>
@@ -149,10 +149,10 @@ Backend matrix</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>MdbxLogger</code>   </td><td class="markdownTableBodyNone"><code>LOGIT_WITH_MDBX=ON</code>   </td><td class="markdownTableBodyRight">C++17   </td><td class="markdownTableBodyNone">mdbx-containers   </td><td class="markdownTableBodyNone">Not supported on Emscripten or MSVC   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md13"></a>
+<h2><a class="anchor" id="autotoc_md14"></a>
 Delivery models</h2>
 <p>General-purpose native backends use the shared asynchronous <code>TaskExecutor</code> by default. A backend configured with <code>use_dedicated_executor=true</code> owns a per-backend <code>SingleThreadExecutor</code>. Crash backends and <code>PrometheusPayloadLogger</code> are synchronous. OTLP HTTP and OTLP payload exporters own their queues and workers and can be configured for synchronous or asynchronous delivery. Emscripten builds without pthreads use cooperative queues instead of OS worker threads.</p>
-<h2><a class="anchor" id="autotoc_md14"></a>
+<h2><a class="anchor" id="autotoc_md15"></a>
 Packaging</h2>
 <p>The source/build-tree configuration supports all feature combinations subject to their platform restrictions. Installed CMake exports require optional dependencies to be provided as installed/imported targets. Bundled optional dependencies and <code>LOGIT_WITH_PROMETHEUS_SERVER=ON</code> are intentionally rejected by <code>cmake --install</code> until their dependency trees can be exported reliably.</p>
 <p>See the feature-specific guides for details:</p>

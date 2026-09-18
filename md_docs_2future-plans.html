@@ -115,7 +115,7 @@ $(function(){initNavTree('md_docs_2future-plans.html',''); initResizable(true); 
   <div class="headertitle"><div class="title">Roadmap and delivery checklist — LogIt++</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="autotoc_md71"></a></p>
+<div class="textblock"><p><a class="anchor" id="autotoc_md72"></a></p>
 <p>This file is the maintained roadmap, not a changelog. It deliberately separates delivered capabilities from planned work and from ideas that are intentionally delegated to user-defined <code>ILogger</code> implementations.</p>
 <p>Legend:</p>
 <ul>
@@ -124,7 +124,7 @@ $(function(){initNavTree('md_docs_2future-plans.html',''); initResizable(true); 
 <li><code>[ ]</code> planned work;</li>
 <li><code>[-]</code> intentionally deferred, with no current commitment to implement it in the core library.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md72"></a>
+<h1><a class="anchor" id="autotoc_md73"></a>
 Delivered</h1>
 <ul class="check">
 <li class="checked">Public aggregate-first header policy: <code>&lt;<a class="el" href="logit_8hpp.html" title="Unified umbrella header for the LogIt++ library.">logit.hpp</a>&gt;</code> is the supported application entry point; module umbrellas and leaf-header contracts are documented.</li>
@@ -153,7 +153,7 @@ Delivered</h1>
 <ul class="check">
 <li class="checked">Doxygen generation, GitHub Pages publication, header/layout smoke tests, and the comparison guide for spdlog, Quill, Boost.Log, glog, and IceCream-Cpp.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md73"></a>
+<h1><a class="anchor" id="autotoc_md74"></a>
 Next planned work</h1>
 <ul class="check">
 <li class="unchecked"><b>Release 1.0.2</b> — prepare changelog/release notes, verify package overlays, generate the non-<code>-dev</code> documentation, tag the release, and verify the published Pages site.</li>
@@ -174,14 +174,14 @@ Next planned work</h1>
 <li class="checked"><b>Benchmark follow-up</b> — formatted and passthrough public-macro scenarios, a versioned fixture contract with compiler/toolchain/commit/queue/flush metadata, and a 1/4/16/32-producer matrix are now covered. Keep publication numbers tied to a fixed machine and toolchain.</li>
 <li class="unchecked"><b>Concurrency fast-path research</b> — only after documenting a formal thread-safety capability for formatters/backends. Do not remove <code>exec_mx</code> based on benchmark results alone.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md74"></a>
+<h1><a class="anchor" id="autotoc_md75"></a>
 Intentionally deferred</h1>
 <ul>
 <li>[-] <b>Database/SQLite appender</b> — currently better implemented as a custom <code>ILogger</code>; revisit if a common portable schema and maintenance owner emerge.</li>
 <li>[-] <b>Telnet/TCP appender</b> — application-specific transport and access policy; implement as a custom backend unless a supported protocol is agreed.</li>
 <li>[-] <b>Main-thread GUI appender</b> — event-loop integration is framework and platform specific; revisit when LogIt++ ships a GUI viewer.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md75"></a>
+<h1><a class="anchor" id="autotoc_md76"></a>
 How to update this document</h1>
 <p>Move an item to <code>[x]</code> only when the implementation, tests, and user-facing documentation agree. Use an ADR in <a href="https://github.com/LimiNode/log-it-cpp/tree/main/docs/adr"><code>docs/adr</code></a> for architectural decisions or compatibility changes; keep this file focused on status and next steps. Record measurements with their environment instead of turning one local run into a universal performance claim.</p>
 <p>Last reviewed: 2026-09-14. </p>

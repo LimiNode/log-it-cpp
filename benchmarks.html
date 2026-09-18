@@ -115,18 +115,18 @@ $(function(){initNavTree('benchmarks.html',''); initResizable(true); });
   <div class="headertitle"><div class="title">Performance and benchmarks</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><h1><a class="anchor" id="autotoc_md18"></a>
+<div class="textblock"><h1><a class="anchor" id="autotoc_md19"></a>
 Performance and benchmarks</h1>
 <p>The benchmark harness lives under <code>bench/</code> and is disabled by default. Enable it with <code>LOGIT_BENCH_ENABLE=ON</code>; add <code>LOGIT_BENCH_WITH_SPDLOG=ON</code> for the optional spdlog comparison binaries.</p>
 <div class="fragment"><div class="line">cmake -S . -B build -DLOGIT_BENCH_ENABLE=ON</div>
 <div class="line">cmake --build build --target logit_bench</div>
 <div class="line">./build/bench/logit_bench</div>
 </div><!-- fragment --><p>The harness records latency from the logging call until the adapter enters its sink callback, together with aggregate throughput. This is a <b>sink-entry latency</b> metric: for the file scenario the marker is recorded before the <code>ofstream</code> write, so it is not a completed-write or durability measurement. It compares synchronous and asynchronous modes, null and file sinks, producer counts, and message sizes. Results are appended to <code>bench/results/latency.csv</code>; workload size can be reduced with <code>LOGIT_BENCH_TOTAL</code> and <code>LOGIT_BENCH_WARMUP</code>.</p>
-<h2><a class="anchor" id="autotoc_md19"></a>
+<h2><a class="anchor" id="autotoc_md20"></a>
 Interpreting results</h2>
 <p>The default adapter measures a <b>prepared-message / direct-dispatch pipeline</b>. It constructs a <code>LogRecord</code> inside the timed <code>adapter.log()</code> call, copies the message into owned <code>std::string</code> storage, and calls the dispatcher directly. It does not exercise the public <code><a class="el" href="log__macros_8hpp.html#a1fb41700b3f6e73a90029bdf15f1877d">LOGIT_INFO(...)</a></code> macro path, argument-name parsing, or <code>args_array</code> construction. The spdlog adapter receives a <code>string_view</code> over the prepared message. This is a deliberate comparison of these two call contracts, not a claim that they do identical work. A separate public macro benchmark should be treated as a different scenario. Compare implementations within the same mode and configuration; these numbers are not a universal speed ranking.</p>
 <p>The asynchronous measurement includes enqueue, worker wake-up/scheduling, and sink time. Results are sensitive to queue capacity, overflow policy, worker count, filesystem cache state, compiler, operating system, and hardware.</p>
-<h2><a class="anchor" id="autotoc_md20"></a>
+<h2><a class="anchor" id="autotoc_md21"></a>
 Historical snapshot</h2>
 <p>The repository includes a <b>legacy</b> comparison snapshot from 2025-12-05 in <code>bench/results/latency-2025-12-05-10k.csv</code>:</p>
 <ul>
@@ -135,7 +135,7 @@ Historical snapshot</h2>
 <li>timestamp: 2025-12-05 03:18 UTC.</li>
 </ul>
 <p>This fixture predates the current benchmark dependency metadata and does not record the spdlog version, compiler/toolchain, or harness commit. Treat it as legacy context rather than a reproducible current performance claim. New published figures must include the fixture metadata, dependency versions, toolchain, harness commit, build and hardware identity, queue settings, and separate latency-completion and flush-barrier semantics used for the run.</p>
-<h2><a class="anchor" id="autotoc_md21"></a>
+<h2><a class="anchor" id="autotoc_md22"></a>
 Harness details</h2>
 <p><code>bench/LatencyRecorder.hpp</code> preallocates slots and tracks <code>Token {slot, t0_ns, active}</code> and <code>Summary {p50, p99, p999}</code>. It exposes <code>recorded()</code>, <code>wait_for_all()</code>, and <code>finalize()</code> for end-to-end timing across producers and consumers. The LogIt adapter stores the benchmark slot in <code>LogRecord::line</code>; sinks call <code>LatencyRecorder::complete_slot()</code> when they observe a non-negative line number.</p>
 <p>The current matrix covers 1, 4, 16, and 32 producers. CI intentionally uses a short Release smoke workload (<code>LOGIT_BENCH_TOTAL=20000</code>) for predictable run time. Larger publication runs (for example, one million messages plus warmup) belong on fixed or self-hosted hardware, where the results can be reproduced. Both adapters receive the same explicit blocking queue capacity, configurable through <code>LOGIT_BENCH_QUEUE_CAPACITY</code> (default: <code>max(8192, 2 * total)</code>). In async mode <code>adapter.flush()</code> is a drain barrier: the spdlog adapter waits for a worker-side flush marker, matching LogIt++'s executor drain. The measured throughput interval therefore ends only after all recorded messages reached the sink callback. A queue capacity of <code>0</code> is rejected because it would mean an unlimited LogIt++ queue but a bounded spdlog queue and invalidate the comparison.</p>

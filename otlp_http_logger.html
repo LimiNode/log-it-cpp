@@ -115,11 +115,11 @@ $(function(){initNavTree('otlp_http_logger.html',''); initResizable(true); });
   <div class="headertitle"><div class="title">OTLP/HTTP logger</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><h1><a class="anchor" id="autotoc_md33"></a>
+<div class="textblock"><h1><a class="anchor" id="autotoc_md34"></a>
 OTLP/HTTP logger</h1>
 <p><code>OtlpHttpLogger</code> is an optional LogIt++ backend that exports log records to an OpenTelemetry-compatible OTLP/HTTP endpoint.</p>
 <p>The backend is disabled by default and requires the optional <a href="https://github.com/LimiNode/kurlyk"><code>kurlyk</code></a> dependency.</p>
-<h2><a class="anchor" id="autotoc_md34"></a>
+<h2><a class="anchor" id="autotoc_md35"></a>
 CMake</h2>
 <div class="fragment"><div class="line">cmake -S . -B build \</div>
 <div class="line">  -DLOGIT_WITH_OTLP=ON \</div>
@@ -127,7 +127,7 @@ CMake</h2>
 </div><!-- fragment --><p>When <code>kurlyk</code> is placed at <code>external/kurlyk</code>, LogIt++ adds it only when <code>LOGIT_WITH_OTLP=ON</code>.</p>
 <p>For Windows MinGW builds, the CMake integration enables kurlyk fallback options for curl, OpenSSL, and Asio when <code>LOGIT_USE_SUBMODULES=ON</code>. This keeps OTLP optional while still allowing a ready-made MinGW dependency path through kurlyk.</p>
 <p>The bundled kurlyk revision requires CMake 3.21 or newer. On other platforms, install kurlyk (and its OpenSSL/curl prerequisites) separately and let <code>find_package(kurlyk)</code> provide the target.</p>
-<h2><a class="anchor" id="autotoc_md35"></a>
+<h2><a class="anchor" id="autotoc_md36"></a>
 Usage</h2>
 <p>For a runnable version with environment overrides, graceful shutdown, optional compression, and optional MDC trace/span fields, see <code><a class="el" href="example__logit__otlp__http_8cpp.html">examples/example_logit_otlp_http.cpp</a></code>. Build with <code>-DLOGIT_WITH_CONTEXT=ON</code> if you want the MDC trace/span fields to be populated.</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="logit_8hpp.html">logit.hpp</a>&gt;</span></div>
@@ -165,7 +165,7 @@ Usage</h2>
 <div class="ttc" id="astructlogit_1_1OtlpHttpLogger_1_1Config_html_aa08ce4e77665e20953863d8a43b14448"><div class="ttname"><a href="structlogit_1_1OtlpHttpLogger_1_1Config.html#aa08ce4e77665e20953863d8a43b14448">logit::OtlpHttpLogger::Config::format</a></div><div class="ttdeci">OtlpJsonFormatConfig format</div><div class="ttdef"><b>Definition</b> <a href="OtlpHttpLogger_8hpp_source.html#l00060">OtlpHttpLogger.hpp:60</a></div></div>
 <div class="ttc" id="astructlogit_1_1OtlpJsonFormatConfig_html_ac6d628f3604f2ea5a313e6adf3c3f457"><div class="ttname"><a href="structlogit_1_1OtlpJsonFormatConfig.html#ac6d628f3604f2ea5a313e6adf3c3f457">logit::OtlpJsonFormatConfig::deployment_environment</a></div><div class="ttdeci">std::string deployment_environment</div><div class="ttdoc">Optional deployment.environment.name resource attribute.</div><div class="ttdef"><b>Definition</b> <a href="OtlpJsonFormatConfig_8hpp_source.html#l00018">OtlpJsonFormatConfig.hpp:18</a></div></div>
 <div class="ttc" id="astructlogit_1_1OtlpJsonFormatConfig_html_afd37a61724542886ca74f5459f83c9da"><div class="ttname"><a href="structlogit_1_1OtlpJsonFormatConfig.html#afd37a61724542886ca74f5459f83c9da">logit::OtlpJsonFormatConfig::service_name</a></div><div class="ttdeci">std::string service_name</div><div class="ttdoc">service.name resource attribute.</div><div class="ttdef"><b>Definition</b> <a href="OtlpJsonFormatConfig_8hpp_source.html#l00015">OtlpJsonFormatConfig.hpp:15</a></div></div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md36"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md37"></a>
 <code>OtlpPayloadLogger</code> callback exporter</h2>
 <p><code>OtlpPayloadLogger</code> shares the OTLP JSON serializer and structured-attribute configuration with <code>OtlpHttpLogger</code>, but does not create an HTTP client. It passes each serialized payload chunk to <code>Config::on_payload</code>, so applications can use their own HTTP transport, message broker, or collector adapter.</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="logit_8hpp.html">logit.hpp</a>&gt;</span></div>
@@ -191,7 +191,7 @@ Usage</h2>
 <div class="ttc" id="astructlogit_1_1OtlpPayloadLogger_1_1Config_html_ad24f82f3a9b7d7f43721ccee76dc3a75"><div class="ttname"><a href="structlogit_1_1OtlpPayloadLogger_1_1Config.html#ad24f82f3a9b7d7f43721ccee76dc3a75">logit::OtlpPayloadLogger::Config::format</a></div><div class="ttdeci">OtlpJsonFormatConfig format</div><div class="ttdef"><b>Definition</b> <a href="OtlpPayloadLogger_8hpp_source.html#l00040">OtlpPayloadLogger.hpp:40</a></div></div>
 <div class="ttc" id="astructlogit_1_1OtlpPayloadLogger_1_1Config_html_ae8549e2ecbd9468ca5cc8bcd8bab1a3d"><div class="ttname"><a href="structlogit_1_1OtlpPayloadLogger_1_1Config.html#ae8549e2ecbd9468ca5cc8bcd8bab1a3d">logit::OtlpPayloadLogger::Config::max_payload_bytes</a></div><div class="ttdeci">std::size_t max_payload_bytes</div><div class="ttdef"><b>Definition</b> <a href="OtlpPayloadLogger_8hpp_source.html#l00043">OtlpPayloadLogger.hpp:43</a></div></div>
 </div><!-- fragment --><p>The callback exporter is asynchronous by default and owns a bounded queue. Set <code>async = false</code> for synchronous callback delivery, or set <code>drop_on_overflow = false</code> to apply producer-side backpressure. Large batches are split at <code>max_payload_bytes</code>; each chunk is delivered independently. The logger does not retry callback failures, but counts them in <code>LoggerParam::FailedExportCount</code>.</p>
-<h2><a class="anchor" id="autotoc_md37"></a>
+<h2><a class="anchor" id="autotoc_md38"></a>
 Export model</h2>
 <p>The backend sends OTLP/HTTP JSON requests:</p>
 <div class="fragment"><div class="line">LogIt++ -&gt; OtlpHttpLogger -&gt; kurlyk::HttpClient -&gt; OpenTelemetry Collector / Loki</div>
@@ -216,10 +216,10 @@ Export model</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>args_array</code> elements   </td><td class="markdownTableBodyNone">typed attributes under <code>logit.arg.*</code> prefix   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md38"></a>
+<h2><a class="anchor" id="autotoc_md39"></a>
 Structured typed attributes</h2>
 <p>When <code>include_args = true</code> (the default), each element of <code>args_array</code> is emitted as a separate OTLP attribute with a typed value. The key is built from <code>args_prefix</code> + the sanitized argument name.</p>
-<h3><a class="anchor" id="autotoc_md39"></a>
+<h3><a class="anchor" id="autotoc_md40"></a>
 Configuration flags</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -231,7 +231,7 @@ Configuration flags</h3>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>args_prefix</code>   </td><td class="markdownTableBodyNone"><code>"logit.arg."</code>   </td><td class="markdownTableBodyNone">Key prefix for structured arg attributes.   </td></tr>
 </table>
-<h3><a class="anchor" id="autotoc_md40"></a>
+<h3><a class="anchor" id="autotoc_md41"></a>
 Type mapping</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -249,21 +249,21 @@ Type mapping</h3>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">All other types   </td><td class="markdownTableBodyNone"><code>stringValue</code> (via <code>to_string()</code>)   </td></tr>
 </table>
-<h3><a class="anchor" id="autotoc_md41"></a>
+<h3><a class="anchor" id="autotoc_md42"></a>
 Name sanitization and deduplication</h3>
 <p>Argument names are sanitized: characters that are not alphanumeric, <code>_</code>, <code>.</code>, or <code>-</code> are replaced with <code>_</code>. If the sanitized name is empty or consists only of underscores, a positional key (<code>args_prefix</code> + index) is used instead.</p>
 <p>Duplicate keys are resolved by appending <code>.N</code> (starting at 1 for the second occurrence). For example, two args both named <code>px</code> produce keys <code>logit.arg.px</code> and <code>logit.arg.px.1</code>.</p>
-<h3><a class="anchor" id="autotoc_md42"></a>
+<h3><a class="anchor" id="autotoc_md43"></a>
 Reserved prefix</h3>
 <p>The default prefix <code>logit.arg.</code> is reserved. Changing <code>args_prefix</code> is supported but may cause attribute collisions with other OTLP receivers.</p>
-<h3><a class="anchor" id="autotoc_md43"></a>
+<h3><a class="anchor" id="autotoc_md44"></a>
 Cardinality warning</h3>
 <p>Avoid putting unique values (timestamps, request IDs, UUIDs) into arg attributes. High-cardinality attributes increase memory and storage costs in OTLP collectors and backends (Loki, Tempo, etc.). Use structured attributes for low-cardinality dimensions like <code>symbol</code>, <code>side</code>, or <code>region</code>.</p>
-<h3><a class="anchor" id="autotoc_md44"></a>
+<h3><a class="anchor" id="autotoc_md45"></a>
 Deprecation notice</h3>
 <p>The <code>logit.arg_names</code> OTLP attribute (controlled by <code>include_arg_names</code>) is deprecated. It emits argument names as a single comma-separated string with no type information. Prefer <code>include_args = true</code> for typed, queryable attributes.</p>
 <p>Resource attributes are configured through <code>OtlpHttpLogger::Config.format</code>, including <code>service.name</code>, <code>service.namespace</code>, <code>service.instance.id</code>, and <code>deployment.environment.name</code>.</p>
-<h2><a class="anchor" id="autotoc_md45"></a>
+<h2><a class="anchor" id="autotoc_md46"></a>
 Diagnostics</h2>
 <p><code>OtlpHttpLogger</code> exposes its internal counters through the generic logger parameter API:</p>
 <div class="fragment"><div class="line"><span class="keyword">const</span> <span class="keyword">auto</span> dropped = <a class="code hl_define" href="log__macros_8hpp.html#a77d253bdb67a336edc9b1d8b5d5c7747">LOGIT_GET_INT_PARAM</a>(otlp_index, <a class="code hl_enumvalue" href="namespacelogit.html#a9e415ea803231f2d81a3632b507dff2cab3f355afaf72e90fafc8b71e75fc34e0">logit::LoggerParam::DroppedLogCount</a>);</div>
@@ -281,7 +281,7 @@ Diagnostics</h2>
 <td class="markdownTableBodyNone"><code>LoggerParam::FailedExportCount</code>   </td><td class="markdownTableBodyNone">Number of failed OTLP export attempts.   </td></tr>
 </table>
 <p>These values are also available through <code>get_string_param()</code> and <code>get_float_param()</code>. Integer retrieval saturates at <code>int64_t</code> max if the underlying unsigned counter ever exceeds that range.</p>
-<h2><a class="anchor" id="autotoc_md46"></a>
+<h2><a class="anchor" id="autotoc_md47"></a>
 Notes</h2>
 <ul>
 <li><code>OtlpHttpLogger</code> is an outbound client/exporter, not a server.</li>

@@ -462,7 +462,7 @@ Customizing Log Formats</h1>
 <p>LogIt++ supports customizable log message formatting using patterns that define the appearance of each log message. You can specify patterns either through macros or by providing them directly when adding logger backends.</p>
 <h2><a class="anchor" id="pattern_example"></a>
 Examples of Formatting Patterns</h2>
-<h3><a class="anchor" id="autotoc_md15"></a>
+<h3><a class="anchor" id="autotoc_md16"></a>
 Example for Setting a Custom Console Logger Format</h3>
 <p>You can define a custom format for the console logger as follows:</p>
 <div class="fragment"><div class="line"><a class="code hl_define" href="log__macros_8hpp.html#ab5e8261127ffa4f6a6888411195ecfc9">LOGIT_ADD_LOGGER</a>(</div>
@@ -470,7 +470,7 @@ Example for Setting a Custom Console Logger Format</h3>
 <div class="line">    <a class="code hl_class" href="classlogit_1_1SimpleLogFormatter.html">logit::SimpleLogFormatter</a>, </div>
 <div class="line">    (<span class="stringliteral">&quot;%Y-%m-%d %H:%M:%S.%e [%l] %^%N(%g:%#)%v%$&quot;</span>)</div>
 <div class="line">);</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md16"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md17"></a>
 Example Using Macros for Simplicity</h3>
 <p>Alternatively, use macros to specify a pattern:</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#define LOGIT_CONSOLE_PATTERN &quot;%H:%M:%S.%e | %^%N([%!g:%#])%v%$&quot;</span></div>
@@ -573,7 +573,7 @@ Advanced Path Handling</h2>
 <h1><a class="anchor" id="short_macros"></a>
 Shortened Logging Macros</h1>
 <p><code>LogIt++</code> provides shortened versions of logging macros when <code>LOGIT_SHORT_NAME</code> is defined. These macros allow for concise logging across different log levels, including both standard and stream-based logging.</p>
-<h2><a class="anchor" id="autotoc_md17"></a>
+<h2><a class="anchor" id="autotoc_md18"></a>
 Available TRACE-level macros:</h2>
 <ul>
 <li><b>Basic logging</b>:<ul>

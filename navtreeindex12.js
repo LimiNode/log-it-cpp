@@ -1,5 +1,6 @@
 var NAVTREEINDEX12 =
 {
+"structlogit_1_1PrometheusRegistry_1_1Entry.html#a1ee081bfeaf05bfcf5c7aaacd97b4984":[21,0,0,36,0,0],
 "structlogit_1_1PrometheusRegistry_1_1Entry.html#a226799e05cfba021ab49e941784419d9":[20,0,3,36,0,4],
 "structlogit_1_1PrometheusRegistry_1_1Entry.html#a226799e05cfba021ab49e941784419d9":[21,0,0,36,0,4],
 "structlogit_1_1PrometheusRegistry_1_1Entry.html#a293ebe2d567e3819dcdfbb09a29f2f99":[20,0,3,36,0,3],
@@ -241,13 +242,12 @@ var NAVTREEINDEX12 =
 "tag__utils_8hpp.html#a962c0c7671f19bda4616a29f450e52dd":[22,0,2,0,0,3,8,2],
 "tag__utils_8hpp_source.html":[22,0,2,0,0,3,8],
 "task_executor.html":[9],
-"task_executor.html#autotoc_md56":[9,0],
-"task_executor.html#autotoc_md57":[9,0,0],
-"task_executor.html#autotoc_md58":[9,0,0,0],
-"task_executor.html#autotoc_md59":[9,0,0,1],
-"task_executor.html#autotoc_md60":[9,0,0,2],
-"task_executor.html#autotoc_md61":[9,0,1],
-"task_executor.html#autotoc_md62":[9,0,2],
-"task_executor.html#autotoc_md63":[9,0,3],
-"task_executor.html#autotoc_md64":[9,0,4]
+"task_executor.html#autotoc_md57":[9,0],
+"task_executor.html#autotoc_md58":[9,0,0],
+"task_executor.html#autotoc_md59":[9,0,0,0],
+"task_executor.html#autotoc_md60":[9,0,0,1],
+"task_executor.html#autotoc_md61":[9,0,0,2],
+"task_executor.html#autotoc_md62":[9,0,1],
+"task_executor.html#autotoc_md63":[9,0,2],
+"task_executor.html#autotoc_md64":[9,0,3]
 };

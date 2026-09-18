@@ -115,21 +115,21 @@ $(function(){initNavTree('md_docs_2adr_20001-aggregate-first-public-headers.html
   <div class="headertitle"><div class="title">ADR 0001: Aggregate-first public headers and API boundary</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="autotoc_md82"></a></p>
+<div class="textblock"><p><a class="anchor" id="autotoc_md83"></a></p>
 <ul>
 <li>Status: Accepted</li>
 <li>Date: 2026-09-14</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md83"></a>
+<h1><a class="anchor" id="autotoc_md84"></a>
 Context</h1>
 <p>The library has many historical leaf headers, including <code><a class="el" href="log__macros_8hpp.html" title="Provides various logging macros for different log levels and options.">logit/log_macros.hpp</a></code>. Treating every header as independently includable made include order accidental and made internal implementation details look public.</p>
-<h1><a class="anchor" id="autotoc_md84"></a>
+<h1><a class="anchor" id="autotoc_md85"></a>
 Decision</h1>
 <p><code>&lt;<a class="el" href="logit_8hpp.html" title="Unified umbrella header for the LogIt++ library.">logit.hpp</a>&gt;</code> is the supported application entry point. The module umbrellas <code>&lt;<a class="el" href="utils_8hpp.html" title="Aggregates the public utilities module.">logit/utils.hpp</a>&gt;</code>, <code>&lt;<a class="el" href="formatter_8hpp.html" title="Aggregates the formatter subsystem for convenient inclusion.">logit/formatter.hpp</a>&gt;</code>, and <code>&lt;<a class="el" href="loggers_8hpp.html" title="Aggregates all public logger backends.">logit/loggers.hpp</a>&gt;</code> are supported focused entry points. Leaf headers are standalone only when their documentation and include-contract test explicitly say so. <code><a class="el" href="log__macros_8hpp.html" title="Provides various logging macros for different log levels and options.">logit/log_macros.hpp</a></code> is an aggregate-owned implementation header and has no standalone-inclusion guarantee. Public aliases, including <code><a class="el" href="namespacelogit.html#ada06d5c1f7b474b3769f236bf7118dfe" title="Public queue overflow handling policy.">logit::QueuePolicy</a></code>, are consumed through the umbrella or the relevant module umbrella.</p>
-<h1><a class="anchor" id="autotoc_md85"></a>
+<h1><a class="anchor" id="autotoc_md86"></a>
 Consequences</h1>
 <p>The include contract is predictable and can evolve without promising every historical file as an API boundary. Documentation and tests must use the nearest supported umbrella, while implementation headers remain free to change.</p>
-<h1><a class="anchor" id="autotoc_md86"></a>
+<h1><a class="anchor" id="autotoc_md87"></a>
 Alternatives considered</h1>
 <p>Making every leaf header self-contained would increase compile cost and freeze implementation structure without adding value for normal application code. </p>
 </div></div><!-- contents -->

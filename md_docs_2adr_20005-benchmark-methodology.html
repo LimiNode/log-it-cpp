@@ -115,19 +115,19 @@ $(function(){initNavTree('md_docs_2adr_20005-benchmark-methodology.html',''); in
   <div class="headertitle"><div class="title">ADR 0005: Benchmark evidence and comparison methodology</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="autotoc_md99"></a></p>
+<div class="textblock"><p><a class="anchor" id="autotoc_md100"></a></p>
 <ul>
 <li>Status: Accepted</li>
 <li>Date: 2026-09-14</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md100"></a>
+<h1><a class="anchor" id="autotoc_md101"></a>
 Context</h1>
 <p>Prepared records, the public macro path, formatted output, and external library adapters measure different work. Mixing them into one number produces misleading claims, and short CI runners are not a substitute for a fixed publication machine.</p>
-<h1><a class="anchor" id="autotoc_md101"></a>
+<h1><a class="anchor" id="autotoc_md102"></a>
 Decision</h1>
 <p>Keep separate scenarios for prepared-record dispatch, the real public <code><a class="el" href="log__macros_8hpp.html#a1fb41700b3f6e73a90029bdf15f1877d">LOGIT_INFO(...)</a></code> path, formatting, and external-library comparisons. The public macro smoke benchmark may use a passthrough formatter when it is explicitly documented as record-construction/dispatch coverage. Producer scaling measurements create all workers before the timed interval and release them through a shared start barrier; an optional warmup is separate from the measured run. Report absolute timings only with compiler, platform, commit, build type, architecture, machine/CPU identity, queue settings, and separate latency-completion and flush-barrier semantics. Treat CI runs as regression smoke unless the environment is fixed.</p>
 <p>The fixture distinguishes required provenance from comparison identity: <code>source_commit</code> must be present and is expected to differ for before/after measurements, while the fields listed in <code>metadata_must_match</code> must match. The <code>LOGIT_BENCH_REQUIRE_COMPARABLE=1</code> mode checks metadata completeness and known values; it does not enforce the canonical fixture workload unless a separate workload-validation mode is requested.</p>
-<h1><a class="anchor" id="autotoc_md102"></a>
+<h1><a class="anchor" id="autotoc_md103"></a>
 Consequences</h1>
 <p>Benchmark documentation remains comparable and honest across changes. New scenarios require their own workload contract and should not silently replace historical measurements. </p>
 </div></div><!-- contents -->

@@ -115,16 +115,16 @@ $(function(){initNavTree('prometheus_logger.html',''); initResizable(true); });
   <div class="headertitle"><div class="title">Prometheus Logger</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><h1><a class="anchor" id="autotoc_md47"></a>
+<div class="textblock"><h1><a class="anchor" id="autotoc_md48"></a>
 Prometheus Logger</h1>
-<h2><a class="anchor" id="autotoc_md48"></a>
+<h2><a class="anchor" id="autotoc_md49"></a>
 Overview</h2>
 <p>LogIt++ provides two Prometheus backends for exposing internal log metrics in the <a href="https://prometheus.io/docs/instrumenting/exposition_formats/">Prometheus text exposition format</a>:</p>
 <ul>
 <li><b>PrometheusPayloadLogger</b> &ndash; callback-based; delivers the serialized payload to a user-provided function. It can be integrated with your own HTTP server, Pushgateway client, or another existing transport.</li>
 <li><b>PrometheusHttpServerLogger</b> &ndash; embedded HTTP server; serves <code>/metrics</code> on a configurable port using Simple-Web-Server. Ideal for simple services without a separate metrics endpoint.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md49"></a>
+<h2><a class="anchor" id="autotoc_md50"></a>
 Built-in Metrics</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -156,13 +156,13 @@ Built-in Metrics</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>logit_prometheus_collect_duration_seconds</code>   </td><td class="markdownTableBodyNone">gauge   </td><td class="markdownTableBodyNone">Duration of the last metrics collection   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md50"></a>
+<h2><a class="anchor" id="autotoc_md51"></a>
 CMake Options</h2>
 <div class="fragment"><div class="line">option(LOGIT_WITH_PROMETHEUS &quot;Enable Prometheus text payload support&quot; OFF)</div>
 <div class="line">option(LOGIT_WITH_PROMETHEUS_SERVER &quot;Enable Prometheus HTTP server backend&quot; OFF)</div>
 </div><!-- fragment --><p><code>LOGIT_WITH_PROMETHEUS_SERVER</code> implies <code>LOGIT_WITH_PROMETHEUS</code> and requires C++17 (Simple-Web-Server dependency).</p>
 <p><code>LOGIT_WITH_PROMETHEUS_SERVER=ON</code> currently supports source-tree and build-tree consumption only. The install/export step intentionally rejects this configuration because the Simple-Web-Server and Asio include trees are not exported package dependencies yet.</p>
-<h2><a class="anchor" id="autotoc_md51"></a>
+<h2><a class="anchor" id="autotoc_md52"></a>
 Usage: PrometheusPayloadLogger</h2>
 <p>For a runnable callback example with custom application metrics, see <code><a class="el" href="example__logit__prometheus__payload_8cpp.html">examples/example_logit_prometheus_payload.cpp</a></code>.</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="logit_8hpp.html">logit.hpp</a>&gt;</span></div>
@@ -194,7 +194,7 @@ Usage: PrometheusPayloadLogger</h2>
 <div class="ttc" id="astructlogit_1_1PrometheusPayloadLogger_1_1Config_html_a9323ba32395f6b0a7884c531f0e54023"><div class="ttname"><a href="structlogit_1_1PrometheusPayloadLogger_1_1Config.html#a9323ba32395f6b0a7884c531f0e54023">logit::PrometheusPayloadLogger::Config::emit_on_wait</a></div><div class="ttdeci">bool emit_on_wait</div><div class="ttdef"><b>Definition</b> <a href="PrometheusPayloadLogger_8hpp_source.html#l00040">PrometheusPayloadLogger.hpp:40</a></div></div>
 <div class="ttc" id="astructlogit_1_1PrometheusPayloadLogger_1_1Config_html_ab033703001ff4035d8dd13f2179dcf27"><div class="ttname"><a href="structlogit_1_1PrometheusPayloadLogger_1_1Config.html#ab033703001ff4035d8dd13f2179dcf27">logit::PrometheusPayloadLogger::Config::format</a></div><div class="ttdeci">PrometheusTextFormatConfig format</div><div class="ttdef"><b>Definition</b> <a href="PrometheusPayloadLogger_8hpp_source.html#l00036">PrometheusPayloadLogger.hpp:36</a></div></div>
 <div class="ttc" id="astructlogit_1_1PrometheusTextFormatConfig_html_ae96dadc3beb2cee03540a7a8a110b59a"><div class="ttname"><a href="structlogit_1_1PrometheusTextFormatConfig.html#ae96dadc3beb2cee03540a7a8a110b59a">logit::PrometheusTextFormatConfig::metric_prefix</a></div><div class="ttdeci">std::string metric_prefix</div><div class="ttdoc">Prefix applied to built-in metric names.</div><div class="ttdef"><b>Definition</b> <a href="PrometheusTextFormatConfig_8hpp_source.html#l00049">PrometheusTextFormatConfig.hpp:49</a></div></div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md52"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md53"></a>
 Usage: PrometheusHttpServerLogger</h2>
 <p>For a runnable embedded <code>/metrics</code> server example, see <code><a class="el" href="example__logit__prometheus__server_8cpp.html">examples/example_logit_prometheus_server.cpp</a></code>.</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="logit_8hpp.html">logit.hpp</a>&gt;</span></div>
@@ -216,7 +216,7 @@ Usage: PrometheusHttpServerLogger</h2>
 <div class="ttc" id="astructlogit_1_1PrometheusHttpServerLogger_1_1Config_html"><div class="ttname"><a href="structlogit_1_1PrometheusHttpServerLogger_1_1Config.html">logit::PrometheusHttpServerLogger::Config</a></div><div class="ttdef"><b>Definition</b> <a href="PrometheusHttpServerLogger_8hpp_source.html#l00040">PrometheusHttpServerLogger.hpp:40</a></div></div>
 <div class="ttc" id="astructlogit_1_1PrometheusHttpServerLogger_1_1Config_html_a33d72829dc113d1669953c9de8160211"><div class="ttname"><a href="structlogit_1_1PrometheusHttpServerLogger_1_1Config.html#a33d72829dc113d1669953c9de8160211">logit::PrometheusHttpServerLogger::Config::path</a></div><div class="ttdeci">std::string path</div><div class="ttdef"><b>Definition</b> <a href="PrometheusHttpServerLogger_8hpp_source.html#l00044">PrometheusHttpServerLogger.hpp:44</a></div></div>
 <div class="ttc" id="astructlogit_1_1PrometheusHttpServerLogger_1_1Config_html_ace61f0288482902d700658d75e6ec9af"><div class="ttname"><a href="structlogit_1_1PrometheusHttpServerLogger_1_1Config.html#ace61f0288482902d700658d75e6ec9af">logit::PrometheusHttpServerLogger::Config::port</a></div><div class="ttdeci">unsigned short port</div><div class="ttdef"><b>Definition</b> <a href="PrometheusHttpServerLogger_8hpp_source.html#l00043">PrometheusHttpServerLogger.hpp:43</a></div></div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md53"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md54"></a>
 Custom Metrics</h2>
 <p>Use <code>PrometheusRegistry</code> with the <code>on_collect</code> callback to register application-specific metrics once and collect them on each scrape:</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="logit_8hpp.html">logit.hpp</a>&gt;</span></div>
@@ -236,7 +236,7 @@ Custom Metrics</h2>
 </div><!-- fragment --><p><code>PrometheusTextFormatConfig::metric_prefix</code> applies only to LogIt++ built-in metrics. Custom metric names are written as supplied by the registry or manual builders, so use the registry prefix for application metric namespaces.</p>
 <p>If a registry value callback throws, the registry skips that sample, keeps collecting later metrics, appends the healthy samples, and then rethrows the first exception. The Prometheus loggers catch that exception from <code>on_collect</code> and increment their failed export counter.</p>
 <p>For low-level control, <code>on_collect</code> can still append <code>PrometheusMetricFamily</code> objects directly or use helpers such as <code>add_prometheus_gauge()</code>.</p>
-<h2><a class="anchor" id="autotoc_md54"></a>
+<h2><a class="anchor" id="autotoc_md55"></a>
 Prometheus Scrape Config</h2>
 <div class="fragment"><div class="line">scrape_configs:</div>
 <div class="line">  - job_name: &#39;logit-app&#39;</div>
@@ -244,7 +244,7 @@ Prometheus Scrape Config</h2>
 <div class="line">    static_configs:</div>
 <div class="line">      - targets: [&#39;localhost:9090&#39;]</div>
 <div class="line">    metrics_path: /metrics</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md55"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md56"></a>
 Limitations</h2>
 <ul>
 <li>Text exposition format only (no protobuf, no OpenMetrics <code># EOF</code>).</li>

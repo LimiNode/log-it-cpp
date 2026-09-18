@@ -1,18 +1,18 @@
 var searchData=
 [
-  ['back_20pressure_20controls_0',['Back Pressure Controls',['../backpressure.html',1,'Queue Back-Pressure Controls'],['../backpressure.html#autotoc_md70',1,'Queue Back-Pressure Controls']]],
+  ['back_20pressure_20controls_0',['Back Pressure Controls',['../backpressure.html',1,'Queue Back-Pressure Controls'],['../backpressure.html#autotoc_md71',1,'Queue Back-Pressure Controls']]],
   ['backend_20and_20formatter_1',['Custom Logger Backend and Formatter',['../api_reference.html#custom_backend_sec',1,'']]],
-  ['backend_20matrix_2',['Backend matrix',['../backends.html',1,'Backend matrix'],['../backends.html#autotoc_md12',1,'Backend matrix']]],
+  ['backend_20matrix_2',['Backend matrix',['../backends.html',1,'Backend matrix'],['../backends.html#autotoc_md13',1,'Backend matrix']]],
   ['backends_3',['Backends',['../group__LogBackends.html',1,'Logging Backends'],['../api_reference.html#multiple_backends',1,'Support for Multiple Backends']]],
   ['backends_4',['Optional backends',['../api_reference.html#macro_examples_optional',1,'']]],
   ['backends_2emd_5',['backends.md',['../backends_8md.html',1,'']]],
   ['backpressure_20and_20queue_20variants_6',['Backpressure and queue variants',['../api_reference.html#backpressure_sec',1,'']]],
-  ['backpressure_20semantics_7',['2. Backpressure semantics',['../task_executor.html#autotoc_md61',1,'']]],
+  ['backpressure_20semantics_7',['2. Backpressure semantics',['../task_executor.html#autotoc_md62',1,'']]],
   ['backpressure_2emd_8',['backpressure.md',['../backpressure_8md.html',1,'']]],
   ['based_20logging_9',['Stream-Based Logging',['../api_reference.html#stream_logging',1,'']]],
   ['benchmark_20evidence_20and_20comparison_20methodology_10',['ADR 0005: Benchmark evidence and comparison methodology',['../md_docs_2adr_20005-benchmark-methodology.html',1,'']]],
   ['benchmarks_11',['Benchmarks',['../api_reference.html#bench_sec',1,'']]],
-  ['benchmarks_12',['benchmarks',['../benchmarks.html',1,'Performance and benchmarks'],['../benchmarks.html#autotoc_md18',1,'Performance and benchmarks']]],
+  ['benchmarks_12',['benchmarks',['../benchmarks.html',1,'Performance and benchmarks'],['../benchmarks.html#autotoc_md19',1,'Performance and benchmarks']]],
   ['benchmarks_2emd_13',['benchmarks.md',['../benchmarks_8md.html',1,'']]],
   ['black_14',['BLACK',['../example__logit__short__macros_8cpp.html#ab983350d6d1201c0ebd709320e7a0d50af77fb67151d0c18d397069ad8c271ba3',1,'BLACK:&#160;example_logit_short_macros.cpp'],['../example__logit__basic_8cpp.html#ab983350d6d1201c0ebd709320e7a0d50a08d0012388564e95c3b4a7407cf04965',1,'BLACK:&#160;example_logit_basic.cpp'],['../example__logit__short__macros_8cpp.html#ab983350d6d1201c0ebd709320e7a0d50a08d0012388564e95c3b4a7407cf04965',1,'BLACK:&#160;example_logit_short_macros.cpp']]],
   ['black_15',['Black',['../namespacelogit.html#aa63786fdda1bd7b89a591a13fd12bb31ae90dfb84e30edf611e326eeb04d680de',1,'logit']]],
@@ -32,7 +32,7 @@ var searchData=
   ['build_5fotlp_5flogs_5fjson_5fpayload_5fchunks_29',['build_otlp_logs_json_payload_chunks',['../namespacelogit.html#a5e8419802981d48ee20d35625a8ae711',1,'logit']]],
   ['build_5fprometheus_5ftext_5fpayload_30',['build_prometheus_text_payload',['../namespacelogit.html#a64bf7626396dd6057a4e6cc60b27c6ef',1,'logit']]],
   ['build_5fscrape_5fmetrics_31',['build_scrape_metrics',['../classlogit_1_1PrometheusHttpServerLogger.html#aa7246f0efaadb798aa66e8ff2087e6fe',1,'logit::PrometheusHttpServerLogger']]],
-  ['builds_20without_20pthreads_32',['Emscripten builds without pthreads',['../task_executor.html#autotoc_md60',1,'']]],
-  ['built_20in_20metrics_33',['Built-in Metrics',['../prometheus_logger.html#autotoc_md49',1,'']]],
+  ['builds_20without_20pthreads_32',['Emscripten builds without pthreads',['../task_executor.html#autotoc_md61',1,'']]],
+  ['built_20in_20metrics_33',['Built-in Metrics',['../prometheus_logger.html#autotoc_md50',1,'']]],
   ['bytes_34',['bytes',['../classlogit_1_1detail_1_1MdbxByteWriter.html#a6d85bc6b1172b2decd2511216dc6c48e',1,'logit::detail::MdbxByteWriter']]]
 ];

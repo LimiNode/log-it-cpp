@@ -46,6 +46,7 @@ var NAVTREEINDEX7 =
 "installation.html":[2],
 "installation.html#autotoc_md10":[2,0,5],
 "installation.html#autotoc_md11":[2,0,6],
+"installation.html#autotoc_md12":[2,0,7],
 "installation.html#autotoc_md4":[2,0],
 "installation.html#autotoc_md5":[2,0,0],
 "installation.html#autotoc_md6":[2,0,1],
@@ -248,6 +249,5 @@ var NAVTREEINDEX7 =
 "log__macros_8hpp.html#a7afa4a348790479d79765767fb43f7b0":[22,0,2,0,0,7,105],
 "log__macros_8hpp.html#a7b496dc3d253f3259a11f18ada8f33e4":[22,0,2,0,0,7,243],
 "log__macros_8hpp.html#a7bdf24e4a7a207b2b8a98a00573c4c94":[22,0,2,0,0,7,19],
-"log__macros_8hpp.html#a7c0b1f97f50fa14493a1642614d1c2ca":[22,0,2,0,0,7,36],
-"log__macros_8hpp.html#a7d0c9befd2b6bd952a5f304fb6ed2c3c":[22,0,2,0,0,7,55]
+"log__macros_8hpp.html#a7c0b1f97f50fa14493a1642614d1c2ca":[22,0,2,0,0,7,36]
 };

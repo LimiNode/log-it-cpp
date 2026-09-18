@@ -115,12 +115,12 @@ $(function(){initNavTree('task_executor.html',''); initResizable(true); });
   <div class="headertitle"><div class="title">TaskExecutor Implementation Notes</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><h1><a class="anchor" id="autotoc_md56"></a>
+<div class="textblock"><h1><a class="anchor" id="autotoc_md57"></a>
 TaskExecutor Implementation Notes</h1>
 <p>The global <code>TaskExecutor</code> powers backends that use LogIt++'s shared asynchronous executor. Some backends are synchronous, dedicated-executor configurations use per-backend <code>SingleThreadExecutor</code> instances, and OTLP backends maintain their own exporter queues. This document describes how the shared executor behaves across build configurations, provides guidance on tuning backpressure policies, and explains the lifetime guarantees that logger integrations rely on.</p>
-<h2><a class="anchor" id="autotoc_md57"></a>
+<h2><a class="anchor" id="autotoc_md58"></a>
 1. Implementation variants</h2>
-<h3><a class="anchor" id="autotoc_md58"></a>
+<h3><a class="anchor" id="autotoc_md59"></a>
 Default deque worker (without <code>LOGIT_USE_MPSC_RING</code>)</h3>
 <ul>
 <li>Structure: one worker thread (<code>m_worker_thread</code>) consumes a <code>std::deque</code> protected by <code>m_queue_mutex</code>.</li>
@@ -128,7 +128,7 @@ Default deque worker (without <code>LOGIT_USE_MPSC_RING</code>)</h3>
 <li>Backpressure policies are implemented literally on the protected deque.</li>
 <li>Intended for environments where a simple mutex-protected queue is sufficient or where the lock-free ring cannot be used.</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md59"></a>
+<h3><a class="anchor" id="autotoc_md60"></a>
 Lock-free MPSC ring (<code>LOGIT_USE_MPSC_RING</code>)</h3>
 <ul>
 <li>Structure: producers push tasks into <code>m_mpsc_queue</code>, a lock-free <code>MpscRingAny&lt;std::function&lt;void()&gt;&gt;</code> with a single consumer thread.</li>
@@ -141,14 +141,14 @@ Lock-free MPSC ring (<code>LOGIT_USE_MPSC_RING</code>)</h3>
 </li>
 <li>Enables very low producer overhead while maintaining FIFO ordering on the consumer side.</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md60"></a>
+<h3><a class="anchor" id="autotoc_md61"></a>
 Emscripten builds without pthreads</h3>
 <ul>
 <li>Structure: single-threaded <code>std::deque</code> guarded by <code>m_mutex</code>.</li>
 <li>No dedicated worker thread is created. Instead, tasks are drained via <code>emscripten_async_call</code> scheduled from the main loop.</li>
 <li>Not thread-safe — intended for WebAssembly builds where pthreads are not available.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md61"></a>
+<h2><a class="anchor" id="autotoc_md62"></a>
 2. Backpressure semantics</h2>
 <p><code>QueuePolicy</code> controls what happens when the queue reaches <code>max_queue_size</code> (<code>0</code> means "unbounded").</p>
 <ul>
@@ -168,7 +168,7 @@ Emscripten builds without pthreads</h3>
 </li>
 </ul>
 <p>The drop counter is observable via <code>TaskExecutor::dropped_tasks()</code> and exposed to end users through <code><a class="el" href="log__macros_8hpp.html#ace505b52a9654523f51dedd8e8d94c90" title="Returns the number of tasks dropped due to overflow.">LOGIT_GET_DROPPED_TASKS()</a></code>.</p>
-<h2><a class="anchor" id="autotoc_md62"></a>
+<h2><a class="anchor" id="autotoc_md63"></a>
 3. Hot queue resize (<code>LOGIT_USE_MPSC_RING</code>)</h2>
 <p><code>set_max_queue_size()</code> performs a "hot" resize without tearing down the application.</p>
 <ol type="1">
@@ -181,7 +181,7 @@ Emscripten builds without pthreads</h3>
 <li><code>m_resizing</code> flips back to <code>false</code> and <code>m_resize_cv.notify_all()</code> wakes producers that parked at the start of <code>add_task()</code>.</li>
 </ol>
 <p>While the resize is in progress, new producers briefly wait on <code>m_resize_cv</code>. No accepted tasks are lost, and the consumer thread never observes partially initialised ring buffers. Calling <code>set_max_queue_size()</code> or <code>set_queue_policy()</code> after shutdown is a no-op; these calls must not restart or mutate the stopped singleton worker.</p>
-<h2><a class="anchor" id="autotoc_md63"></a>
+<h2><a class="anchor" id="autotoc_md64"></a>
 4. Ordering and completion guarantees</h2>
 <ul>
 <li>Exactly one consumer thread executes tasks, so work is processed in the order accepted by the consumer.</li>
@@ -189,11 +189,11 @@ Emscripten builds without pthreads</h3>
 <li><code>wait()</code> returns once the queue is empty and <code>m_active_tasks == 0</code>, or when a shutdown is requested. In MPSC builds the worker marks a pop attempt active before removing a task, so <code>wait()</code> cannot return in the narrow window between a dequeued cell becoming free and the task body starting.</li>
 <li><code>shutdown()</code> blocks until the worker thread terminates. It is safe to call multiple times.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md64"></a>
+<h2><a class="anchor" id="autotoc_md65"></a>
 5. Singleton and lifetime management</h2>
 <p><code>TaskExecutor::get_instance()</code> intentionally stores the singleton inside a <code>static TaskExecutor* instance = new TaskExecutor();</code>. This lets the executor outlive static destructors inside logger components. Applications may call <code>shutdown()</code> explicitly (for example during test teardown), but the singleton remains valid until the process terminates.</p>
 <p>Logger backends with <code>Config::use_dedicated_executor=true</code> own a <code>SingleThreadExecutor</code> instead of using this singleton. Native builds create one worker thread per configured logger, while single-threaded Emscripten builds use a cooperative per-instance queue. <code>Logger::shutdown()</code> calls each backend's <code>ILogger::shutdown()</code> hook before stopping the global executor so these logger-owned workers drain and stop cleanly. For <code>SingleThreadExecutor</code>, <code>wait()</code> waits for already accepted tasks to drain, while <code>shutdown()</code> rejects new tasks and joins the worker on native builds. Full lifecycle guarantees (including no-op behaviour after shutdown) are documented in the Doxygen comments of <code><a class="el" href="SingleThreadExecutor_8hpp.html" title="Per-instance single-thread executor for isolated async logging.">SingleThreadExecutor.hpp</a></code>.</p>
-<h2><a class="anchor" id="autotoc_md65"></a>
+<h2><a class="anchor" id="autotoc_md66"></a>
 6. Emscripten (no pthreads)</h2>
 <p>When targeting Emscripten without pthread support:</p>
 <ul>
@@ -203,7 +203,7 @@ Emscripten builds without pthreads</h3>
 <li>Dedicated logger executors use the same cooperative scheduling model in this build; no OS thread is created.</li>
 <li>Typical use cases: browser-hosted tools or demos that need asynchronous-style logging without pulling in pthread support.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md66"></a>
+<h2><a class="anchor" id="autotoc_md67"></a>
 7. API surface and macros</h2>
 <p>Public methods exposed by <code>TaskExecutor</code>:</p>
 <ul>
@@ -221,7 +221,7 @@ Emscripten builds without pthreads</h3>
 <li><code>LOGIT_QUEUE_BLOCK</code>, <code>LOGIT_QUEUE_DROP_NEWEST</code>, <code>LOGIT_QUEUE_DROP_OLDEST</code> select the enum value.</li>
 <li><code><a class="el" href="log__macros_8hpp.html#ace505b52a9654523f51dedd8e8d94c90" title="Returns the number of tasks dropped due to overflow.">LOGIT_GET_DROPPED_TASKS()</a></code> and <code><a class="el" href="log__macros_8hpp.html#a88332b3f4f43481444fc4691df0c57e8" title="Resets the dropped-tasks counter to zero.">LOGIT_RESET_DROPPED_TASKS()</a></code> forward to the counter helpers.</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md67"></a>
+<h3><a class="anchor" id="autotoc_md68"></a>
 Examples</h3>
 <p>Basic setup using macros:</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="logit_8hpp.html">logit.hpp</a>&gt;</span></div>
@@ -262,7 +262,7 @@ Examples</h3>
 <div class="ttc" id="alog__macros_8hpp_html_a88332b3f4f43481444fc4691df0c57e8"><div class="ttname"><a href="log__macros_8hpp.html#a88332b3f4f43481444fc4691df0c57e8">LOGIT_RESET_DROPPED_TASKS</a></div><div class="ttdeci">#define LOGIT_RESET_DROPPED_TASKS()</div><div class="ttdoc">Resets the dropped-tasks counter to zero.</div><div class="ttdef"><b>Definition</b> <a href="log__macros_8hpp_source.html#l02952">log_macros.hpp:2952</a></div></div>
 <div class="ttc" id="alog__macros_8hpp_html_ab33d3a82f5f99554057a651ce352a699"><div class="ttname"><a href="log__macros_8hpp.html#ab33d3a82f5f99554057a651ce352a699">LOGIT_QUEUE_DROP_NEWEST</a></div><div class="ttdeci">#define LOGIT_QUEUE_DROP_NEWEST</div><div class="ttdoc">Queue policy for dropping the newest task when the queue is full.</div><div class="ttdef"><b>Definition</b> <a href="log__macros_8hpp_source.html#l02931">log_macros.hpp:2931</a></div></div>
 <div class="ttc" id="alog__macros_8hpp_html_ace505b52a9654523f51dedd8e8d94c90"><div class="ttname"><a href="log__macros_8hpp.html#ace505b52a9654523f51dedd8e8d94c90">LOGIT_GET_DROPPED_TASKS</a></div><div class="ttdeci">#define LOGIT_GET_DROPPED_TASKS()</div><div class="ttdoc">Returns the number of tasks dropped due to overflow.</div><div class="ttdef"><b>Definition</b> <a href="log__macros_8hpp_source.html#l02948">log_macros.hpp:2948</a></div></div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md68"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md69"></a>
 8. Thread-safety and TSAN considerations</h2>
 <ul>
 <li>All public methods on non-Emscripten builds are thread-safe. Producers may call <code>add_task()</code> concurrently with <code>set_max_queue_size()</code> and <code>set_queue_policy()</code>.</li>
@@ -270,7 +270,7 @@ Examples</h3>
 <li>Non-MPSC builds rely solely on mutexes and had no known data races.</li>
 <li>The Emscripten path is single-threaded and should not be used concurrently.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md69"></a>
+<h2><a class="anchor" id="autotoc_md70"></a>
 9. Performance and tuning</h2>
 <ul>
 <li><code>QueuePolicy::Block</code> limits the number of in-flight tasks tracked by <code>m_active_tasks</code>. Use it to introduce producer-side backpressure when the downstream sinks are expensive.</li>
