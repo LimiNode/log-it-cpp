@@ -235,8 +235,9 @@ storage should prefer the shared `LOGIT_READ_*` and callback macros above.
 File-based backends also expose persisted-file access through
 `LOGIT_LIST_LOG_FILES(index)`, `LOGIT_READ_LOG_FILE(index, path)`, and
 `LOGIT_READ_LOG_FILES(index, paths)`. These helpers return only what has
-already reached disk; they do not drain async queues, and compressed rotated
-files are listed as metadata-only artifacts in v1. Use `MemoryLogger` for
+already reached disk; they do not drain async queues. Rotated `.gz` and `.zst`
+files are decompressed when the corresponding feature is enabled; otherwise
+their read result has `ok == false`. Use `MemoryLogger` for
 near-real-time snapshots and the file APIs for operational reads of persisted
 daily logs.
 

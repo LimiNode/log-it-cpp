@@ -45,9 +45,10 @@ Legend:
 - [ ] **Binary logging research** — choose a versioned binary record format,
   define compatibility/versioning rules, and prototype a reader before adding
   a production backend.
-- [ ] **Transparent compressed-file reads** — make `read_log_file()` and
-  `read_log_files()` read `.gz`/`.zst` entries when the corresponding feature is
-  enabled, with platform-specific tests.
+- [x] **Transparent compressed-file reads** — `read_log_file()` and
+  `read_log_files()` now decompress `.gz`/`.zst` entries when the corresponding
+  feature is enabled; disabled-feature and malformed-input paths remain
+  failures and are covered by tests.
 - [ ] **Configuration loading** — design a versioned JSON/properties mapping to
   the existing backend configuration. Treat file watching/hot reload as a
   follow-up, not part of the first configuration API.

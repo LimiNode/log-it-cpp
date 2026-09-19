@@ -24,6 +24,7 @@ namespace logit {
 #ifndef __EMSCRIPTEN__
 #include "detail/CompressionWorker.hpp"
 #endif
+#include "detail/CompressionUtils.hpp"
 
 #include <algorithm>
 #include <atomic>
@@ -61,7 +62,6 @@ namespace logit {
 #endif
 
 #ifdef LOGIT_WITH_MDBX
-#include "detail/CompressionUtils.hpp"
 #include "detail/MdbxByteIO.hpp"
 #include "detail/MdbxKeyUtils.hpp"
 #include "detail/MdbxProcessId.hpp"

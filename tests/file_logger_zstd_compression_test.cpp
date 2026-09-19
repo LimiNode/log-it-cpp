@@ -23,12 +23,19 @@ int main() {
     LOGIT_INFO(msg);
     LOGIT_WAIT();
     std::string current = LOGIT_GET_LAST_FILE_PATH(0);
-    LOGIT_SHUTDOWN();
 
     std::string rotated = current;
     size_t pos = rotated.rfind(".log");
     rotated.insert(pos, ".001");
     rotated += ".zst";
+
+    const logit::LogFileReadResult read = LOGIT_READ_LOG_FILE(0, rotated);
+    if (!read.ok || read.content.find(msg) == std::string::npos) return 1;
+    const std::vector<std::string> requested = {rotated};
+    const std::vector<logit::LogFileReadResult> read_many =
+        LOGIT_READ_LOG_FILES(0, requested);
+    if (read_many.size() != 1 || !read_many[0].ok ||
+        read_many[0].content.find(msg) == std::string::npos) return 1;
 
     std::ifstream in(rotated.c_str(), std::ios::binary | std::ios::ate);
     if (!in) return 1;
@@ -43,7 +50,9 @@ int main() {
     size_t ret = ZSTD_decompress(decompressed.data(), raw_size, compressed.data(), compressed.size());
     if (ZSTD_isError(ret)) return 1;
     std::string out(decompressed.data(), ret);
-    return out.find(msg) != std::string::npos ? 0 : 1;
+    const bool ok = out.find(msg) != std::string::npos;
+    LOGIT_SHUTDOWN();
+    return ok ? 0 : 1;
 }
 #else
 int main() { return 0; }

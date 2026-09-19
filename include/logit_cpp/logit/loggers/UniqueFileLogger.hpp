@@ -595,12 +595,18 @@ namespace logit {
         LogFileReadResult read_log_file_from_info(const LogFileInfo& info) const {
             LogFileReadResult result;
             result.file = info;
-            if (info.is_compressed) {
+            std::string file_bytes;
+            if (!read_plain_file(info.path, file_bytes)) {
                 result.ok = false;
                 return result;
             }
-
-            result.ok = read_plain_file(info.path, result.content);
+            if (info.is_compressed) {
+                result.ok = detail::decompress_string_by_suffix(
+                        info.path, file_bytes, result.content);
+            } else {
+                result.content = std::move(file_bytes);
+                result.ok = true;
+            }
             return result;
         }
 
@@ -880,7 +886,8 @@ namespace logit {
 
         /// \brief Reads one persisted log file owned by this backend.
         /// \param path Full path returned by `list_log_files()`.
-        /// \return Read result. Compressed files are listed but unreadable in v1.
+        /// \return Read result. Rotated `.gz` and `.zst` files are decompressed
+        /// when the corresponding feature is enabled.
         LogFileReadResult read_log_file(const std::string& path) const override {
             const std::vector<LogFileInfo> files = list_log_files();
             for (size_t i = 0; i < files.size(); ++i) {
