@@ -419,7 +419,8 @@ namespace logit {
         /// \details This API reads only the already persisted file contents and
         /// does not wait for pending async writes.
         /// \param path Full path returned by `list_log_files()`.
-        /// \return Read result. Compressed files are listed but unreadable in v1.
+        /// \return Read result. Rotated `.gz` and `.zst` files are decompressed
+        /// when the corresponding feature is enabled.
         LogFileReadResult read_log_file(const std::string& path) const override {
             const std::vector<LogFileInfo> files = list_log_files();
             for (size_t i = 0; i < files.size(); ++i) {
@@ -672,11 +673,6 @@ namespace logit {
             LogFileReadResult result;
             result.file = info;
 
-            if (info.is_compressed) {
-                result.ok = false;
-                return result;
-            }
-
             if (info.is_current) {
                 std::lock_guard<std::mutex> lock(m_mutex);
                 if (m_file.is_open()) {
@@ -684,7 +680,18 @@ namespace logit {
                 }
             }
 
-            result.ok = read_plain_file(info.path, result.content);
+            std::string file_bytes;
+            if (!read_plain_file(info.path, file_bytes)) {
+                result.ok = false;
+                return result;
+            }
+            if (info.is_compressed) {
+                result.ok = detail::decompress_string_by_suffix(
+                        info.path, file_bytes, result.content);
+            } else {
+                result.content = std::move(file_bytes);
+                result.ok = true;
+            }
             return result;
         }
 

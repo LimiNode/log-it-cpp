@@ -78,6 +78,7 @@ inline bool compress_string_gzip(const std::string& input, std::string& output, 
 /// \param[out] output Decompressed result (valid only on success).
 /// \return true on success, false if zlib is unavailable or decompression fails.
 inline bool decompress_string_gzip(const std::string& input, std::string& output) {
+    output.clear();
 #if defined(LOGIT_HAS_ZLIB)
     z_stream zs;
     zs.zalloc = Z_NULL;
@@ -93,8 +94,6 @@ inline bool decompress_string_gzip(const std::string& input, std::string& output
         return false;
     }
 
-    output.clear();
-
     int ret = Z_OK;
     std::size_t offset = 0;
     const std::size_t buf_size = 32768;
@@ -107,6 +106,7 @@ inline bool decompress_string_gzip(const std::string& input, std::string& output
         ret = inflate(&zs, Z_NO_FLUSH);
         if (ret == Z_STREAM_ERROR || ret == Z_DATA_ERROR || ret == Z_MEM_ERROR) {
             inflateEnd(&zs);
+            output.clear();
             return false;
         }
 
@@ -159,6 +159,7 @@ inline bool compress_string_zstd(const std::string& input, std::string& output, 
 /// \param[out] output Decompressed result (valid only on success).
 /// \return true on success, false if zstd is unavailable or decompression fails.
 inline bool decompress_string_zstd(const std::string& input, std::string& output) {
+    output.clear();
 #if defined(LOGIT_HAS_ZSTD)
     std::size_t const d_size = ZSTD_getFrameContentSize(input.data(), input.size());
     if (d_size == ZSTD_CONTENTSIZE_ERROR || d_size == ZSTD_CONTENTSIZE_UNKNOWN) {
@@ -181,6 +182,27 @@ inline bool decompress_string_zstd(const std::string& input, std::string& output
     (void)input; (void)output;
     return false;
 #endif
+}
+
+/// \brief Decompress a file payload based on its compressed suffix.
+/// \param filename File name ending in `.gz` or `.zst`.
+/// \param input Compressed file bytes.
+/// \param[out] output Decompressed result (valid only on success).
+/// \return true when the suffix is supported and decompression succeeds.
+inline bool decompress_string_by_suffix(
+        const std::string& filename,
+        const std::string& input,
+        std::string& output) {
+    if (filename.size() >= 3 &&
+        filename.compare(filename.size() - 3, 3, ".gz") == 0) {
+        return decompress_string_gzip(input, output);
+    }
+    if (filename.size() >= 4 &&
+        filename.compare(filename.size() - 4, 4, ".zst") == 0) {
+        return decompress_string_zstd(input, output);
+    }
+    output.clear();
+    return false;
 }
 
 } // namespace detail

@@ -69,7 +69,17 @@ int main() {
         }
         compressed_path = plain_files[0].path + ".gz";
         std::ofstream gz(compressed_path.c_str(), std::ios_base::binary);
+        const std::string payload = "unique-compressed-payload";
+#if defined(LOGIT_HAS_ZLIB)
+        std::string compressed;
+        if (!logit::detail::compress_string_gzip(payload, compressed, 1)) {
+            return 1;
+        }
+        gz.write(compressed.data(), static_cast<std::streamsize>(compressed.size()));
+#else
         gz << "compressed-placeholder";
+#endif
+        gz.close();
     }
 
     const std::vector<logit::LogFileInfo> files = LOGIT_LIST_LOG_FILES(0);
@@ -108,7 +118,11 @@ int main() {
     }
 
     const logit::LogFileReadResult compressed_read = LOGIT_READ_LOG_FILE(0, compressed_path);
+#if defined(LOGIT_HAS_ZLIB)
+    if (!compressed_read.ok || compressed_read.content != "unique-compressed-payload") {
+#else
     if (compressed_read.ok || !compressed_read.content.empty()) {
+#endif
         return 1;
     }
 
@@ -119,7 +133,12 @@ int main() {
         return 1;
     }
     if (!same_file_name(read_many[0].file.path, latest_path) || !read_many[0].ok ||
-        !same_file_name(read_many[1].file.path, compressed_path) || read_many[1].ok) {
+        !same_file_name(read_many[1].file.path, compressed_path) ||
+#if defined(LOGIT_HAS_ZLIB)
+        !read_many[1].ok || read_many[1].content != "unique-compressed-payload") {
+#else
+        read_many[1].ok) {
+#endif
         return 1;
     }
 
