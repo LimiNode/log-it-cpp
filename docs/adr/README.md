@@ -30,3 +30,4 @@ explains **why the current boundary or trade-off exists**.
 - [0005 — Benchmark evidence and comparison methodology](0005-benchmark-methodology.md)
 - [0006 — Explicit capability for concurrent dispatch](0006-concurrent-dispatch-capability.md)
 - [0007 — Transparent compressed-file reads](0007-transparent-compressed-file-reads.md)
+- [0008 — Binary log record format research prototype](0008-binary-log-record-format-research.md)

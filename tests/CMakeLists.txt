@@ -12,6 +12,7 @@ else()
         backpressure_ordering_spsc_test.cpp
         backpressure_ordering_test.cpp
         backpressure_policy_test.cpp
+        binary_log_record_codec_test.cpp
         backend_shutdown_terminal_test.cpp
         compiled_level_runtime_caveat_test.cpp
         compiled_level_test.cpp

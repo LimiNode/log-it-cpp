@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 
 - Added transparent `.gz` and `.zst` reads for persisted file APIs when the
   corresponding compression feature is enabled.
+- Added a non-public binary log record format and reader research prototype;
+  no production binary backend is enabled yet.
 
 ## [v1.0.2] - 2026-09-19
 
