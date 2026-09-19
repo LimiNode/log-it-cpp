@@ -21,10 +21,10 @@ custom implementations.
 
 An opting-in formatter must support concurrent `format()` calls and concurrent
 configuration through `set_timestamp_offset()`. An opting-in backend must make
-`log()`, `get_log_level()`, `set_log_level()`, `wait()`, and `shutdown()` safe
-when called concurrently, and must keep its resources alive until those calls
-finish. The backend remains responsible for its own output ordering and
-serialization where required.
+`log()`, `get_log_level()`, `set_log_level()`, `clear_logs()`, `wait()`, and
+`shutdown()` safe when called concurrently, and must keep its resources alive
+until those calls finish. The backend remains responsible for its own output
+ordering and serialization where required.
 
 The capability is stored when a logger strategy is registered, so the normal
 dispatch path does not perform virtual capability checks. The execution mutex

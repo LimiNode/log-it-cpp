@@ -61,10 +61,10 @@ namespace logit {
         ///
         /// Returning true opts this backend into the `Logger` lock-elision
         /// path. Implementations must make `log()`, `get_log_level()`,
-        /// `set_log_level()`, `wait()`, and `shutdown()` safe when called
-        /// concurrently, and must keep all owned resources alive until those
-        /// operations complete. The default preserves serialized dispatch for
-        /// existing and custom backends.
+        /// `set_log_level()`, `clear_logs()`, `wait()`, and `shutdown()` safe
+        /// when called concurrently, and must keep all owned resources alive
+        /// until those operations complete. The default preserves serialized
+        /// dispatch for existing and custom backends.
         /// \return True only when concurrent dispatch and lifecycle operations are safe.
         virtual bool supports_concurrent_log() const noexcept { return false; }
 
