@@ -42,9 +42,9 @@ Legend:
 - [x] **Release 1.0.2** — changelog/release notes, package overlays, non-`-dev`
   documentation, annotated tag, GitHub Release, and published Pages site are
   complete.
-- [ ] **Binary logging research** — choose a versioned binary record format,
-  define compatibility/versioning rules, and prototype a reader before adding
-  a production backend.
+- [x] **Binary logging research** — a framed, versioned record format and
+  bounded reader prototype with compatibility/corruption rules are documented
+  in ADR 0008. No production backend or persistence contract is committed yet.
 - [x] **Transparent compressed-file reads** — `read_log_file()` and
   `read_log_files()` now decompress `.gz`/`.zst` entries when the corresponding
   feature is enabled; disabled-feature and malformed-input paths remain
