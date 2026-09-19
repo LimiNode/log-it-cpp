@@ -39,9 +39,9 @@ Legend:
 
 ## Next planned work
 
-- [ ] **Release 1.0.2** — prepare changelog/release notes, verify package
-  overlays, generate the non-`-dev` documentation, tag the release, and verify
-  the published Pages site.
+- [x] **Release 1.0.2** — changelog/release notes, package overlays, non-`-dev`
+  documentation, annotated tag, GitHub Release, and published Pages site are
+  complete.
 - [ ] **Binary logging research** — choose a versioned binary record format,
   define compatibility/versioning rules, and prototype a reader before adding
   a production backend.
@@ -78,4 +78,4 @@ decisions or compatibility changes; keep this file focused on status and next
 steps. Record measurements with their environment instead of turning one local
 run into a universal performance claim.
 
-Last reviewed: 2026-09-14.
+Last reviewed: 2026-09-19.

@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+Changes since v1.0.2 will be documented here.
+
 ## [v1.0.2] - 2026-09-19
 
 ### Added
