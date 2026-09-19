@@ -57,6 +57,17 @@ namespace logit {
         /// \param message The formatted log message.
         virtual void log(const LogRecord& record, const std::string& message) = 0;
 
+        /// \brief Indicates whether backend dispatch may run concurrently.
+        ///
+        /// Returning true opts this backend into the `Logger` lock-elision
+        /// path. Implementations must make `log()`, `get_log_level()`,
+        /// `set_log_level()`, `clear_logs()`, `wait()`, and `shutdown()` safe
+        /// when called concurrently, and must keep all owned resources alive
+        /// until those operations complete. The default preserves serialized
+        /// dispatch for existing and custom backends.
+        /// \return True only when concurrent dispatch and lifecycle operations are safe.
+        virtual bool supports_concurrent_log() const noexcept { return false; }
+
         /// \brief Retrieves a string parameter from the logger.
         /// Derived classes should implement this to return specific string-based parameters.
         /// \param param The parameter type to retrieve.
