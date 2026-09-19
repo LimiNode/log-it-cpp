@@ -103,14 +103,28 @@ inline bool decompress_string_gzip(const std::string& input, std::string& output
         zs.next_out = reinterpret_cast<Bytef*>(&output[offset]);
         zs.avail_out = static_cast<uInt>(buf_size);
 
+        const uInt previous_avail_in = zs.avail_in;
+        const uLong previous_total_out = zs.total_out;
         ret = inflate(&zs, Z_NO_FLUSH);
-        if (ret == Z_STREAM_ERROR || ret == Z_DATA_ERROR || ret == Z_MEM_ERROR) {
+
+        // Only these two results are valid for the loop below.  In particular,
+        // Z_BUF_ERROR means that inflate made no progress (typically because a
+        // compressed stream was truncated after consuming all input).
+        if (ret != Z_OK && ret != Z_STREAM_END) {
             inflateEnd(&zs);
             output.clear();
             return false;
         }
 
         offset = zs.total_out;
+
+        if (ret == Z_OK &&
+            zs.avail_in == previous_avail_in &&
+            zs.total_out == previous_total_out) {
+            inflateEnd(&zs);
+            output.clear();
+            return false;
+        }
     } while (ret != Z_STREAM_END);
 
     output.resize(zs.total_out);
