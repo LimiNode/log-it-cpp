@@ -1,6 +1,7 @@
 #include "LogItAdapter.hpp"
 
 #include <atomic>
+#include <condition_variable>
 #include <filesystem>
 #include <fstream>
 #include <limits>
@@ -89,9 +90,19 @@ namespace logit_bench {
     
         void wait() override {
             if (m_async) {
-                logit::detail::TaskExecutor::get_instance().wait();
+                const std::uint64_t generation = flush_generation();
+                logit::detail::TaskExecutor::get_instance().add_task([this]() {
+                    std::lock_guard<std::mutex> lock(m_flush_mutex);
+                    ++m_flush_generation;
+                    m_flush_cv.notify_all();
+                });
+
+                std::unique_lock<std::mutex> lock(m_flush_mutex);
+                m_flush_cv.wait(lock, [this, generation]() {
+                    return m_flush_generation > generation;
+                });
             }
-    
+
             std::lock_guard<std::mutex> lock(m_file_mutex);
             if (m_file.is_open()) {
                 m_file.flush();
@@ -118,6 +129,11 @@ namespace logit_bench {
                 }
             }
         }
+
+        std::uint64_t flush_generation() const {
+            std::lock_guard<std::mutex> lock(m_flush_mutex);
+            return m_flush_generation;
+        }
     
         bool m_async = false;
         SinkKind m_sink = SinkKind::Null;
@@ -125,7 +141,11 @@ namespace logit_bench {
     
         std::ofstream m_file;
         mutable std::mutex m_file_mutex;
-    
+
+        mutable std::mutex m_flush_mutex;
+        std::condition_variable m_flush_cv;
+        std::uint64_t m_flush_generation = 0;
+
         std::atomic<int> m_level{static_cast<int>(logit::LogLevel::LOG_LVL_TRACE)};
     };
     
