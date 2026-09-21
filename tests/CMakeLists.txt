@@ -25,6 +25,7 @@ else()
         file_logger_external_cmd_compression_test.cpp
         file_logger_file_api_test.cpp
         file_logger_gzip_compression_test.cpp
+        file_logger_truncated_gzip_test.cpp
         file_logger_remove_old_logs_suffixes_test.cpp
         file_logger_rotation_naming_sequence_test.cpp
         file_logger_rotation_naming_timestamp_ms_test.cpp
@@ -89,6 +90,7 @@ else()
     )
     if(NOT LOGIT_WITH_GZIP)
         list(REMOVE_ITEM TEST_SOURCES file_logger_gzip_compression_test.cpp)
+        list(REMOVE_ITEM TEST_SOURCES file_logger_truncated_gzip_test.cpp)
         list(REMOVE_ITEM TEST_SOURCES file_logger_external_cmd_compression_test.cpp)
         list(REMOVE_ITEM TEST_SOURCES otlp_http_logger_gzip_test.cpp)
     endif()
