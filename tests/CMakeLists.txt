@@ -83,6 +83,7 @@ else()
         scope_timer_test.cpp
         single_thread_executor_test.cpp
         task_executor_resize_race_test.cpp
+        task_executor_wait_barrier_test.cpp
         unique_file_logger_file_api_test.cpp
         unique_file_logger_set_queue_config_test.cpp
         windows_debug_logger_set_queue_config_test.cpp
