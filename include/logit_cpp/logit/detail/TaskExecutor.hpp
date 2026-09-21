@@ -218,10 +218,7 @@ namespace logit { namespace detail {
             // waiter that observes this ticket must wait for either the task
             // to run or the submission to be rejected, so it cannot race the
             // worker between an empty-ring observation and try_pop().
-            {
-                std::lock_guard<std::mutex> completion_lock(m_completion_mutex);
-                ++m_submitted_tasks;
-            }
+            m_submitted_tasks.fetch_add(1, std::memory_order_release);
     
             std::function<void()> local_task = std::move(task);
             bool done = false;
@@ -291,15 +288,16 @@ namespace logit { namespace detail {
                         m_stop_flag.load(std::memory_order_acquire));
             });
 #        else
-            std::unique_lock<std::mutex> completion_lock(m_completion_mutex);
+            std::unique_lock<std::mutex> completion_lock(m_completion_wait_mutex);
             for (;;) {
-                const auto target = m_submitted_tasks;
+                const auto target = m_submitted_tasks.load(std::memory_order_acquire);
                 m_completion_cv.wait(completion_lock, [this, target]() {
-                    return m_completed_tasks >= target ||
+                    return m_completed_tasks.load(std::memory_order_acquire) >= target ||
                            m_stop_flag.load(std::memory_order_acquire);
                 });
                 if (m_stop_flag.load(std::memory_order_acquire) ||
-                    m_completed_tasks >= m_submitted_tasks) {
+                    m_completed_tasks.load(std::memory_order_acquire) >=
+                        m_submitted_tasks.load(std::memory_order_acquire)) {
                     break;
                 }
             }
@@ -432,10 +430,10 @@ namespace logit { namespace detail {
         std::condition_variable m_cv;              ///< Wakes the worker or producers.
         std::mutex m_cv_mutex;                     ///< Protects producer/worker sleeps.
 
-        std::mutex m_completion_mutex;             ///< Protects completion snapshots.
+        std::mutex m_completion_wait_mutex;       ///< Serializes completion waiters.
         std::condition_variable m_completion_cv;   ///< Notifies completion waiters.
-        std::size_t m_submitted_tasks;             ///< Reserved submission tickets.
-        std::size_t m_completed_tasks;             ///< Completed submission tickets.
+        std::atomic<std::size_t> m_submitted_tasks; ///< Reserved submission tickets.
+        std::atomic<std::size_t> m_completed_tasks; ///< Completed submission tickets.
 
         std::atomic<bool> m_resizing;              ///< true while a hot resize is in flight.
         std::condition_variable m_resize_cv;       ///< Producers wait here during a resize.
@@ -530,18 +528,19 @@ namespace logit { namespace detail {
         }
 
         bool wait_until_idle_(std::chrono::steady_clock::time_point deadline) {
-            std::unique_lock<std::mutex> lock(m_completion_mutex);
+            std::unique_lock<std::mutex> lock(m_completion_wait_mutex);
             for (;;) {
-                const auto target = m_submitted_tasks;
-                if (m_completed_tasks < target &&
+                const auto target = m_submitted_tasks.load(std::memory_order_acquire);
+                if (m_completed_tasks.load(std::memory_order_acquire) < target &&
                     !m_completion_cv.wait_until(lock, deadline, [this, target]() {
-                        return m_completed_tasks >= target ||
+                        return m_completed_tasks.load(std::memory_order_acquire) >= target ||
                                m_stop_flag.load(std::memory_order_acquire);
                     })) {
                     return false;
                 }
                 if (m_stop_flag.load(std::memory_order_acquire) ||
-                    m_completed_tasks >= m_submitted_tasks) {
+                    m_completed_tasks.load(std::memory_order_acquire) >=
+                        m_submitted_tasks.load(std::memory_order_acquire)) {
                     return true;
                 }
                 if (std::chrono::steady_clock::now() >= deadline) {
@@ -551,10 +550,7 @@ namespace logit { namespace detail {
         }
 
         void complete_task_() {
-            {
-                std::lock_guard<std::mutex> lock(m_completion_mutex);
-                ++m_completed_tasks;
-            }
+            m_completed_tasks.fetch_add(1, std::memory_order_release);
             m_completion_cv.notify_all();
         }
 
