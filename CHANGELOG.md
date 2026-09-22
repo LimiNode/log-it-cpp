@@ -11,6 +11,11 @@ All notable changes to this project will be documented in this file.
 - Added a non-public binary log record format and reader research prototype;
   no production binary backend is enabled yet.
 
+### Fixed
+
+- Fixed a race in the MPSC `TaskExecutor::wait()` completion barrier that could
+  allow a wait to return before the final accepted task completed.
+
 ## [v1.0.2] - 2026-09-19
 
 ### Added
