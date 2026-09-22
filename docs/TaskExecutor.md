@@ -29,9 +29,14 @@ integrations rely on.
 * Synchronisation primitives:
   * `m_cv` + `m_cv_mutex` coordinate sleepers for both the worker and producers
     that wait for capacity during `QueuePolicy::Block`.
-  * `m_queue_condition` wakes `wait()` callers once the queue drains.
+  * `m_queue_condition` coordinates worker/lifecycle drain notifications.
+  * A completion ticket is reserved before each MPSC submission is published;
+    `wait()` advances a completion frontier until every submission visible at
+    the completion check has completed or been rejected. This closes the
+    worker-side race between an empty-ring check and the next `try_pop()`
+    attempt.
   * `m_active_tasks` tracks in-flight work so that `Block` limits concurrent
-    execution and `wait()` can determine quiescence.
+    execution and lifecycle resize checks can observe quiescence.
   * `m_stop_flag` terminates the worker and stops accepting new tasks.
 * Enables very low producer overhead while maintaining FIFO ordering on the
   consumer side.
@@ -103,10 +108,14 @@ mutate the stopped singleton worker.
   accepted by the consumer.
 * When the ring build is enabled, `DropNewest` and `DropOldest` both drop the
   incoming task; accepted tasks keep their order.
-* `wait()` returns once the queue is empty and `m_active_tasks == 0`, or when a
-  shutdown is requested. In MPSC builds the worker marks a pop attempt active
-  before removing a task, so `wait()` cannot return in the narrow window between
-  a dequeued cell becoming free and the task body starting.
+* `wait()` advances a completion frontier until every submission visible at
+  the completion check has either completed or been rejected, or until a
+  shutdown is requested. Submissions created by already-running tasks before
+  the barrier closes are included, so continuous concurrent submissions may
+  delay completion. In MPSC builds this is enforced by completion tickets
+  rather than by an independent empty-ring/active-task observation, so
+  `wait()` cannot return in the narrow window between a dequeued cell becoming
+  free and the task body starting.
 * `shutdown()` blocks until the worker thread terminates. It is safe to call
   multiple times.
 

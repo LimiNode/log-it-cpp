@@ -83,6 +83,7 @@ else()
         scope_timer_test.cpp
         single_thread_executor_test.cpp
         task_executor_resize_race_test.cpp
+        task_executor_wait_barrier_test.cpp
         unique_file_logger_file_api_test.cpp
         unique_file_logger_set_queue_config_test.cpp
         windows_debug_logger_set_queue_config_test.cpp
@@ -136,6 +137,9 @@ else()
         endif()
         if(test_name STREQUAL "logger_legacy_targeted_path_test")
             target_compile_definitions(${test_name} PRIVATE LOGIT_BENCH_LEGACY_REGISTRY=1)
+        endif()
+        if(test_name STREQUAL "task_executor_wait_barrier_test")
+            set_tests_properties(${test_name} PROPERTIES TIMEOUT 30)
         endif()
         if(LOGIT_WITH_OTLP AND test_name MATCHES "^otlp_http_logger_(integration|callback|gzip|zstd)_test$")
             target_include_directories(${test_name} PRIVATE

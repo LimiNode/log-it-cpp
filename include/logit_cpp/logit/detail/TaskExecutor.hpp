@@ -213,12 +213,19 @@ namespace logit { namespace detail {
             m_queue_condition.notify_one();
 #        else
             enter_producer_();
+
+            // Reserve a completion ticket before attempting publication.  A
+            // waiter that observes this ticket must wait for either the task
+            // to run or the submission to be rejected, so it cannot race the
+            // worker between an empty-ring observation and try_pop().
+            m_submitted_tasks.fetch_add(1, std::memory_order_release);
     
             std::function<void()> local_task = std::move(task);
             bool done = false;
     
             while (!done) {
                 if (m_stop_flag.load(std::memory_order_acquire)) {
+                    complete_task_();
                     break;
                 }
     
@@ -248,6 +255,7 @@ namespace logit { namespace detail {
                 switch (policy) {
                     case QueuePolicy::DropNewest:
                         m_dropped_tasks.fetch_add(1, std::memory_order_relaxed);
+                        complete_task_();
                         done = true;
                         break;
 
@@ -255,6 +263,7 @@ namespace logit { namespace detail {
                         // Safe MPSC behaviour: drop the incoming task.
                         // Preserves ordering and avoids producer/consumer deadlocks.
                         m_dropped_tasks.fetch_add(1, std::memory_order_relaxed);
+                        complete_task_();
                         done = true;
                         break;
     
@@ -279,12 +288,19 @@ namespace logit { namespace detail {
                         m_stop_flag.load(std::memory_order_acquire));
             });
 #        else
-            std::unique_lock<std::mutex> lock(m_queue_mutex);
-            m_queue_condition.wait(lock, [this]() {
-                return ((queue_empty_() &&
-                        m_active_tasks.load(std::memory_order_relaxed) == 0) ||
-                        m_stop_flag.load(std::memory_order_acquire));
-            });
+            std::unique_lock<std::mutex> completion_lock(m_completion_wait_mutex);
+            for (;;) {
+                const auto target = m_submitted_tasks.load(std::memory_order_acquire);
+                m_completion_cv.wait(completion_lock, [this, target]() {
+                    return m_completed_tasks >= target ||
+                           m_stop_flag.load(std::memory_order_acquire);
+                });
+                if (m_stop_flag.load(std::memory_order_acquire) ||
+                    m_completed_tasks >=
+                        m_submitted_tasks.load(std::memory_order_acquire)) {
+                    break;
+                }
+            }
 #        endif
         }
     
@@ -306,6 +322,7 @@ namespace logit { namespace detail {
             }
             m_cv.notify_all();
             m_queue_condition.notify_all();
+            m_completion_cv.notify_all();
             if (m_worker_thread.joinable()) {
                 m_worker_thread.join();
             }
@@ -413,6 +430,11 @@ namespace logit { namespace detail {
         std::condition_variable m_cv;              ///< Wakes the worker or producers.
         std::mutex m_cv_mutex;                     ///< Protects producer/worker sleeps.
 
+        std::mutex m_completion_wait_mutex;       ///< Serializes completion waiters.
+        std::condition_variable m_completion_cv;   ///< Notifies completion waiters.
+        std::atomic<std::size_t> m_submitted_tasks; ///< Reserved submission tickets.
+        std::size_t m_completed_tasks;             ///< Completed submission tickets.
+
         std::atomic<bool> m_resizing;              ///< true while a hot resize is in flight.
         std::condition_variable m_resize_cv;       ///< Producers wait here during a resize.
         std::atomic<std::size_t> m_active_producers; ///< Producers currently touching the ring.
@@ -473,6 +495,8 @@ namespace logit { namespace detail {
                     drained_any = true;
     
                     task();
+
+                    complete_task_();
     
                     m_active_tasks.fetch_sub(1, std::memory_order_relaxed);
                     m_cv.notify_one(); // freed an in-flight slot
@@ -504,12 +528,33 @@ namespace logit { namespace detail {
         }
 
         bool wait_until_idle_(std::chrono::steady_clock::time_point deadline) {
-            std::unique_lock<std::mutex> lock(m_queue_mutex);
-            return m_queue_condition.wait_until(lock, deadline, [this]() {
-                return ((queue_empty_() &&
-                         m_active_tasks.load(std::memory_order_relaxed) == 0) ||
-                        m_stop_flag.load(std::memory_order_acquire));
-            });
+            std::unique_lock<std::mutex> lock(m_completion_wait_mutex);
+            for (;;) {
+                const auto target = m_submitted_tasks.load(std::memory_order_acquire);
+                if (m_completed_tasks < target &&
+                    !m_completion_cv.wait_until(lock, deadline, [this, target]() {
+                        return m_completed_tasks >= target ||
+                               m_stop_flag.load(std::memory_order_acquire);
+                    })) {
+                    return false;
+                }
+                if (m_stop_flag.load(std::memory_order_acquire) ||
+                    m_completed_tasks >=
+                        m_submitted_tasks.load(std::memory_order_acquire)) {
+                    return true;
+                }
+                if (std::chrono::steady_clock::now() >= deadline) {
+                    return false;
+                }
+            }
+        }
+
+        void complete_task_() {
+            {
+                std::lock_guard<std::mutex> lock(m_completion_wait_mutex);
+                ++m_completed_tasks;
+            }
+            m_completion_cv.notify_all();
         }
 
         void enter_producer_() {
@@ -561,6 +606,8 @@ namespace logit { namespace detail {
               m_overflow_policy(QueuePolicy::Block),
               m_dropped_tasks(0),
               m_active_tasks(0),
+              m_submitted_tasks(0),
+              m_completed_tasks(0),
               m_mpsc_queue(m_default_ring_cap)
     #endif
         {
