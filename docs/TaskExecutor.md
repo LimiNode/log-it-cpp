@@ -86,7 +86,8 @@ application.
 1. `m_resizing` is set to `true` with release semantics.
 2. Producers that already entered `add_task()` are allowed to finish or the
    resize is abandoned after the bounded resize deadline.
-3. `wait()` drains the queue and ensures `m_active_tasks == 0`.
+3. The completion frontier waits until all submissions accepted before the
+   resize barrier have completed or been rejected.
 4. The worker is stopped by setting `m_stop_flag`, notifying sleepers, and
    joining the thread so it no longer touches `m_mpsc_queue`.
 5. In a single thread the ring is rebuilt with the new capacity. The resize
