@@ -24,7 +24,7 @@ inline void validate_latency_csv_header(std::string header) {
     }
     if (header != latency_csv_header()) {
         throw std::runtime_error(
-            "Unsupported bench/results/latency.csv schema; rename or remove "
+            "Unsupported benchmark CSV schema; rename or remove "
             "the existing file before running this benchmark");
     }
 }

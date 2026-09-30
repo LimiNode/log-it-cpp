@@ -27,6 +27,7 @@ struct BenchmarkMetadata {
     std::string queue_policy;
     std::string latency_completion;
     std::string flush_barrier;
+    std::string workload_contract;
 };
 
 inline std::string benchmark_env(const char* name, const char* fallback) {
@@ -138,7 +139,8 @@ inline BenchmarkMetadata make_benchmark_metadata(
         std::string queue_capacity,
         std::string queue_policy,
         std::string latency_completion,
-        std::string flush_barrier) {
+        std::string flush_barrier,
+        std::string workload_contract) {
     const std::string compiler = benchmark_compiler();
     const std::string compiler_version = benchmark_compiler_version();
     std::string toolchain = compiler + "-" + compiler_version;
@@ -157,7 +159,8 @@ inline BenchmarkMetadata make_benchmark_metadata(
         std::move(queue_capacity),
         std::move(queue_policy),
         std::move(latency_completion),
-        std::move(flush_barrier)};
+        std::move(flush_barrier),
+        std::move(workload_contract)};
 }
 
 inline bool benchmark_value_unknown(const std::string& value) {
@@ -187,7 +190,8 @@ inline void validate_comparable_metadata(const BenchmarkMetadata& metadata,
         {"queue_capacity", &metadata.queue_capacity, true},
         {"queue_policy", &metadata.queue_policy, true},
         {"latency_completion", &metadata.latency_completion, false},
-        {"flush_barrier", &metadata.flush_barrier, false}};
+        {"flush_barrier", &metadata.flush_barrier, false},
+        {"workload_contract", &metadata.workload_contract, false}};
 
     for (const auto& value : values) {
         if (benchmark_value_unknown(*value.value) ||
@@ -210,7 +214,7 @@ inline void print_benchmark_metadata(std::ostream& out,
                                      const BenchmarkMetadata& metadata,
                                      std::size_t total_messages,
                                      std::size_t warmup_messages) {
-    out << "benchmark-fixture version=1"
+    out << "benchmark-fixture version=2"
         << " source_commit=" << metadata.source_commit
         << " compiler=" << metadata.compiler
         << " compiler_version=" << metadata.compiler_version
@@ -225,6 +229,7 @@ inline void print_benchmark_metadata(std::ostream& out,
         << " queue_policy=" << metadata.queue_policy
         << " latency_completion=" << metadata.latency_completion
         << " flush_barrier=" << metadata.flush_barrier
+        << " workload_contract=" << metadata.workload_contract
         << " total=" << total_messages
         << " warmup=" << warmup_messages << '\n';
 }

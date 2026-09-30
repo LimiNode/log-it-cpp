@@ -1167,6 +1167,12 @@ Run `./build/bench/logit_bench` to record the full matrix (sync/async × null/fi
 are appended to `bench/results/latency.csv` with one row per library/combination. Override the workload via `LOGIT_BENCH_TOTAL`
 and `LOGIT_BENCH_WARMUP` environment variables if you need a lighter run.
 
+For a payload-matched async/null comparison with spdlog, build and run
+`logit_bench_async_contract`; it carries the full message through the LogIt++
+worker queue and writes by default to `bench/results/latency-async-contract.csv`
+(or to the path selected by `LOGIT_BENCH_OUTPUT`). Do not combine those rows
+with the default marker-only async/null workload.
+
 ### What this benchmark measures
 
 See the canonical [benchmark guide](docs/benchmarks.md) for the measurement

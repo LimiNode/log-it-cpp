@@ -1,6 +1,7 @@
 #include <array>
 #include <algorithm>
 #include <atomic>
+#include <cctype>
 #include <chrono>
 #include <condition_variable>
 #include <cstdint>
@@ -35,6 +36,16 @@ namespace {
 std::atomic<std::uint64_t>* g_watchdog_progress = nullptr;
 constexpr std::size_t k_watchdog_stride = 256;
 
+#if defined(LOGIT_BENCH_CONTRACT_MATCHED_ASYNC)
+constexpr AsyncPayloadMode kAsyncPayloadMode = AsyncPayloadMode::FullMessage;
+constexpr const char* kWorkloadContract =
+    "prepared-message/async-full-message";
+#else
+constexpr AsyncPayloadMode kAsyncPayloadMode = AsyncPayloadMode::MarkerOnly;
+constexpr const char* kWorkloadContract =
+    "prepared-message/direct-dispatch";
+#endif
+
 std::string make_message(std::size_t bytes, std::size_t index) {
     if (bytes == 0) return {};
     const char fill = static_cast<char>('A' + static_cast<int>(index % 26));
@@ -50,6 +61,17 @@ std::size_t get_env_size_t(const char* name, std::size_t def) {
         }
     }
     return def;
+}
+
+std::filesystem::path benchmark_output_path() {
+    if (const char* value = std::getenv("LOGIT_BENCH_OUTPUT")) {
+        if (*value != '\0') return value;
+    }
+#if defined(LOGIT_BENCH_CONTRACT_MATCHED_ASYNC)
+    return "bench/results/latency-async-contract.csv";
+#else
+    return "bench/results/latency.csv";
+#endif
 }
 
 struct BenchFilter {
@@ -300,15 +322,17 @@ ScenarioResult execute_scenario(
 }
 
 void append_csv(
+        const std::filesystem::path& csv_path,
         const std::string& library,
         const Scenario& scenario,
         const LatencyRecorder::Summary& summary,
         double throughput)
 {
     namespace fs = std::filesystem;
-    const fs::path csv_path{"bench/results/latency.csv"};
     const std::string expected_header = latency_csv_header();
-    fs::create_directories(csv_path.parent_path());
+    if (!csv_path.parent_path().empty()) {
+        fs::create_directories(csv_path.parent_path());
+    }
 
     const bool write_header = !fs::exists(csv_path) || fs::file_size(csv_path) == 0;
 
@@ -316,13 +340,17 @@ void append_csv(
         std::ifstream in(csv_path);
         std::string header;
         if (!in || !std::getline(in, header)) {
-            throw std::runtime_error("Failed to read latency.csv schema header");
+            throw std::runtime_error(
+                "Failed to read benchmark CSV schema header");
         }
         validate_latency_csv_header(header);
     }
 
     std::ofstream out(csv_path, std::ios::app);
-    if (!out) throw std::runtime_error("Failed to open latency.csv for writing");
+    if (!out) {
+        throw std::runtime_error(
+            "Failed to open benchmark CSV for writing");
+    }
 
     if (write_header) {
         out << expected_header << '\n';
@@ -392,6 +420,7 @@ int main() {
             "LOGIT_BENCH_QUEUE_CAPACITY",
             std::max<std::size_t>(8192, total_messages * 2));
         validate_queue_capacity(queue_capacity);
+        const auto csv_path = benchmark_output_path();
 
         const BenchFilter filter = load_filter();
 
@@ -399,7 +428,8 @@ int main() {
             std::to_string(queue_capacity),
             "block",
             "sink-entry",
-            "all-prior-work-drained");
+            "all-prior-work-drained",
+            kWorkloadContract);
         validate_comparable_metadata(metadata);
         print_benchmark_metadata(std::cout, metadata, total_messages, warmup_messages);
 
@@ -435,6 +465,7 @@ int main() {
                             Scenario scenario;
                             scenario.async          = async_mode;
                             scenario.sink           = sink;
+                            scenario.async_payload  = kAsyncPayloadMode;
                             scenario.producers      = producers;
                             scenario.message_bytes  = msg_bytes;
                             scenario.total_messages = total_messages;
@@ -457,7 +488,8 @@ int main() {
                             }
 
                             auto result = execute_scenario(*adapter, scenario, warmup_messages);
-                            append_csv(adapter->library_name(), scenario, result.summary, result.throughput);
+                            append_csv(csv_path, adapter->library_name(), scenario,
+                                       result.summary, result.throughput);
                             print_summary(adapter->library_name(), scenario, result);
                         }
                     }

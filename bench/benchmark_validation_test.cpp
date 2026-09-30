@@ -29,7 +29,8 @@ int main() {
     validate_latency_csv_header(latency_csv_header());
 
     const auto comparable = make_benchmark_metadata(
-        "8192", "block", "sink-entry", "all-prior-work-drained");
+        "8192", "block", "sink-entry", "all-prior-work-drained",
+        "test/workload");
     auto complete = comparable;
     complete.source_commit = "test-commit";
     complete.compiler = "test-compiler";

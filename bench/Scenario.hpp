@@ -10,6 +10,11 @@ enum class SinkKind {
     File,
 };
 
+enum class AsyncPayloadMode {
+    MarkerOnly,
+    FullMessage,
+};
+
 inline std::string sink_name(SinkKind sink) {
     switch (sink) {
         case SinkKind::Null: return "null";
@@ -21,6 +26,7 @@ inline std::string sink_name(SinkKind sink) {
 struct Scenario {
     bool        async          = false;
     SinkKind    sink           = SinkKind::Null;
+    AsyncPayloadMode async_payload = AsyncPayloadMode::MarkerOnly;
     std::size_t producers      = 1;
     std::size_t message_bytes  = 0;
     std::size_t total_messages = 0;
