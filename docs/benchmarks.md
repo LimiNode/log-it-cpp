@@ -12,6 +12,14 @@ cmake --build build --target logit_bench
 ./build/bench/logit_bench
 ```
 
+For a contract-matched asynchronous null-sink comparison, build
+`logit_bench_async_contract` and run it with
+an explicit producer count and message size when comparing the two libraries.
+This target is structurally limited to `async=1`, `sink=null` and defaults to the separate
+`bench/results/latency-async-contract.csv` output; `LOGIT_BENCH_OUTPUT` can
+select another path when needed. In this target LogIt++ carries the full
+message through its async queue, matching spdlog's async payload contract.
+
 The harness records latency from the logging call until the adapter enters its
 sink callback, together with aggregate throughput. This is a **sink-entry
 latency** metric: for the file scenario the marker is recorded before the
@@ -19,7 +27,9 @@ latency** metric: for the file scenario the marker is recorded before the
 It compares synchronous and asynchronous modes, null and file sinks, producer
 counts, and message sizes.
 Results are appended to `bench/results/latency.csv`; workload size can be
-reduced with `LOGIT_BENCH_TOTAL` and `LOGIT_BENCH_WARMUP`.
+reduced with `LOGIT_BENCH_TOTAL` and `LOGIT_BENCH_WARMUP`. Set
+`LOGIT_BENCH_OUTPUT` to keep a separate workload contract from being appended
+to an existing CSV.
 
 ## Interpreting results
 
@@ -37,6 +47,11 @@ are not a universal speed ranking.
 The asynchronous measurement includes enqueue, worker wake-up/scheduling, and
 sink time. Results are sensitive to queue capacity, overflow policy, worker
 count, filesystem cache state, compiler, operating system, and hardware.
+The default LogIt++ async/null adapter transports only a slot marker because
+the null sink does not consume the message. That path is intentionally not a
+cross-library payload-cost comparison: spdlog transports the message through
+its async queue. Use `logit_bench_async_contract` for a matched full-message
+async contract.
 
 ## Historical snapshot
 
@@ -77,14 +92,31 @@ sink callback. A queue capacity of `0` is rejected because it would mean an
 unlimited LogIt++ queue but a bounded spdlog queue and invalidate the
 comparison.
 
-The current CSV schema includes `queue_capacity`. Before appending, the harness
-validates the existing `bench/results/latency.csv` header and fails with a
-rename/remove instruction when it finds an older schema. Existing result files
-are never silently rewritten or mixed with rows from a different schema.
+The current CSV schema includes `queue_capacity` and `workload_contract`.
+Before appending, the harness validates the selected output CSV header and
+fails with a rename/remove instruction when it finds an older schema. Existing
+result files are never silently rewritten or mixed with rows from a different
+schema. Each CSV row retains its comparison provenance.
 
-The prepared-message/direct-dispatch pipeline and a true public macro benchmark that
-calls `LOGIT_INFO(...)` are separate scenarios with different work contracts;
-their results must not be presented as one number.
+The prepared-message/direct-dispatch pipeline, the matched full-message async
+target, and a true public macro benchmark that calls `LOGIT_INFO(...)` are
+separate scenarios with different work contracts; their results must not be
+presented as one number.
+
+`logit_bench_async_contract` uses workload contract
+`prepared-message/async-full-message`. For async/null it copies the same
+message payload into the LogIt++ worker task that spdlog carries in its async
+queue. Its CSV uses a separate output path (the default is
+`bench/results/latency-async-contract.csv`, overridable with
+`LOGIT_BENCH_OUTPUT`) and should be compared only with runs carrying the same
+workload contract. This matches the queued payload contract, not every
+instruction or allocation performed by the two libraries; LogIt++ still builds
+and dispatches its `LogRecord` before the sink task is queued.
+
+`logit_bench_async_payload_contract_test` is a functional regression test, not
+a performance measurement. It configures the matched null-sink path with a
+200-byte payload and verifies the exact payload observed by the worker-side
+sink callback.
 
 `logit_exec_mx_bench` and `logit_exec_mx_bench_concurrent` are a guarded
 lock-elision experiment. They use the same prepared `LogRecord` and a small
@@ -113,12 +145,12 @@ experiments on identical hardware. Both targets print the same fixture metadata
 line as `logit_bench`, using `not-applicable` for queue settings and explicit
 `backend-count` / `logger-wait` completion semantics.
 
-The checked-in [`benchmark-fixture-v1.json`](https://github.com/LimiNode/log-it-cpp/blob/main/bench/results/benchmark-fixture-v1.json)
+The checked-in [`benchmark-fixture-v2.json`](https://github.com/LimiNode/log-it-cpp/blob/main/bench/results/benchmark-fixture-v2.json)
 defines the required metadata and workload contract. All publication-capable
 benchmark binaries print a versioned `benchmark-fixture` metadata line for
 each run, including source commit, compiler/version, toolchain, C++ standard,
 platform, build type, architecture, machine identity, CPU model, queue
-settings, latency completion, and flush barrier. The commit defaults to
+settings, latency completion, flush barrier, and workload contract. The commit defaults to
 `LOGIT_BENCH_COMMIT` or `GITHUB_SHA`; machine identity and CPU model can be
 provided through `LOGIT_BENCH_MACHINE_ID` and `LOGIT_BENCH_CPU_MODEL`.
 For a comparable/publication run, set `LOGIT_BENCH_REQUIRE_COMPARABLE=1` and
@@ -128,7 +160,8 @@ provide all required metadata; public-macro runs may explicitly use
 that must match between runs: `source_commit` is required provenance and is
 expected to differ in before/after comparisons, while the fields listed in
 `metadata_must_match` (compiler, toolchain, platform, build, hardware, queue,
-and completion semantics) must be identical. `LOGIT_BENCH_REQUIRE_COMPARABLE=1`
+completion semantics, and workload contract) must be identical.
+`LOGIT_BENCH_REQUIRE_COMPARABLE=1`
 checks metadata completeness and known values; it does not enforce the
 canonical fixture workload values such as total messages, warmup, or producer
 matrix.

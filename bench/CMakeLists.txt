@@ -26,6 +26,23 @@ endforeach()
 
 target_link_libraries(logit_bench PRIVATE log-it-cpp::log-it-cpp)
 
+add_executable(logit_bench_async_contract ${LOGIT_BENCH_SOURCES})
+target_include_directories(logit_bench_async_contract PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_definitions(logit_bench_async_contract PRIVATE
+    LOGIT_BENCH_BUILD_TYPE="$<CONFIG>"
+    LOGIT_BENCH_CONTRACT_MATCHED_ASYNC=1
+)
+target_compile_features(logit_bench_async_contract PRIVATE cxx_std_17)
+set_target_properties(logit_bench_async_contract PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+foreach(config IN ITEMS DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
+    set_target_properties(logit_bench_async_contract PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_${config} ${CMAKE_BINARY_DIR}
+    )
+endforeach()
+target_link_libraries(logit_bench_async_contract PRIVATE log-it-cpp::log-it-cpp)
+
 add_executable(logit_public_macro_bench public_macro_bench.cpp)
 target_compile_features(logit_public_macro_bench PRIVATE cxx_std_17)
 target_compile_definitions(logit_public_macro_bench PRIVATE LOGIT_BENCH_BUILD_TYPE=\"$<CONFIG>\")
@@ -72,8 +89,27 @@ target_compile_features(benchmark_validation_test PRIVATE cxx_std_17)
 set_target_properties(benchmark_validation_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 add_test(NAME benchmark_validation_test COMMAND benchmark_validation_test)
 
+add_executable(logit_bench_async_payload_contract_test
+    async_payload_contract_test.cpp
+    adapters/LogItAdapter.cpp
+)
+target_include_directories(logit_bench_async_payload_contract_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_features(logit_bench_async_payload_contract_test PRIVATE cxx_std_17)
+target_link_libraries(logit_bench_async_payload_contract_test PRIVATE log-it-cpp::log-it-cpp)
+set_target_properties(logit_bench_async_payload_contract_test PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+foreach(config IN ITEMS DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
+    set_target_properties(logit_bench_async_payload_contract_test PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_${config} ${CMAKE_BINARY_DIR}
+    )
+endforeach()
+add_test(NAME logit_bench_async_payload_contract_test
+         COMMAND logit_bench_async_payload_contract_test)
+
 if(LOGIT_BENCH_WITH_SPDLOG)
     target_compile_definitions(logit_bench PRIVATE LOGIT_BENCH_HAVE_SPDLOG=1)
+    target_compile_definitions(logit_bench_async_contract PRIVATE LOGIT_BENCH_HAVE_SPDLOG=1)
     if(NOT TARGET spdlog::spdlog)
         include(FetchContent)
         FetchContent_Declare(spdlog
@@ -83,6 +119,7 @@ if(LOGIT_BENCH_WITH_SPDLOG)
         FetchContent_MakeAvailable(spdlog)
     endif()
     target_link_libraries(logit_bench PRIVATE spdlog::spdlog)
+    target_link_libraries(logit_bench_async_contract PRIVATE spdlog::spdlog)
 
     add_executable(logit_bench_flush_test
         spdlog_flush_test.cpp

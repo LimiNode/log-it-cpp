@@ -15,7 +15,7 @@ inline void validate_queue_capacity(std::size_t capacity) {
 
 inline const char* latency_csv_header() {
     return "lib,async,sink,producers,msg_bytes,total,queue_capacity,"
-           "p50_ns,p99_ns,p999_ns,throughput";
+           "workload_contract,p50_ns,p99_ns,p999_ns,throughput";
 }
 
 inline void validate_latency_csv_header(std::string header) {
@@ -24,7 +24,7 @@ inline void validate_latency_csv_header(std::string header) {
     }
     if (header != latency_csv_header()) {
         throw std::runtime_error(
-            "Unsupported bench/results/latency.csv schema; rename or remove "
+            "Unsupported benchmark CSV schema; rename or remove "
             "the existing file before running this benchmark");
     }
 }

@@ -121,7 +121,8 @@ int main() {
         "not-applicable",
         "not-applicable",
         "backend-count",
-        "logger-wait");
+        "logger-wait",
+        std::string("public-macro/") + benchmark_mode());
     logit_bench::validate_comparable_metadata(metadata);
     logit_bench::print_benchmark_metadata(std::cout, metadata, total, warmup);
 

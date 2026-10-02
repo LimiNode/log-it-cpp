@@ -25,11 +25,22 @@ int main() {
     }
     if (!rejected_legacy_schema) return 2;
 
+    bool rejected_pre_contract_schema = false;
+    try {
+        validate_latency_csv_header(
+            "lib,async,sink,producers,msg_bytes,total,queue_capacity,"
+            "p50_ns,p99_ns,p999_ns,throughput");
+    } catch (const std::runtime_error&) {
+        rejected_pre_contract_schema = true;
+    }
+    if (!rejected_pre_contract_schema) return 3;
+
     validate_latency_csv_header(std::string(latency_csv_header()) + "\r");
     validate_latency_csv_header(latency_csv_header());
 
     const auto comparable = make_benchmark_metadata(
-        "8192", "block", "sink-entry", "all-prior-work-drained");
+        "8192", "block", "sink-entry", "all-prior-work-drained",
+        "test/workload");
     auto complete = comparable;
     complete.source_commit = "test-commit";
     complete.compiler = "test-compiler";
@@ -51,7 +62,7 @@ int main() {
     } catch (const std::runtime_error&) {
         rejected_unknown_metadata = true;
     }
-    if (!rejected_unknown_metadata) return 3;
+    if (!rejected_unknown_metadata) return 4;
 
     return 0;
 }

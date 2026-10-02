@@ -30,6 +30,12 @@ measurements, while the fields listed in `metadata_must_match` must match. The
 values; it does not enforce the canonical fixture workload unless a separate
 workload-validation mode is requested.
 
+Asynchronous payload handling is part of the workload contract. The default
+prepared-message benchmark keeps the LogIt++ null-sink marker-only path as a
+separate diagnostic scenario. Cross-library async/null payload comparisons use
+the dedicated matched target, which carries the full message through both
+queues and writes to a separate result CSV.
+
 ## Consequences
 
 Benchmark documentation remains comparable and honest across changes. New
