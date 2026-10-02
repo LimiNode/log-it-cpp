@@ -109,7 +109,9 @@ message payload into the LogIt++ worker task that spdlog carries in its async
 queue. Its CSV uses a separate output path (the default is
 `bench/results/latency-async-contract.csv`, overridable with
 `LOGIT_BENCH_OUTPUT`) and should be compared only with runs carrying the same
-workload contract.
+workload contract. This matches the queued payload contract, not every
+instruction or allocation performed by the two libraries; LogIt++ still builds
+and dispatches its `LogRecord` before the sink task is queued.
 
 `logit_bench_async_payload_contract_test` is a functional regression test, not
 a performance measurement. It configures the matched null-sink path with a
