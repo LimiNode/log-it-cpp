@@ -961,6 +961,15 @@ CSV `bench/results/latency-async-contract.csv` (или в путь из
 
 Детали `LatencyRecorder` собраны в [`docs/benchmarks.md`](docs/benchmarks.md).
 
+Для отдельного исследовательского прогона async pipeline используйте target
+`logit_bench_pipeline_research` при включённых `LOGIT_BENCH_ENABLE=ON` и
+`LOGIT_BENCH_WITH_SPDLOG=ON`. Он сохраняет индивидуальные CSV/JSONL receipts
+и aggregate CSV; подробные параметры запуска и определения метрик описаны в
+[`docs/benchmarks.md`](docs/benchmarks.md). Режим
+`LOGIT_BENCH_RESEARCH_MODE=rate` добавляет одинаковую для обеих библиотек
+управляемую offered load. Эти результаты являются исследованием admission,
+backpressure и backlog, а не универсальным рейтингом скорости библиотек.
+
 
 ## Матрица бэкендов
 

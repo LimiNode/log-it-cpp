@@ -34,6 +34,7 @@ namespace logit_bench {
         void configure(const Scenario& scenario, std::shared_ptr<LatencyRecorder> recorder) {
             m_sink = scenario.sink;
             m_recorder = std::move(recorder);
+            m_telemetry = scenario.telemetry;
             m_delay_ms = 0;
             if (const char* delay = std::getenv("LOGIT_BENCH_SPDLOG_SINK_DELAY_MS")) {
                 try {
@@ -64,6 +65,9 @@ namespace logit_bench {
             const int line = msg.source.line;
             if (line >= 0 && m_recorder) {
                 m_recorder->complete_slot(static_cast<std::uint64_t>(line));
+            }
+            if (m_telemetry) {
+                m_telemetry->on_sink_entry();
             }
     
             if (m_sink == SinkKind::File) {
@@ -106,6 +110,7 @@ namespace logit_bench {
 
         SinkKind m_sink = SinkKind::Null;
         std::shared_ptr<LatencyRecorder> m_recorder;
+        std::shared_ptr<BenchmarkTelemetry> m_telemetry;
         std::size_t m_delay_ms = 0;
 
         std::ofstream m_file;

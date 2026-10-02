@@ -138,4 +138,26 @@ if(LOGIT_BENCH_WITH_SPDLOG)
         )
     endforeach()
     add_test(NAME logit_bench_flush_test COMMAND logit_bench_flush_test)
+
+    add_executable(logit_bench_pipeline_research
+        pipeline_research.cpp
+        adapters/LogItAdapter.cpp
+        adapters/SpdlogAdapter.cpp
+    )
+    target_include_directories(logit_bench_pipeline_research PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    target_compile_definitions(logit_bench_pipeline_research PRIVATE
+        LOGIT_BENCH_HAVE_SPDLOG=1
+        LOGIT_BENCH_CONTRACT_MATCHED_ASYNC=1
+        LOGIT_BENCH_PIPELINE_RESEARCH=1
+        LOGIT_BENCH_BUILD_TYPE="$<CONFIG>"
+    )
+    target_compile_features(logit_bench_pipeline_research PRIVATE cxx_std_17)
+    target_link_libraries(logit_bench_pipeline_research PRIVATE
+        log-it-cpp::log-it-cpp spdlog::spdlog)
+    set_target_properties(logit_bench_pipeline_research PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+    foreach(config IN ITEMS DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
+        set_target_properties(logit_bench_pipeline_research PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY_${config} ${CMAKE_BINARY_DIR})
+    endforeach()
 endif()

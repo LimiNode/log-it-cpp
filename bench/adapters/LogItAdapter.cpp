@@ -40,6 +40,7 @@ namespace logit_bench {
             m_sink = scenario.sink;
             m_async_payload = scenario.async_payload;
             m_async_payload_observer = scenario.async_payload_observer;
+            m_telemetry = scenario.telemetry;
             m_recorder = &recorder;
     
             if (m_sink == SinkKind::File) {
@@ -134,6 +135,9 @@ namespace logit_bench {
             if (slot_line >= 0 && m_recorder) {
                 m_recorder->complete_slot(static_cast<std::uint64_t>(slot_line));
             }
+            if (m_telemetry) {
+                m_telemetry->on_sink_entry();
+            }
 
             if (m_async_payload_observer) {
                 m_async_payload_observer(text);
@@ -156,6 +160,7 @@ namespace logit_bench {
         SinkKind m_sink = SinkKind::Null;
         AsyncPayloadMode m_async_payload = AsyncPayloadMode::MarkerOnly;
         std::function<void(std::string_view)> m_async_payload_observer;
+        std::shared_ptr<BenchmarkTelemetry> m_telemetry;
         LatencyRecorder* m_recorder = nullptr;
     
         std::ofstream m_file;
