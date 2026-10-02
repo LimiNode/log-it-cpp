@@ -105,8 +105,15 @@ presented as one number.
 `logit_bench_async_contract` uses workload contract
 `prepared-message/async-full-message`. For async/null it copies the same
 message payload into the LogIt++ worker task that spdlog carries in its async
-queue. Its CSV should be written to a separate `LOGIT_BENCH_OUTPUT` path and
-compared only with runs carrying the same workload contract.
+queue. Its CSV uses a separate output path (the default is
+`bench/results/latency-async-contract.csv`, overridable with
+`LOGIT_BENCH_OUTPUT`) and should be compared only with runs carrying the same
+workload contract.
+
+`logit_bench_async_payload_contract_test` is a functional regression test, not
+a performance measurement. It configures the matched null-sink path with a
+200-byte payload and verifies the exact payload observed by the worker-side
+sink callback.
 
 `logit_exec_mx_bench` and `logit_exec_mx_bench_concurrent` are a guarded
 lock-elision experiment. They use the same prepared `LogRecord` and a small

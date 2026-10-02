@@ -1,7 +1,9 @@
 #pragma once
 
 #include <cstddef>
+#include <functional>
 #include <string>
+#include <string_view>
 
 namespace logit_bench {
 
@@ -27,6 +29,7 @@ struct Scenario {
     bool        async          = false;
     SinkKind    sink           = SinkKind::Null;
     AsyncPayloadMode async_payload = AsyncPayloadMode::MarkerOnly;
+    std::function<void(std::string_view)> async_payload_observer;
     std::size_t producers      = 1;
     std::size_t message_bytes  = 0;
     std::size_t total_messages = 0;
