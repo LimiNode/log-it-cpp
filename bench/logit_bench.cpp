@@ -409,8 +409,13 @@ int main() {
 #endif
 
         // Matrix
+#if defined(LOGIT_BENCH_CONTRACT_MATCHED_ASYNC)
+        const std::array<bool, 1> async_modes{true};
+        const std::array<SinkKind, 1> sinks{SinkKind::Null};
+#else
         const std::array<bool, 2> async_modes{false, true};
         const std::array<SinkKind, 2> sinks{SinkKind::Null, SinkKind::File};
+#endif
         const std::array<std::size_t, 4> producer_counts{1, 4, 16, 32};
         const std::array<std::size_t, 3> message_sizes{40, 200, 1024};
 

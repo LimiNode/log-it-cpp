@@ -1171,7 +1171,8 @@ For a payload-matched async/null comparison with spdlog, build and run
 `logit_bench_async_contract`; it carries the full message through the LogIt++
 worker queue and writes by default to `bench/results/latency-async-contract.csv`
 (or to the path selected by `LOGIT_BENCH_OUTPUT`). Do not combine those rows
-with the default marker-only async/null workload.
+with the default marker-only async/null workload. The target itself runs only
+the `async=1`, `sink=null` scenario.
 
 ### What this benchmark measures
 

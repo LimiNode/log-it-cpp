@@ -14,8 +14,8 @@ cmake --build build --target logit_bench
 
 For a contract-matched asynchronous null-sink comparison, build
 `logit_bench_async_contract` and run it with
-`async=1`, `sink=null`, and an explicit message size when comparing the two
-libraries. This target defaults to the separate
+an explicit producer count and message size when comparing the two libraries.
+This target is structurally limited to `async=1`, `sink=null` and defaults to the separate
 `bench/results/latency-async-contract.csv` output; `LOGIT_BENCH_OUTPUT` can
 select another path when needed. In this target LogIt++ carries the full
 message through its async queue, matching spdlog's async payload contract.
