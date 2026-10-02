@@ -92,10 +92,11 @@ sink callback. A queue capacity of `0` is rejected because it would mean an
 unlimited LogIt++ queue but a bounded spdlog queue and invalidate the
 comparison.
 
-The current CSV schema includes `queue_capacity`. Before appending, the harness
-validates the selected output CSV header and fails with a rename/remove
-instruction when it finds an older schema. Existing result files are never
-silently rewritten or mixed with rows from a different schema.
+The current CSV schema includes `queue_capacity` and `workload_contract`.
+Before appending, the harness validates the selected output CSV header and
+fails with a rename/remove instruction when it finds an older schema. Existing
+result files are never silently rewritten or mixed with rows from a different
+schema. Each CSV row retains its comparison provenance.
 
 The prepared-message/direct-dispatch pipeline, the matched full-message async
 target, and a true public macro benchmark that calls `LOGIT_INFO(...)` are

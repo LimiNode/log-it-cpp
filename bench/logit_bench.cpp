@@ -325,6 +325,7 @@ void append_csv(
         const std::filesystem::path& csv_path,
         const std::string& library,
         const Scenario& scenario,
+        const BenchmarkMetadata& metadata,
         const LatencyRecorder::Summary& summary,
         double throughput)
 {
@@ -362,6 +363,7 @@ void append_csv(
         << scenario.message_bytes << ','
         << scenario.total_messages << ','
         << scenario.queue_capacity << ','
+        << metadata.workload_contract << ','
         << summary.p50_ns << ','
         << summary.p99_ns << ','
         << summary.p999_ns << ','
@@ -488,7 +490,7 @@ int main() {
                             }
 
                             auto result = execute_scenario(*adapter, scenario, warmup_messages);
-                            append_csv(csv_path, adapter->library_name(), scenario,
+                            append_csv(csv_path, adapter->library_name(), scenario, metadata,
                                        result.summary, result.throughput);
                             print_summary(adapter->library_name(), scenario, result);
                         }
