@@ -971,7 +971,9 @@ CSV `bench/results/latency-async-contract.csv` (или в путь из
 submission rate и schedule lag; finite producer threads могут отставать от
 target из-за blocking admission. Эти результаты являются исследованием
 admission, backpressure и benchmark outstanding, а не прямым измерением
-внутренней очереди или универсальным рейтингом скорости библиотек.
+внутренней очереди или универсальным рейтингом скорости библиотек. Sink
+latency в этом target — отдельная instrumented metric: она использует общий
+call-start timestamp, но включает небольшой overhead reservation/telemetry.
 
 
 ## Матрица бэкендов

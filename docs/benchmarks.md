@@ -152,11 +152,14 @@ both benchmark-outstanding summaries.
 
 The metrics are deliberately library-neutral. `producer_p50/p99/p999_ns`
 measure only the `adapter.log()` call; rate limiting is outside that timed
-region. Both producer and sink recorders use the same call-start timestamp, so
-the existing enqueue-to-sink-entry definition is not shifted by research
-instrumentation. `producer_phase_ns` runs from the shared producer release
-barrier to the last producer return, `sink_p50/p99/p999_ns` is the unchanged
-sink-entry metric, `drain_tail_ns` runs from the last producer return to the
+region. Both producer and sink recorders use the same benchmark call-start
+timestamp. This gives the two metrics a common origin, but the research
+measurement still includes the small recorder reservation and telemetry
+overhead between that timestamp and entering `adapter.log()`. Therefore
+`sink_p50/p99/p999_ns` is an **instrumented sink-entry metric** and must not be
+compared as an identical absolute quantity with older matched-benchmark runs.
+`producer_phase_ns` runs from the shared producer release barrier to the last
+producer return, `drain_tail_ns` runs from the last producer return to the
 final sink entry, and `total_wall_ns` ends after the drain barrier.
 `throughput` is measured messages/second over that total interval.
 
