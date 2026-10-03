@@ -247,6 +247,41 @@ custom formatters and backends are not assumed to be safe for concurrent
 invocation. Any future lock-elision experiment must advertise and test an
 explicit concurrency contract rather than infer one from a benchmark sink.
 
+## Producer path profiling
+
+`logit_producer_profile` is a benchmark-only decomposition of the prepared
+LogIt++ producer path. It does not change library code and does not compare
+against another logging library. The cases are intentionally cumulative:
+
+- `string_copy_only` measures copying the prepared 200-byte payload;
+- `logrecord_construct` measures construction of the same `LogRecord` shape
+  used by `LogItAdapter`;
+- `logger_log_sync_null` measures dispatch of a prepared record to a synchronous
+  counting sink;
+- `taskexecutor_enqueue_noop` measures direct MPSC task admission with a no-op
+  completion task;
+- `logger_log_async_full_prepared` measures prepared-record dispatch plus full
+  message task admission;
+- `prepared_record_plus_logger_async_full` adds per-call `LogRecord`
+  construction to the previous asynchronous path.
+
+The reported `ns_per_call` values are medians over independent repeats. Async
+cases time only the producer loop; their drain barrier runs after the timed
+region and verifies that every task was consumed. These are attribution probes,
+not intrinsic latency claims: cases differ in allocation and ownership work,
+and the direct queue case is not a public API contract. Configure the run with
+`LOGIT_PRODUCER_PROFILE_TOTAL`, `LOGIT_PRODUCER_PROFILE_WARMUP`, and
+`LOGIT_PRODUCER_PROFILE_REPEATS`.
+
+For example:
+
+```powershell
+$env:LOGIT_PRODUCER_PROFILE_TOTAL = "200000"
+$env:LOGIT_PRODUCER_PROFILE_WARMUP = "10000"
+$env:LOGIT_PRODUCER_PROFILE_REPEATS = "5"
+./build/logit_producer_profile
+```
+
 The flush regression target uses an intentionally delayed asynchronous sink and
 asserts that `flush()` does not return before every queued message has reached
 that sink. The fixture records latency completion and the flush barrier as

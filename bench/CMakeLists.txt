@@ -84,6 +84,11 @@ target_compile_definitions(logit_exec_mx_bench_concurrent PRIVATE LOGIT_BENCH_CO
 target_link_libraries(logit_exec_mx_bench_concurrent PRIVATE log-it-cpp::log-it-cpp)
 set_target_properties(logit_exec_mx_bench_concurrent PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
+add_executable(logit_producer_profile producer_profile.cpp)
+target_compile_features(logit_producer_profile PRIVATE cxx_std_17)
+target_link_libraries(logit_producer_profile PRIVATE log-it-cpp::log-it-cpp)
+set_target_properties(logit_producer_profile PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 add_executable(benchmark_validation_test benchmark_validation_test.cpp)
 target_compile_features(benchmark_validation_test PRIVATE cxx_std_17)
 set_target_properties(benchmark_validation_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
