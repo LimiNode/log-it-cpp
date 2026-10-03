@@ -249,9 +249,10 @@ explicit concurrency contract rather than infer one from a benchmark sink.
 
 ## Producer path profiling
 
-`logit_producer_profile` is a benchmark-only decomposition of the prepared
-LogIt++ producer path. It does not change library code and does not compare
-against another logging library. The cases are intentionally cumulative:
+`logit_producer_profile` is a benchmark-only set of overlapping attribution
+probes for the prepared LogIt++ producer path. It does not change library code
+and does not compare against another logging library. The cases intentionally
+overlap rather than form an additive decomposition:
 
 - `string_copy_only` measures copying the prepared 200-byte payload;
 - `logrecord_construct` measures construction of the same `LogRecord` shape
@@ -268,8 +269,12 @@ against another logging library. The cases are intentionally cumulative:
 The reported `ns_per_call` values are medians over independent repeats. Async
 cases time only the producer loop; their drain barrier runs after the timed
 region and verifies that every task was consumed. These are attribution probes,
-not intrinsic latency claims: cases differ in allocation and ownership work,
-and the direct queue case is not a public API contract. Configure the run with
+not intrinsic latency claims: cases differ in allocation, ownership, allocator,
+worker, and queue state. Do not sum the rows or treat subtraction between rows
+as an exact component cost; differences are exploratory signals only. The
+direct queue case is not a public API contract. The header reports
+`queue_backend=mpsc_ring` or `queue_backend=mutex_deque`, depending on the
+compile-time executor configuration. Configure the run with
 `LOGIT_PRODUCER_PROFILE_TOTAL`, `LOGIT_PRODUCER_PROFILE_WARMUP`, and
 `LOGIT_PRODUCER_PROFILE_REPEATS`.
 

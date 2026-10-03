@@ -21,6 +21,12 @@ constexpr std::size_t kDefaultRepeats = 5;
 constexpr std::size_t kQueueCapacity = 262144;
 const std::string kMessage(200, 'x');
 
+#if defined(LOGIT_USE_MPSC_RING)
+constexpr const char* kQueueBackend = "mpsc_ring";
+#else
+constexpr const char* kQueueBackend = "mutex_deque";
+#endif
+
 std::uint64_t g_observer = 0;
 
 std::size_t env_size(const char* name, std::size_t fallback) {
@@ -162,7 +168,8 @@ int main() {
               << " warmup=" << warmup
               << " repeats=" << repeats
               << " message_bytes=" << kMessage.size()
-              << " queue_capacity=" << kQueueCapacity << '\n';
+              << " queue_capacity=" << kQueueCapacity
+              << " queue_backend=" << kQueueBackend << '\n';
 
     const double copy_ns = median_ns_per_call(
         [](std::size_t count) {
