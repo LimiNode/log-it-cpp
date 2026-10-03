@@ -43,6 +43,7 @@ namespace logit_bench {
             std::uint64_t p50_ns  = 0;
             std::uint64_t p99_ns  = 0;
             std::uint64_t p999_ns = 0;
+            std::uint64_t max_ns  = 0;
         };
     
         explicit LatencyRecorder(std::size_t total)
@@ -68,6 +69,11 @@ namespace logit_bench {
          * Also stores t0 into internal t0 array, enabling complete_slot(slot).
          */
         Token begin(bool record) {
+            return begin_at(record, record ? now() : 0);
+        }
+
+        /// Reserve a slot using a caller-provided timestamp.
+        Token begin_at(bool record, std::uint64_t t0_ns) {
             Token token;
             token.active = record;
             if (!record) return token;
@@ -78,7 +84,7 @@ namespace logit_bench {
             }
     
             token.slot = static_cast<std::uint64_t>(slot);
-            token.t0_ns = now();
+            token.t0_ns = t0_ns;
     
             // Store t0 for "slot-only" completion path (spdlog-friendly).
             // Relaxed is fine: slot is unique per begin(); consumer uses the same slot.
@@ -90,7 +96,13 @@ namespace logit_bench {
         /// Capture t1 and store (t1 - t0) into the reserved slot (deduplicated).
         void complete(const Token& token) {
             if (!token.active) return;
-            complete_impl(token.slot, token.t0_ns);
+            complete_at(token, now());
+        }
+
+        /// Complete a slot using a caller-provided end timestamp.
+        void complete_at(const Token& token, std::uint64_t t1_ns) {
+            if (!token.active) return;
+            complete_impl(token.slot, token.t0_ns, t1_ns);
         }
     
         /**
@@ -103,7 +115,7 @@ namespace logit_bench {
                 throw std::out_of_range("LatencyRecorder capacity exceeded");
             }
             const auto t0 = m_t0_ns[static_cast<std::size_t>(slot)];
-            complete_impl(slot, t0);
+            complete_impl(slot, t0, now());
         }
     
         std::size_t recorded() const {
@@ -134,6 +146,7 @@ namespace logit_bench {
             summary.p50_ns  = pick(sorted, 0.50);
             summary.p99_ns  = pick(sorted, 0.99);
             summary.p999_ns = pick(sorted, 0.999);
+            summary.max_ns  = sorted.back();
             return summary;
         }
     
@@ -158,7 +171,8 @@ namespace logit_bench {
             return data[idx];
         }
     
-        void complete_impl(std::uint64_t slot_u64, std::uint64_t t0_ns) {
+        void complete_impl(std::uint64_t slot_u64, std::uint64_t t0_ns,
+                           std::uint64_t t1_ns) {
             if (slot_u64 >= m_expected) {
                 throw std::out_of_range("LatencyRecorder capacity exceeded");
             }
@@ -172,7 +186,6 @@ namespace logit_bench {
                 return; // duplicate completion -> ignore
             }
     
-            const auto t1_ns = now();
             m_values[slot] = t1_ns - t0_ns;
     
             const auto done = m_completed.fetch_add(1, std::memory_order_acq_rel) + 1;

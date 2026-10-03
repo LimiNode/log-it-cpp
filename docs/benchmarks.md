@@ -118,6 +118,70 @@ a performance measurement. It configures the matched null-sink path with a
 200-byte payload and verifies the exact payload observed by the worker-side
 sink callback.
 
+## Async pipeline research target
+
+`logit_bench_pipeline_research` is a separate, benchmark-only instrumented
+target for decomposing the matched `async/null/full-message` pipeline. Build it
+with `LOGIT_BENCH_ENABLE=ON` and `LOGIT_BENCH_WITH_SPDLOG=ON`. The default
+matrix uses 200-byte messages, 200,000 measured messages, 4,096 warmup
+messages, producers `1,2,4,8`, queue capacities `1024,8192,65536,400000`,
+five repeats, and alternates library order on each matched key point. A
+rate-controlled run is selected with `LOGIT_BENCH_RESEARCH_MODE=rate`; its
+default target rates are 100k, 250k, 500k, 750k, and 1M messages/second and it uses a
+400,000-entry queue.
+
+For example, a short exploratory run is:
+
+```powershell
+$env:LOGIT_BENCH_TOTAL = "200000"
+$env:LOGIT_BENCH_WARMUP = "4096"
+$env:LOGIT_BENCH_REPEATS = "5"
+$env:LOGIT_BENCH_PRODUCERS = "1,2,4,8"
+$env:LOGIT_BENCH_QUEUE_CAPACITIES = "1024,8192,65536,400000"
+./build/logit_bench_pipeline_research
+```
+
+The target writes individual rows to `pipeline-research.csv` and JSONL
+receipts to `pipeline-research.jsonl`, plus a median-per-key-point
+`pipeline-research-aggregate.csv`. Paths can be overridden with
+`LOGIT_BENCH_RESEARCH_CSV`, `LOGIT_BENCH_RESEARCH_JSONL`, and
+`LOGIT_BENCH_RESEARCH_AGGREGATE`. Each row retains fixture metadata and the
+deterministic `run_order`; the aggregate also retains producer/sink p50/p99,
+producer phase, drain tail, total wall time, realized rate, schedule lag, and
+both benchmark-outstanding summaries.
+
+The metrics are deliberately library-neutral. `producer_p50/p99/p999_ns`
+measure only the `adapter.log()` call; rate limiting is outside that timed
+region. Both producer and sink recorders use the same benchmark call-start
+timestamp. This gives the two metrics a common origin, but the research
+measurement still includes the small recorder reservation and telemetry
+overhead between that timestamp and entering `adapter.log()`. Therefore
+`sink_p50/p99/p999_ns` is an **instrumented sink-entry metric** and must not be
+compared as an identical absolute quantity with older matched-benchmark runs.
+`producer_phase_ns` runs from the shared producer release barrier to the last
+producer return, `drain_tail_ns` runs from the last producer return to the
+final sink entry, and `total_wall_ns` ends after the drain barrier.
+`throughput` is measured messages/second over that total interval.
+
+In rate mode, `target_rate` is a pacing schedule, not a guaranteed external
+open-loop arrival rate: a finite producer can receive its next ticket only
+after its previous blocking `adapter.log()` returns. `realized_submission_rate`
+is the issued count divided by the producer phase. `schedule_lag_p50/p99/max_ns`
+records how far actual call start falls behind its scheduled start; growing lag
+means the finite producer set cannot keep up with the target schedule.
+
+`issued - sink_completed` is named **benchmark outstanding**. It is a common
+benchmark counter, not a direct queue-depth measurement: it can include calls
+in admission/backpressure and must not be presented as either library's
+private queue size. `outstanding_high_water` and
+`outstanding_at_producer_done` use this benchmark-issued semantics.
+
+These results describe admission, backpressure, worker scheduling, and queue
+backlog under the selected workload. They must not be reported as intrinsic
+library latency or as a universal speed ranking. In particular, a lower
+sink-entry p50 can coexist with lower throughput when a producer-side path
+applies stronger admission pressure.
+
 `logit_exec_mx_bench` and `logit_exec_mx_bench_concurrent` are a guarded
 lock-elision experiment. They use the same prepared `LogRecord` and a small
 thread-safe counting backend/formatter pair; the first target keeps the default

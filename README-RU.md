@@ -961,6 +961,20 @@ CSV `bench/results/latency-async-contract.csv` (или в путь из
 
 Детали `LatencyRecorder` собраны в [`docs/benchmarks.md`](docs/benchmarks.md).
 
+Для отдельного исследовательского прогона async pipeline используйте target
+`logit_bench_pipeline_research` при включённых `LOGIT_BENCH_ENABLE=ON` и
+`LOGIT_BENCH_WITH_SPDLOG=ON`. Он сохраняет индивидуальные CSV/JSONL receipts
+и aggregate CSV; подробные параметры запуска и определения метрик описаны в
+[`docs/benchmarks.md`](docs/benchmarks.md). Режим
+`LOGIT_BENCH_RESEARCH_MODE=rate` добавляет одинаковую для обеих библиотек
+управляемую target rate. В rate mode дополнительно записываются realized
+submission rate и schedule lag; finite producer threads могут отставать от
+target из-за blocking admission. Эти результаты являются исследованием
+admission, backpressure и benchmark outstanding, а не прямым измерением
+внутренней очереди или универсальным рейтингом скорости библиотек. Sink
+latency в этом target — отдельная instrumented metric: она использует общий
+call-start timestamp, но включает небольшой overhead reservation/telemetry.
+
 
 ## Матрица бэкендов
 
