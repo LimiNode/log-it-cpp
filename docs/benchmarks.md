@@ -259,7 +259,7 @@ overlap rather than form an additive decomposition:
   used by `LogItAdapter`;
 - `logger_log_sync_null` measures dispatch of a prepared record to a synchronous
   counting sink;
-- `taskexecutor_enqueue_noop` measures direct MPSC task admission with a no-op
+- `taskexecutor_enqueue_noop` measures direct `TaskExecutor` task admission with a no-op
   completion task;
 - `logger_log_async_full_prepared` measures prepared-record dispatch plus full
   message task admission;
