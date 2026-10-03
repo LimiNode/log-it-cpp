@@ -257,10 +257,19 @@ overlap rather than form an additive decomposition:
 - `string_copy_only` measures copying the prepared 200-byte payload;
 - `logrecord_construct` measures construction of the same `LogRecord` shape
   used by `LogItAdapter`;
+- `task_object_marker_only` measures local `std::function` construction and
+  invocation without a payload;
+- `task_object_full_message` adds the 200-byte payload ownership and capture;
+- `taskexecutor_enqueue_prebuilt_noop` measures admission of a prebuilt
+  no-op task, separating queue publication from task construction;
+- `taskexecutor_enqueue_full_message` combines payload capture with queue
+  admission;
+- `taskexecutor_enqueue_noop` retains the original shared-state capture probe;
+  it is intentionally not a pure queue-admission measurement;
 - `logger_log_sync_null` measures dispatch of a prepared record to a synchronous
   counting sink;
-- `taskexecutor_enqueue_noop` measures direct `TaskExecutor` task admission with a no-op
-  completion task;
+- `logger_log_construct_only_full` measures dispatch plus full task construction
+  while invoking the task inline instead of enqueueing it;
 - `logger_log_async_full_prepared` measures prepared-record dispatch plus full
   message task admission;
 - `prepared_record_plus_logger_async_full` adds per-call `LogRecord`
