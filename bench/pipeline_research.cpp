@@ -85,13 +85,15 @@ std::string message_for(std::size_t bytes) {
 struct StageResult {
     LatencyRecorder::Summary producer_call;
     LatencyRecorder::Summary sink_entry;
+    LatencyRecorder::Summary schedule_lag;
     std::uint64_t producer_phase_ns = 0;
     std::uint64_t drain_tail_ns = 0;
     std::uint64_t total_wall_ns = 0;
     double throughput = 0.0;
+    double realized_submission_rate = 0.0;
     std::uint64_t outstanding_high_water = 0;
     std::uint64_t outstanding_at_producer_done = 0;
-    std::uint64_t submitted = 0;
+    std::uint64_t issued = 0;
     std::uint64_t sink_completed = 0;
 };
 
@@ -106,7 +108,7 @@ struct RunRecord {
     std::size_t total = 0;
     std::size_t warmup = 0;
     std::size_t bytes = 0;
-    std::size_t offered_rate = 0;
+    std::size_t target_rate = 0;
     StageResult result;
 };
 
@@ -122,10 +124,11 @@ void validate_csv(const std::filesystem::path& path, const std::string& header) 
 }
 
 const char* csv_header() {
-    return "mode,repeat,run_index,run_order,library,producers,queue_capacity,total,warmup,msg_bytes,offered_rate,"
+    return "mode,repeat,run_index,run_order,library,producers,queue_capacity,total,warmup,msg_bytes,target_rate,"
+           "realized_submission_rate,schedule_lag_p50_ns,schedule_lag_p99_ns,schedule_lag_max_ns,"
            "producer_p50_ns,producer_p99_ns,producer_p999_ns,sink_p50_ns,sink_p99_ns,sink_p999_ns,"
            "producer_phase_ns,drain_tail_ns,total_wall_ns,throughput,outstanding_high_water,"
-           "outstanding_at_producer_done,submitted,sink_completed,source_commit,compiler,compiler_version,"
+           "outstanding_at_producer_done,issued,sink_completed,source_commit,compiler,compiler_version,"
            "toolchain,cxx_standard,platform,build_type,architecture,machine_id,cpu_model,queue_policy,"
            "latency_completion,flush_barrier,workload_contract";
 }
@@ -142,13 +145,16 @@ void append_record(const Options& options, const RunRecord& r,
     const auto& s = r.result.sink_entry;
     out << r.mode << ',' << r.repeat << ',' << r.run_index << ',' << r.run_order << ','
         << r.library << ',' << r.producers << ',' << r.queue << ',' << r.total << ','
-        << r.warmup << ',' << r.bytes << ',' << r.offered_rate << ','
+        << r.warmup << ',' << r.bytes << ',' << r.target_rate << ','
+        << std::fixed << std::setprecision(2) << r.result.realized_submission_rate << ','
+        << r.result.schedule_lag.p50_ns << ',' << r.result.schedule_lag.p99_ns << ','
+        << r.result.schedule_lag.max_ns << ','
         << p.p50_ns << ',' << p.p99_ns << ',' << p.p999_ns << ','
         << s.p50_ns << ',' << s.p99_ns << ',' << s.p999_ns << ','
         << r.result.producer_phase_ns << ',' << r.result.drain_tail_ns << ','
         << r.result.total_wall_ns << ',' << std::fixed << std::setprecision(2)
         << r.result.throughput << ',' << r.result.outstanding_high_water << ','
-        << r.result.outstanding_at_producer_done << ',' << r.result.submitted << ','
+        << r.result.outstanding_at_producer_done << ',' << r.result.issued << ','
         << r.result.sink_completed << ',' << metadata.source_commit << ',' << metadata.compiler << ','
         << metadata.compiler_version << ',' << metadata.toolchain << ',' << metadata.cxx_standard << ','
         << metadata.platform << ',' << metadata.build_type << ',' << metadata.architecture << ','
@@ -178,18 +184,23 @@ void append_record(const Options& options, const RunRecord& r,
          << r.repeat << ",\"run_index\":" << r.run_index << ",\"run_order\":\""
          << r.run_order << "\",\"library\":\"" << r.library << "\",\"producers\":"
          << r.producers << ",\"queue_capacity\":" << r.queue << ",\"total\":"
-         << r.total << ",\"warmup\":" << r.warmup << ",\"msg_bytes\":" << r.bytes
-         << ",\"offered_rate\":" << r.offered_rate
+          << r.total << ",\"warmup\":" << r.warmup << ",\"msg_bytes\":" << r.bytes
+          << ",\"target_rate\":" << r.target_rate
+          << ",\"realized_submission_rate\":" << std::fixed << std::setprecision(2)
+          << r.result.realized_submission_rate
+          << ",\"schedule_lag_p50_ns\":" << r.result.schedule_lag.p50_ns
+          << ",\"schedule_lag_p99_ns\":" << r.result.schedule_lag.p99_ns
+          << ",\"schedule_lag_max_ns\":" << r.result.schedule_lag.max_ns
          << ",\"producer_p50_ns\":" << p.p50_ns << ",\"producer_p99_ns\":" << p.p99_ns
          << ",\"producer_p999_ns\":" << p.p999_ns << ",\"sink_p50_ns\":" << s.p50_ns
          << ",\"sink_p99_ns\":" << s.p99_ns << ",\"sink_p999_ns\":" << s.p999_ns
          << ",\"producer_phase_ns\":" << r.result.producer_phase_ns
          << ",\"drain_tail_ns\":" << r.result.drain_tail_ns
          << ",\"total_wall_ns\":" << r.result.total_wall_ns
-         << ",\"throughput\":" << std::fixed << std::setprecision(2) << r.result.throughput
+          << ",\"throughput\":" << std::fixed << std::setprecision(2) << r.result.throughput
          << ",\"outstanding_high_water\":" << r.result.outstanding_high_water
          << ",\"outstanding_at_producer_done\":" << r.result.outstanding_at_producer_done
-         << ",\"submitted\":" << r.result.submitted << ",\"sink_completed\":"
+          << ",\"issued\":" << r.result.issued << ",\"sink_completed\":"
          << r.result.sink_completed << "}\n";
 }
 
@@ -226,7 +237,7 @@ void run_warmup(ILoggerAdapter& adapter, const Scenario& scenario,
 }
 
 StageResult run_once(ILoggerAdapter& adapter, Scenario scenario,
-                     std::size_t warmup, std::size_t offered_rate) {
+                     std::size_t warmup, std::size_t target_rate) {
     auto warmup_recorder = std::make_shared<LatencyRecorder>(1);
     scenario.telemetry.reset();
     adapter.prepare(scenario, *warmup_recorder);
@@ -249,7 +260,10 @@ StageResult run_once(ILoggerAdapter& adapter, Scenario scenario,
     std::size_t ready = 0;
     bool released = false;
     std::atomic<std::uint64_t> next_ticket{0};
-    const auto interval = offered_rate ? (1'000'000'000ULL / offered_rate) : 0;
+    const auto interval = target_rate ? (1'000'000'000ULL / target_rate) : 0;
+    auto schedule_recorder = target_rate
+        ? std::make_shared<LatencyRecorder>(scenario.total_messages)
+        : std::shared_ptr<LatencyRecorder>();
     std::vector<std::thread> threads;
     threads.reserve(scenario.producers);
     for (std::size_t producer = 0; producer < scenario.producers; ++producer) {
@@ -263,23 +277,31 @@ StageResult run_once(ILoggerAdapter& adapter, Scenario scenario,
                 cv.wait(lock, [&] { return released; });
             }
             for (std::size_t n = 0; n < share; ++n) {
-                if (offered_rate) {
+                std::uint64_t scheduled_start = 0;
+                if (target_rate) {
                     const auto ticket = next_ticket.fetch_add(1, std::memory_order_relaxed);
-                    const auto target = start + ticket * interval;
+                    scheduled_start = start + ticket * interval;
                     for (;;) {
                         const auto current = now_ns();
-                        if (current >= target) break;
-                        const auto remaining = target - current;
+                        if (current >= scheduled_start) break;
+                        const auto remaining = scheduled_start - current;
                         if (remaining > 200'000) std::this_thread::sleep_for(
                             std::chrono::nanoseconds(remaining / 2));
                         else std::this_thread::yield();
                     }
                 }
-                auto sink_token = sink_recorder->begin(true);
-                telemetry->on_submitted();
-                auto producer_token = producer_recorder->begin(true);
+                const auto call_start = now_ns();
+                auto sink_token = sink_recorder->begin_at(true, call_start);
+                auto producer_token = producer_recorder->begin_at(true, call_start);
+                auto schedule_token = schedule_recorder
+                    ? schedule_recorder->begin_at(true, scheduled_start)
+                    : LatencyRecorder::Token{};
+                telemetry->on_issued();
                 adapter.log(sink_token, message);
                 const auto returned = now_ns();
+                if (schedule_recorder) {
+                    schedule_recorder->complete_at(schedule_token, call_start);
+                }
                 if (n + 1 == share) {
                     std::lock_guard<std::mutex> lock(producer_done_mx);
                     if (returned > last_producer_done.load(std::memory_order_relaxed)) {
@@ -309,6 +331,9 @@ StageResult run_once(ILoggerAdapter& adapter, Scenario scenario,
     StageResult result;
     result.producer_call = producer_recorder->finalize();
     result.sink_entry = sink_recorder->finalize();
+    if (schedule_recorder) {
+        result.schedule_lag = schedule_recorder->finalize();
+    }
     result.producer_phase_ns = producer_done > start ? producer_done - start : 0;
     const auto last_sink = telemetry->last_sink_entry_ns.load(std::memory_order_acquire);
     result.drain_tail_ns = last_sink > producer_done ? last_sink - producer_done : 0;
@@ -316,11 +341,14 @@ StageResult run_once(ILoggerAdapter& adapter, Scenario scenario,
     result.throughput = result.total_wall_ns
         ? static_cast<double>(scenario.total_messages) * 1'000'000'000.0 /
           static_cast<double>(result.total_wall_ns) : 0.0;
+    result.realized_submission_rate = result.producer_phase_ns
+        ? static_cast<double>(scenario.total_messages) * 1'000'000'000.0 /
+          static_cast<double>(result.producer_phase_ns) : 0.0;
     result.outstanding_high_water = telemetry->high_water.load(std::memory_order_acquire);
     result.outstanding_at_producer_done = outstanding_at_done;
-    result.submitted = telemetry->submitted.load(std::memory_order_acquire);
+    result.issued = telemetry->issued.load(std::memory_order_acquire);
     result.sink_completed = telemetry->sink_completed.load(std::memory_order_acquire);
-    if (result.submitted != scenario.total_messages ||
+    if (result.issued != scenario.total_messages ||
         result.sink_completed != scenario.total_messages) {
         throw std::runtime_error("pipeline telemetry did not drain all messages");
     }
@@ -334,33 +362,61 @@ double median(std::vector<double> values) {
 }
 
 void write_aggregate(const Options& options, const std::vector<RunRecord>& records) {
-    struct Group { std::string mode, library; std::size_t producers{}, queue{}, rate{}; std::vector<double> throughput, sink_p50, producer_p50; };
+    struct Group {
+        std::string mode, library;
+        std::size_t producers{}, queue{}, rate{};
+        std::vector<double> throughput, realized_rate, producer_p50, producer_p99;
+        std::vector<double> sink_p50, sink_p99, schedule_lag_p50, schedule_lag_p99, schedule_lag_max;
+        std::vector<double> producer_phase, drain_tail, total_wall, high_water, at_done;
+    };
     std::vector<Group> groups;
     for (const auto& record : records) {
         auto it = std::find_if(groups.begin(), groups.end(), [&](const Group& g) {
             return g.mode == record.mode && g.library == record.library &&
                    g.producers == record.producers && g.queue == record.queue &&
-                   g.rate == record.offered_rate;
+                   g.rate == record.target_rate;
         });
         if (it == groups.end()) {
             groups.push_back(Group{record.mode, record.library, record.producers,
-                                   record.queue, record.offered_rate});
+                                   record.queue, record.target_rate});
             it = groups.end() - 1;
         }
         it->throughput.push_back(record.result.throughput);
-        it->sink_p50.push_back(static_cast<double>(record.result.sink_entry.p50_ns));
+        it->realized_rate.push_back(record.result.realized_submission_rate);
         it->producer_p50.push_back(static_cast<double>(record.result.producer_call.p50_ns));
+        it->producer_p99.push_back(static_cast<double>(record.result.producer_call.p99_ns));
+        it->sink_p50.push_back(static_cast<double>(record.result.sink_entry.p50_ns));
+        it->sink_p99.push_back(static_cast<double>(record.result.sink_entry.p99_ns));
+        it->schedule_lag_p50.push_back(static_cast<double>(record.result.schedule_lag.p50_ns));
+        it->schedule_lag_p99.push_back(static_cast<double>(record.result.schedule_lag.p99_ns));
+        it->schedule_lag_max.push_back(static_cast<double>(record.result.schedule_lag.max_ns));
+        it->producer_phase.push_back(static_cast<double>(record.result.producer_phase_ns));
+        it->drain_tail.push_back(static_cast<double>(record.result.drain_tail_ns));
+        it->total_wall.push_back(static_cast<double>(record.result.total_wall_ns));
+        it->high_water.push_back(static_cast<double>(record.result.outstanding_high_water));
+        it->at_done.push_back(static_cast<double>(record.result.outstanding_at_producer_done));
     }
     if (options.aggregate.parent_path() != std::filesystem::path())
         std::filesystem::create_directories(options.aggregate.parent_path());
     std::ofstream out(options.aggregate);
-    out << "mode,library,producers,queue_capacity,offered_rate,repeats,median_producer_p50_ns,"
-           "median_sink_p50_ns,median_throughput\n";
+    out << "mode,library,producers,queue_capacity,target_rate,repeats,"
+           "median_realized_submission_rate,median_schedule_lag_p50_ns,median_schedule_lag_p99_ns,"
+           "median_schedule_lag_max_ns,"
+           "median_producer_p50_ns,median_producer_p99_ns,median_sink_p50_ns,median_sink_p99_ns,"
+           "median_producer_phase_ns,median_drain_tail_ns,median_total_wall_ns,median_throughput,"
+           "median_outstanding_high_water,median_outstanding_at_producer_done\n";
     for (const auto& group : groups) {
         out << group.mode << ',' << group.library << ',' << group.producers << ',' << group.queue
             << ',' << group.rate << ',' << group.throughput.size() << ','
-            << median(group.producer_p50) << ',' << median(group.sink_p50) << ','
-            << std::fixed << std::setprecision(2) << median(group.throughput) << '\n';
+            << std::fixed << std::setprecision(2)
+            << median(group.realized_rate) << ',' << median(group.schedule_lag_p50) << ','
+            << median(group.schedule_lag_p99) << ',' << median(group.schedule_lag_max) << ','
+            << median(group.producer_p50) << ','
+            << median(group.producer_p99) << ',' << median(group.sink_p50) << ','
+            << median(group.sink_p99) << ',' << median(group.producer_phase) << ','
+            << median(group.drain_tail) << ',' << median(group.total_wall) << ','
+            << median(group.throughput) << ',' << median(group.high_water) << ','
+            << median(group.at_done) << '\n';
     }
 }
 
@@ -396,20 +452,21 @@ int main() {
         std::vector<RunRecord> records;
         auto logit_adapter = std::make_unique<LogItAdapter>();
         auto spdlog_adapter = std::make_unique<SpdlogAdapter>();
-        for (std::size_t repeat = 1; repeat <= options.repeats; ++repeat) {
-            std::vector<std::string> order{"log-it-cpp", "spdlog"};
-            if ((repeat % 2) == 0) std::swap(order[0], order[1]);
-            for (const auto& library : order) {
-                ILoggerAdapter& adapter = library == "log-it-cpp"
-                    ? static_cast<ILoggerAdapter&>(*logit_adapter)
-                    : static_cast<ILoggerAdapter&>(*spdlog_adapter);
-                const auto run_mode = options.mode == "rate" ? "rate" : "matrix";
-                const auto& rates = run_mode == std::string("rate") ? options.rates : std::vector<std::size_t>{0};
-                for (const auto rate : rates) {
-                    for (const auto producers : options.producers) {
-                        const auto queues = run_mode == std::string("rate") ?
-                            std::vector<std::size_t>{400000} : options.queues;
-                        for (const auto queue : queues) {
+        const auto run_mode = options.mode == "rate" ? std::string("rate") : std::string("matrix");
+        const auto rates = run_mode == "rate" ? options.rates : std::vector<std::size_t>{0};
+        const auto queues = run_mode == "rate" ? std::vector<std::size_t>{400000} : options.queues;
+        for (const auto rate : rates) {
+            for (const auto producers : options.producers) {
+                for (const auto queue : queues) {
+                    // Keep the two libraries adjacent for each matched key point;
+                    // only the order within that point alternates by repeat.
+                    for (std::size_t repeat = 1; repeat <= options.repeats; ++repeat) {
+                        std::vector<std::string> order{"log-it-cpp", "spdlog"};
+                        if ((repeat % 2) == 0) std::swap(order[0], order[1]);
+                        for (const auto& library : order) {
+                            ILoggerAdapter& adapter = library == "log-it-cpp"
+                                ? static_cast<ILoggerAdapter&>(*logit_adapter)
+                                : static_cast<ILoggerAdapter&>(*spdlog_adapter);
                             Scenario scenario;
                             scenario.async = true;
                             scenario.sink = SinkKind::Null;
@@ -429,7 +486,9 @@ int main() {
                             records.push_back(std::move(record));
                             std::cout << library << " mode=" << run_mode << " repeat=" << repeat
                                       << " producers=" << producers << " queue=" << queue
-                                      << " rate=" << rate << " sink_p50=" << result.sink_entry.p50_ns
+                                      << " target_rate=" << rate << " realized_rate="
+                                      << result.realized_submission_rate << " sink_p50="
+                                      << result.sink_entry.p50_ns
                                       << " producer_p50=" << result.producer_call.p50_ns
                                       << " throughput=" << std::fixed << std::setprecision(2)
                                       << result.throughput << " outstanding_high_water="

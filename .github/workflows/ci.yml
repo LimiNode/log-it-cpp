@@ -30,7 +30,7 @@ jobs:
         run: cmake -S . -B build-bench -DLOGIT_BENCH_ENABLE=ON -DLOGIT_BENCH_WITH_SPDLOG=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=${{ matrix.std }} -DLOGIT_WITH_SYSLOG=ON -DLOGIT_WITH_WIN_EVENT_LOG=OFF
       - name: Build benchmarks
         # if: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/stable') }}
-        run: cmake --build build-bench --target logit_bench logit_bench_async_contract logit_bench_async_payload_contract_test logit_bench_flush_test logit_public_macro_bench logit_public_macro_formatted_bench logit_hotpath_bench logit_hotpath_bench_legacy logit_exec_mx_bench logit_exec_mx_bench_concurrent benchmark_validation_test
+        run: cmake --build build-bench --target logit_bench logit_bench_async_contract logit_bench_async_payload_contract_test logit_bench_flush_test logit_bench_pipeline_research logit_public_macro_bench logit_public_macro_formatted_bench logit_hotpath_bench logit_hotpath_bench_legacy logit_exec_mx_bench logit_exec_mx_bench_concurrent benchmark_validation_test
       - name: Run spdlog async flush regression
         run: ./build-bench/logit_bench_flush_test
       - name: Run public macro benchmark smoke
@@ -80,6 +80,51 @@ jobs:
           LOGIT_BENCH_TIMEOUT_SEC: 120
           LOGIT_BENCH_OUTPUT: bench/results/latency-async-contract.csv
         run: ./build-bench/logit_bench_async_contract
+      - name: Run pipeline research matrix smoke
+        if: matrix.std == 17
+        env:
+          LOGIT_BENCH_TOTAL: 1000
+          LOGIT_BENCH_WARMUP: 100
+          LOGIT_BENCH_REPEATS: 1
+          LOGIT_BENCH_PRODUCERS: 1
+          LOGIT_BENCH_QUEUE_CAPACITIES: 1024
+          LOGIT_BENCH_RESEARCH_CSV: build-bench/pipeline-research-matrix.csv
+          LOGIT_BENCH_RESEARCH_JSONL: build-bench/pipeline-research-matrix.jsonl
+          LOGIT_BENCH_RESEARCH_AGGREGATE: build-bench/pipeline-research-matrix-aggregate.csv
+        run: |
+          ./build-bench/logit_bench_pipeline_research
+          test -s build-bench/pipeline-research-matrix.csv
+          test -s build-bench/pipeline-research-matrix.jsonl
+          python3 - <<'PY'
+          import csv
+          with open("build-bench/pipeline-research-matrix.csv", newline="") as stream:
+              rows = list(csv.DictReader(stream))
+          assert rows, "matrix research receipt is empty"
+          assert all(int(row["issued"]) == int(row["sink_completed"]) == int(row["total"]) for row in rows)
+          PY
+      - name: Run pipeline research rate smoke
+        if: matrix.std == 17
+        env:
+          LOGIT_BENCH_RESEARCH_MODE: rate
+          LOGIT_BENCH_TOTAL: 1000
+          LOGIT_BENCH_WARMUP: 100
+          LOGIT_BENCH_REPEATS: 1
+          LOGIT_BENCH_PRODUCERS: 1
+          LOGIT_BENCH_RATES: 100000
+          LOGIT_BENCH_RESEARCH_CSV: build-bench/pipeline-research-rate.csv
+          LOGIT_BENCH_RESEARCH_JSONL: build-bench/pipeline-research-rate.jsonl
+          LOGIT_BENCH_RESEARCH_AGGREGATE: build-bench/pipeline-research-rate-aggregate.csv
+        run: |
+          ./build-bench/logit_bench_pipeline_research
+          test -s build-bench/pipeline-research-rate.csv
+          test -s build-bench/pipeline-research-rate.jsonl
+          python3 - <<'PY'
+          import csv
+          with open("build-bench/pipeline-research-rate.csv", newline="") as stream:
+              rows = list(csv.DictReader(stream))
+          assert rows, "rate research receipt is empty"
+          assert all(int(row["issued"]) == int(row["sink_completed"]) == int(row["total"]) for row in rows)
+          PY
       - name: Configure consumer project
         run: cmake -S tests/install_consumer -B build-consumer -DCMAKE_PREFIX_PATH=${{ github.workspace }}/install -DCMAKE_CXX_STANDARD=${{ matrix.std }}
       - name: Build consumer project

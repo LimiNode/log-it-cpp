@@ -21,11 +21,12 @@ enum class AsyncPayloadMode {
     FullMessage,
 };
 
-// Benchmark-only, library-neutral pipeline counters.  Adapters report the
-// same two observable events so the research harness can compare admission
-// and drain behaviour without reaching into either library's private queue.
+// Benchmark-only, library-neutral pipeline counters. The harness records an
+// issued call before entering adapter.log() and a sink completion after the
+// adapter callback. This compares admission and drain behaviour without
+// reaching into either library's private queue.
 struct BenchmarkTelemetry {
-    std::atomic<std::uint64_t> submitted{0};
+    std::atomic<std::uint64_t> issued{0};
     std::atomic<std::uint64_t> sink_completed{0};
     std::atomic<std::uint64_t> high_water{0};
     std::atomic<std::uint64_t> last_sink_entry_ns{0};
@@ -35,8 +36,8 @@ struct BenchmarkTelemetry {
             std::chrono::steady_clock::now().time_since_epoch()).count());
     }
 
-    void on_submitted() {
-        const auto current = submitted.fetch_add(1, std::memory_order_acq_rel) + 1;
+    void on_issued() {
+        const auto current = issued.fetch_add(1, std::memory_order_acq_rel) + 1;
         const auto completed_now = sink_completed.load(std::memory_order_acquire);
         const auto outstanding = current > completed_now ? current - completed_now : 0;
         auto observed = high_water.load(std::memory_order_relaxed);
@@ -57,7 +58,7 @@ struct BenchmarkTelemetry {
     }
 
     std::uint64_t outstanding() const {
-        const auto accepted = submitted.load(std::memory_order_acquire);
+        const auto accepted = issued.load(std::memory_order_acquire);
         const auto completed = sink_completed.load(std::memory_order_acquire);
         return accepted > completed ? accepted - completed : 0;
     }

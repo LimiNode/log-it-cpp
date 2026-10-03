@@ -125,9 +125,9 @@ target for decomposing the matched `async/null/full-message` pipeline. Build it
 with `LOGIT_BENCH_ENABLE=ON` and `LOGIT_BENCH_WITH_SPDLOG=ON`. The default
 matrix uses 200-byte messages, 200,000 measured messages, 4,096 warmup
 messages, producers `1,2,4,8`, queue capacities `1024,8192,65536,400000`,
-five repeats, and alternates library order on each repeat. A rate-controlled
-run is selected with `LOGIT_BENCH_RESEARCH_MODE=rate`; its default offered
-rates are 100k, 250k, 500k, 750k, and 1M messages/second and it uses a
+five repeats, and alternates library order on each matched key point. A
+rate-controlled run is selected with `LOGIT_BENCH_RESEARCH_MODE=rate`; its
+default target rates are 100k, 250k, 500k, 750k, and 1M messages/second and it uses a
 400,000-entry queue.
 
 For example, a short exploratory run is:
@@ -146,18 +146,32 @@ receipts to `pipeline-research.jsonl`, plus a median-per-key-point
 `pipeline-research-aggregate.csv`. Paths can be overridden with
 `LOGIT_BENCH_RESEARCH_CSV`, `LOGIT_BENCH_RESEARCH_JSONL`, and
 `LOGIT_BENCH_RESEARCH_AGGREGATE`. Each row retains fixture metadata and the
-deterministic `run_order`.
+deterministic `run_order`; the aggregate also retains producer/sink p50/p99,
+producer phase, drain tail, total wall time, realized rate, schedule lag, and
+both benchmark-outstanding summaries.
 
 The metrics are deliberately library-neutral. `producer_p50/p99/p999_ns`
 measure only the `adapter.log()` call; rate limiting is outside that timed
-region. `producer_phase_ns` runs from the shared producer release barrier to
-the last producer return, `sink_p50/p99/p999_ns` preserves the existing
-enqueue-to-sink-entry definition, `drain_tail_ns` runs from the last producer
-return to the final sink entry, and `total_wall_ns` ends after the drain
-barrier. `throughput` is measured messages/second over that total interval.
-`outstanding_high_water` and `outstanding_at_producer_done` are benchmark-side
-approximations of `submitted_messages - sink_completed_messages`; they do not
-read either library's private queue.
+region. Both producer and sink recorders use the same call-start timestamp, so
+the existing enqueue-to-sink-entry definition is not shifted by research
+instrumentation. `producer_phase_ns` runs from the shared producer release
+barrier to the last producer return, `sink_p50/p99/p999_ns` is the unchanged
+sink-entry metric, `drain_tail_ns` runs from the last producer return to the
+final sink entry, and `total_wall_ns` ends after the drain barrier.
+`throughput` is measured messages/second over that total interval.
+
+In rate mode, `target_rate` is a pacing schedule, not a guaranteed external
+open-loop arrival rate: a finite producer can receive its next ticket only
+after its previous blocking `adapter.log()` returns. `realized_submission_rate`
+is the issued count divided by the producer phase. `schedule_lag_p50/p99/max_ns`
+records how far actual call start falls behind its scheduled start; growing lag
+means the finite producer set cannot keep up with the target schedule.
+
+`issued - sink_completed` is named **benchmark outstanding**. It is a common
+benchmark counter, not a direct queue-depth measurement: it can include calls
+in admission/backpressure and must not be presented as either library's
+private queue size. `outstanding_high_water` and
+`outstanding_at_producer_done` use this benchmark-issued semantics.
 
 These results describe admission, backpressure, worker scheduling, and queue
 backlog under the selected workload. They must not be reported as intrinsic

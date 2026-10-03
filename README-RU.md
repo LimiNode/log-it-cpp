@@ -967,8 +967,11 @@ CSV `bench/results/latency-async-contract.csv` (или в путь из
 и aggregate CSV; подробные параметры запуска и определения метрик описаны в
 [`docs/benchmarks.md`](docs/benchmarks.md). Режим
 `LOGIT_BENCH_RESEARCH_MODE=rate` добавляет одинаковую для обеих библиотек
-управляемую offered load. Эти результаты являются исследованием admission,
-backpressure и backlog, а не универсальным рейтингом скорости библиотек.
+управляемую target rate. В rate mode дополнительно записываются realized
+submission rate и schedule lag; finite producer threads могут отставать от
+target из-за blocking admission. Эти результаты являются исследованием
+admission, backpressure и benchmark outstanding, а не прямым измерением
+внутренней очереди или универсальным рейтингом скорости библиотек.
 
 
 ## Матрица бэкендов
