@@ -302,13 +302,18 @@ $env:LOGIT_PRODUCER_PROFILE_REPEATS = "5"
 `logit_task_ownership_profile` is a narrower follow-up experiment for the
 async ownership path. It compares local `std::function` construction/copy,
 batched versus one-at-a-time `TaskExecutor` admission, and (when
-`LOGIT_USE_MPSC_RING` is enabled) direct `MpscRingAny` publication for both a
-`std::function<void()>` payload and a `uint64_t` control payload. The
-one-at-a-time case includes worker completion and wakeup, so it is a round-trip
-signal rather than a producer-only admission cost. Direct ring cases omit
-`TaskExecutor` condition-variable notification and are not production API
-measurements. Every queue case validates that all submitted tasks were
-consumed; the output records the queue backend.
+`LOGIT_USE_MPSC_RING` is enabled) direct `MpscRingAny` publication for a
+constructed `std::function<void()>`, a prebuilt `std::function<void()>`, and a
+`uint64_t` control payload. The constructed case includes callable construction,
+ownership move, publication, and any retry/yield. The prebuilt case prepares all
+callables before the timed producer region, so its timed work is only ownership
+move/publication plus any retry/yield. Both direct-ring cases run with an active
+concurrent consumer and therefore measure producer-side publication under
+cache-line/coherence interaction, not intrinsic single-operation `try_push`
+latency. They omit `TaskExecutor` condition-variable notification and are not
+production API measurements. The `uint64_t` row is a control payload, not a
+matched ownership contract. Every queue case validates that all submitted tasks
+were consumed; the output records the queue backend.
 
 This target is an A/B attribution tool, not a replacement for the prepared
 producer benchmark. Its rows still have different ownership and scheduling

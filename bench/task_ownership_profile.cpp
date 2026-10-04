@@ -63,6 +63,69 @@ double measure(Loop loop, Cleanup cleanup, std::size_t warmup,
 }
 
 #if defined(LOGIT_USE_MPSC_RING)
+double measure_ring_prebuilt_std_function(std::size_t warmup,
+                                          std::size_t total,
+                                          std::size_t repeats) {
+    auto run = [&](std::size_t count) {
+        std::vector<std::function<void()>> tasks;
+        tasks.reserve(count);
+        for (std::size_t i = 0; i < count; ++i) {
+            tasks.emplace_back([]() { ++g_observer; });
+        }
+
+        logit::detail::MpscRingAny<std::function<void()>> ring(kQueueCapacity);
+        std::atomic<bool> started{false};
+        std::atomic<bool> done{false};
+        std::atomic<std::size_t> ready{0};
+        std::atomic<std::size_t> consumed{0};
+        std::thread worker([&]() {
+            ready.store(1, std::memory_order_release);
+            while (!started.load(std::memory_order_acquire)) {
+                std::this_thread::yield();
+            }
+            std::function<void()> task;
+            while (!done.load(std::memory_order_acquire) || !ring.empty()) {
+                if (ring.try_pop(task)) {
+                    task();
+                    consumed.fetch_add(1, std::memory_order_relaxed);
+                } else {
+                    std::this_thread::yield();
+                }
+            }
+        });
+        while (ready.load(std::memory_order_acquire) == 0) {
+            std::this_thread::yield();
+        }
+
+        started.store(true, std::memory_order_release);
+        const auto start = std::chrono::steady_clock::now();
+        for (auto& task : tasks) {
+            while (!ring.try_push(std::move(task))) {
+                std::this_thread::yield();
+            }
+        }
+        const auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::steady_clock::now() - start).count();
+        done.store(true, std::memory_order_release);
+        worker.join();
+        if (consumed.load(std::memory_order_relaxed) != count) {
+            std::cerr << "prebuilt MPSC ring completion mismatch\n";
+            std::exit(6);
+        }
+        return static_cast<std::uint64_t>(elapsed);
+    };
+
+    run(warmup);
+    std::vector<std::uint64_t> samples;
+    samples.reserve(repeats);
+    for (std::size_t repeat = 0; repeat < repeats; ++repeat) {
+        samples.push_back(run(total));
+    }
+    std::sort(samples.begin(), samples.end());
+    return static_cast<double>(samples[samples.size() / 2]) /
+           static_cast<double>(total);
+}
+
 template <typename T, typename Producer, typename Consumer>
 double measure_ring(Producer producer, Consumer consumer, std::size_t warmup,
                     std::size_t total, std::size_t repeats) {
@@ -209,7 +272,7 @@ int main() {
               << executor_roundtrip_ns << '\n';
 
 #if defined(LOGIT_USE_MPSC_RING)
-    const double ring_function_ns = measure_ring<std::function<void()>>(
+    const double ring_construct_ns = measure_ring<std::function<void()>>(
         [](auto& ring, std::size_t count) {
             for (std::size_t i = 0; i < count; ++i) {
                 std::function<void()> value = []() { ++g_observer; };
@@ -220,8 +283,13 @@ int main() {
         },
         [](std::function<void()>& task) { task(); },
         warmup, total, repeats);
-    std::cout << "case=mpsc_ring_publish_std_function ns_per_call="
-              << ring_function_ns << '\n';
+    std::cout << "case=mpsc_ring_construct_and_publish_std_function ns_per_call="
+              << ring_construct_ns << '\n';
+
+    const double ring_prebuilt_ns = measure_ring_prebuilt_std_function(
+        warmup, total, repeats);
+    std::cout << "case=mpsc_ring_publish_prebuilt_std_function ns_per_call="
+              << ring_prebuilt_ns << '\n';
 
     const double ring_uint64_ns = measure_ring<std::uint64_t>(
         [](auto& ring, std::size_t count) {
@@ -233,11 +301,12 @@ int main() {
         },
         [](std::uint64_t& value) { g_observer += value; },
         warmup, total, repeats);
-    std::cout << "case=mpsc_ring_publish_uint64 ns_per_call="
+    std::cout << "case=mpsc_ring_publish_uint64_control ns_per_call="
               << ring_uint64_ns << '\n';
 #else
-    std::cout << "case=mpsc_ring_publish_std_function ns_per_call=unavailable\n";
-    std::cout << "case=mpsc_ring_publish_uint64 ns_per_call=unavailable\n";
+    std::cout << "case=mpsc_ring_construct_and_publish_std_function ns_per_call=unavailable\n";
+    std::cout << "case=mpsc_ring_publish_prebuilt_std_function ns_per_call=unavailable\n";
+    std::cout << "case=mpsc_ring_publish_uint64_control ns_per_call=unavailable\n";
 #endif
 
     std::cout << "observer=" << g_observer << '\n';
