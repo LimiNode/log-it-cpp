@@ -28,6 +28,7 @@ constexpr const char* kQueueBackend = "mutex_deque";
 #endif
 
 std::uint64_t g_observer = 0;
+std::atomic<std::size_t> g_queue_completed{0};
 
 std::size_t env_size(const char* name, std::size_t fallback) {
     if (const char* value = std::getenv(name)) {
@@ -52,6 +53,7 @@ class ProfilingSink final : public logit::ILogger {
 public:
     enum class Mode {
         Synchronous,
+        ConstructAndInvokeTaskOnly,
         AsyncFullMessage,
     };
 
@@ -68,11 +70,16 @@ public:
         }
 
         std::string payload = message;
-        logit::detail::TaskExecutor::get_instance().add_task(
+        std::function<void()> task =
             [this, payload = std::move(payload)]() mutable {
                 g_observer += payload.size();
                 m_count.fetch_add(1, std::memory_order_relaxed);
-            });
+            };
+        if (m_mode == Mode::ConstructAndInvokeTaskOnly) {
+            task();
+            return;
+        }
+        logit::detail::TaskExecutor::get_instance().add_task(std::move(task));
     }
 
     std::string get_string_param(const logit::LoggerParam&) const override { return {}; }
@@ -191,6 +198,67 @@ int main() {
         [](std::size_t) {}, warmup, total, repeats);
     std::cout << "case=logrecord_construct ns_per_call=" << record_ns << '\n';
 
+    const double task_marker_ns = median_ns_per_call(
+        [](std::size_t count) {
+            for (std::size_t i = 0; i < count; ++i) {
+                std::function<void()> task = []() { ++g_observer; };
+                task();
+            }
+        },
+        [](std::size_t) {}, warmup, total, repeats);
+    std::cout << "case=task_object_marker_only ns_per_call=" << task_marker_ns << '\n';
+
+    const double task_payload_ns = median_ns_per_call(
+        [](std::size_t count) {
+            for (std::size_t i = 0; i < count; ++i) {
+                std::string payload = kMessage;
+                std::function<void()> task =
+                    [payload = std::move(payload)]() mutable {
+                        g_observer += payload.size();
+                    };
+                task();
+            }
+        },
+        [](std::size_t) {}, warmup, total, repeats);
+    std::cout << "case=task_object_full_message ns_per_call=" << task_payload_ns << '\n';
+
+    auto& task_executor = logit::detail::TaskExecutor::get_instance();
+    const double queue_noop_ns = median_ns_per_call(
+        [&task_executor](std::size_t count) {
+            std::function<void()> task = []() {
+                g_queue_completed.fetch_add(1, std::memory_order_relaxed);
+            };
+            for (std::size_t i = 0; i < count; ++i) {
+                task_executor.add_task(task);
+            }
+        },
+        [&task_executor](std::size_t expected) {
+            task_executor.wait();
+            const auto completed = g_queue_completed.load(std::memory_order_relaxed);
+            if (completed != expected) {
+                std::cerr << "prebuilt TaskExecutor completion mismatch\n";
+                std::exit(7);
+            }
+            g_queue_completed.store(0, std::memory_order_relaxed);
+        }, warmup, total, repeats);
+    std::cout << "case=taskexecutor_enqueue_prebuilt_noop ns_per_call="
+              << queue_noop_ns << '\n';
+
+    const double queue_payload_ns = median_ns_per_call(
+        [&task_executor](std::size_t count) {
+            for (std::size_t i = 0; i < count; ++i) {
+                std::string payload = kMessage;
+                task_executor.add_task(
+                    [payload = std::move(payload)]() mutable {
+                        g_observer += payload.size();
+                    });
+            }
+        },
+        [&task_executor](std::size_t) { task_executor.wait(); },
+        warmup, total, repeats);
+    std::cout << "case=taskexecutor_enqueue_full_message ns_per_call="
+              << queue_payload_ns << '\n';
+
     sink_ptr->set_mode(ProfilingSink::Mode::Synchronous);
     const double sync_ns = median_ns_per_call(
         log_prepared,
@@ -204,6 +272,21 @@ int main() {
         },
         warmup, total, repeats);
     std::cout << "case=logger_log_sync_null ns_per_call=" << sync_ns << '\n';
+
+    sink_ptr->set_mode(ProfilingSink::Mode::ConstructAndInvokeTaskOnly);
+    const double dispatch_construct_invoke_ns = median_ns_per_call(
+        log_prepared,
+        [&logger, sink_ptr](std::size_t expected) {
+            logger.wait();
+            if (sink_ptr->count() != expected) {
+                std::cerr << "construct-only sink count mismatch\n";
+                std::exit(8);
+            }
+            sink_ptr->reset_count();
+        },
+        warmup, total, repeats);
+    std::cout << "case=logger_log_construct_and_invoke_full ns_per_call="
+              << dispatch_construct_invoke_ns << '\n';
 
     sink_ptr->set_mode(ProfilingSink::Mode::AsyncFullMessage);
     auto task_completed = std::make_shared<std::atomic<std::size_t>>(0);
