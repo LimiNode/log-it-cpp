@@ -53,7 +53,7 @@ class ProfilingSink final : public logit::ILogger {
 public:
     enum class Mode {
         Synchronous,
-        ConstructTaskOnly,
+        ConstructAndInvokeTaskOnly,
         AsyncFullMessage,
     };
 
@@ -75,7 +75,7 @@ public:
                 g_observer += payload.size();
                 m_count.fetch_add(1, std::memory_order_relaxed);
             };
-        if (m_mode == Mode::ConstructTaskOnly) {
+        if (m_mode == Mode::ConstructAndInvokeTaskOnly) {
             task();
             return;
         }
@@ -273,8 +273,8 @@ int main() {
         warmup, total, repeats);
     std::cout << "case=logger_log_sync_null ns_per_call=" << sync_ns << '\n';
 
-    sink_ptr->set_mode(ProfilingSink::Mode::ConstructTaskOnly);
-    const double dispatch_task_ns = median_ns_per_call(
+    sink_ptr->set_mode(ProfilingSink::Mode::ConstructAndInvokeTaskOnly);
+    const double dispatch_construct_invoke_ns = median_ns_per_call(
         log_prepared,
         [&logger, sink_ptr](std::size_t expected) {
             logger.wait();
@@ -285,8 +285,8 @@ int main() {
             sink_ptr->reset_count();
         },
         warmup, total, repeats);
-    std::cout << "case=logger_log_construct_only_full ns_per_call="
-              << dispatch_task_ns << '\n';
+    std::cout << "case=logger_log_construct_and_invoke_full ns_per_call="
+              << dispatch_construct_invoke_ns << '\n';
 
     sink_ptr->set_mode(ProfilingSink::Mode::AsyncFullMessage);
     auto task_completed = std::make_shared<std::atomic<std::size_t>>(0);

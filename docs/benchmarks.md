@@ -261,15 +261,18 @@ overlap rather than form an additive decomposition:
   invocation without a payload;
 - `task_object_full_message` adds the 200-byte payload ownership and capture;
 - `taskexecutor_enqueue_prebuilt_noop` measures admission of a prebuilt
-  no-op task, separating queue publication from task construction;
+  no-op task; the source callable is constructed once, but each `add_task`
+  call still includes by-value `std::function` copy/ownership transfer;
 - `taskexecutor_enqueue_full_message` combines payload capture with queue
   admission;
 - `taskexecutor_enqueue_noop` retains the original shared-state capture probe;
   it is intentionally not a pure queue-admission measurement;
 - `logger_log_sync_null` measures dispatch of a prepared record to a synchronous
   counting sink;
-- `logger_log_construct_only_full` measures dispatch plus full task construction
-  while invoking the task inline instead of enqueueing it;
+- `logger_log_construct_and_invoke_full` measures dispatch plus full task
+  construction and inline task-body invocation instead of enqueueing it;
+  the inline body is part of this timed producer-side probe and is not present
+  in the async producer timing region;
 - `logger_log_async_full_prepared` measures prepared-record dispatch plus full
   message task admission;
 - `prepared_record_plus_logger_async_full` adds per-call `LogRecord`
