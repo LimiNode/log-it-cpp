@@ -299,6 +299,26 @@ $env:LOGIT_PRODUCER_PROFILE_REPEATS = "5"
 ./build/logit_producer_profile
 ```
 
+`logit_task_ownership_profile` is a narrower follow-up experiment for the
+async ownership path. It compares local `std::function` construction/copy,
+batched versus one-at-a-time `TaskExecutor` admission, and (when
+`LOGIT_USE_MPSC_RING` is enabled) direct `MpscRingAny` publication for both a
+`std::function<void()>` payload and a `uint64_t` control payload. The
+one-at-a-time case includes worker completion and wakeup, so it is a round-trip
+signal rather than a producer-only admission cost. Direct ring cases omit
+`TaskExecutor` condition-variable notification and are not production API
+measurements. Every queue case validates that all submitted tasks were
+consumed; the output records the queue backend.
+
+This target is an A/B attribution tool, not a replacement for the prepared
+producer benchmark. Its rows still have different ownership and scheduling
+contracts and must not be added or subtracted as exact component costs.
+Configure it with `LOGIT_TASK_OWNERSHIP_TOTAL`,
+`LOGIT_TASK_OWNERSHIP_WARMUP`, and `LOGIT_TASK_OWNERSHIP_REPEATS`. The
+round-trip case defaults to at most 1,000 samples because each sample waits
+for worker completion; use `LOGIT_TASK_OWNERSHIP_ROUNDTRIP_TOTAL` to override
+that independent sample count.
+
 The flush regression target uses an intentionally delayed asynchronous sink and
 asserts that `flush()` does not return before every queued message has reached
 that sink. The fixture records latency completion and the flush barrier as
