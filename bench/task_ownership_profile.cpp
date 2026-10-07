@@ -110,7 +110,7 @@ double measure_ring_prebuilt_std_function(std::size_t warmup,
         worker.join();
         if (consumed.load(std::memory_order_relaxed) != count) {
             std::cerr << "prebuilt MPSC ring completion mismatch\n";
-            std::exit(6);
+            std::exit(7);
         }
         return static_cast<std::uint64_t>(elapsed);
     };
@@ -252,6 +252,27 @@ int main() {
         }, warmup, total, repeats);
     std::cout << "case=taskexecutor_batch_prebuilt ns_per_call="
               << executor_batch_ns << '\n';
+
+    executor.set_queue_policy(logit::QueuePolicy::DropNewest);
+    executor.reset_dropped_tasks();
+    const double executor_drop_newest_ns = measure(
+        [&executor, &prebuilt_task](std::size_t count) {
+            for (std::size_t i = 0; i < count; ++i) {
+                executor.add_task(prebuilt_task);
+            }
+        },
+        [&executor](std::size_t expected) {
+            executor.wait();
+            if (g_completed.load(std::memory_order_relaxed) != expected ||
+                executor.dropped_tasks() != 0) {
+                std::cerr << "TaskExecutor DropNewest completion mismatch\n";
+                std::exit(6);
+            }
+            g_completed.store(0, std::memory_order_relaxed);
+        }, warmup, total, repeats);
+    std::cout << "case=taskexecutor_batch_drop_newest_prebuilt ns_per_call="
+              << executor_drop_newest_ns << '\n';
+    executor.set_queue_policy(logit::QueuePolicy::Block);
 
     const double executor_roundtrip_ns = measure(
         [&executor, &prebuilt_task](std::size_t count) {

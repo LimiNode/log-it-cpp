@@ -322,7 +322,10 @@ Configure it with `LOGIT_TASK_OWNERSHIP_TOTAL`,
 `LOGIT_TASK_OWNERSHIP_WARMUP`, and `LOGIT_TASK_OWNERSHIP_REPEATS`. The
 round-trip case defaults to at most 1,000 samples because each sample waits
 for worker completion; use `LOGIT_TASK_OWNERSHIP_ROUNDTRIP_TOTAL` to override
-that independent sample count.
+that independent sample count. The `Block` and `DropNewest` batch rows use the
+same oversized queue and verify zero drops; their difference is a controlled
+policy-branch signal (not an attribution of one private atomic or notification
+operation).
 
 The flush regression target uses an intentionally delayed asynchronous sink and
 asserts that `flush()` does not return before every queued message has reached
