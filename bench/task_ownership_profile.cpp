@@ -62,6 +62,67 @@ double measure(Loop loop, Cleanup cleanup, std::size_t warmup,
            static_cast<double>(total);
 }
 
+struct PolicyPairResult {
+    double block_ns = 0.0;
+    double drop_newest_ns = 0.0;
+};
+
+PolicyPairResult measure_executor_policy_pair(
+        logit::detail::TaskExecutor& executor,
+        const std::function<void()>& prebuilt_task,
+        std::size_t warmup,
+        std::size_t total,
+        std::size_t repeats) {
+    auto run_case = [&](logit::QueuePolicy policy, std::size_t count) {
+        executor.set_queue_policy(policy);
+        executor.reset_dropped_tasks();
+        g_completed.store(0, std::memory_order_relaxed);
+
+        const auto start = std::chrono::steady_clock::now();
+        for (std::size_t i = 0; i < count; ++i) {
+            executor.add_task(prebuilt_task);
+        }
+        const auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::steady_clock::now() - start).count();
+
+        executor.wait();
+        if (g_completed.load(std::memory_order_relaxed) != count ||
+            executor.dropped_tasks() != 0) {
+            std::cerr << "TaskExecutor policy completion mismatch\n";
+            std::exit(6);
+        }
+        g_completed.store(0, std::memory_order_relaxed);
+        return static_cast<std::uint64_t>(elapsed);
+    };
+
+    run_case(logit::QueuePolicy::Block, warmup);
+    run_case(logit::QueuePolicy::DropNewest, warmup);
+
+    std::vector<std::uint64_t> block_samples;
+    std::vector<std::uint64_t> drop_samples;
+    block_samples.reserve(repeats);
+    drop_samples.reserve(repeats);
+    for (std::size_t repeat = 0; repeat < repeats; ++repeat) {
+        if ((repeat % 2) == 0) {
+            block_samples.push_back(run_case(logit::QueuePolicy::Block, total));
+            drop_samples.push_back(run_case(logit::QueuePolicy::DropNewest, total));
+        } else {
+            drop_samples.push_back(run_case(logit::QueuePolicy::DropNewest, total));
+            block_samples.push_back(run_case(logit::QueuePolicy::Block, total));
+        }
+    }
+
+    std::sort(block_samples.begin(), block_samples.end());
+    std::sort(drop_samples.begin(), drop_samples.end());
+    PolicyPairResult result;
+    result.block_ns = static_cast<double>(block_samples[block_samples.size() / 2]) /
+                      static_cast<double>(total);
+    result.drop_newest_ns =
+        static_cast<double>(drop_samples[drop_samples.size() / 2]) /
+        static_cast<double>(total);
+    return result;
+}
+
 #if defined(LOGIT_USE_MPSC_RING)
 double measure_ring_prebuilt_std_function(std::size_t warmup,
                                           std::size_t total,
@@ -236,42 +297,12 @@ int main() {
               << function_copy_ns << '\n';
     g_completed.store(0, std::memory_order_relaxed);
 
-    const double executor_batch_ns = measure(
-        [&executor, &prebuilt_task](std::size_t count) {
-            for (std::size_t i = 0; i < count; ++i) {
-                executor.add_task(prebuilt_task);
-            }
-        },
-        [&executor](std::size_t expected) {
-            executor.wait();
-            if (g_completed.load(std::memory_order_relaxed) != expected) {
-                std::cerr << "TaskExecutor batch completion mismatch\n";
-                std::exit(3);
-            }
-            g_completed.store(0, std::memory_order_relaxed);
-        }, warmup, total, repeats);
+    const auto policy_result = measure_executor_policy_pair(
+        executor, prebuilt_task, warmup, total, repeats);
     std::cout << "case=taskexecutor_batch_prebuilt ns_per_call="
-              << executor_batch_ns << '\n';
-
-    executor.set_queue_policy(logit::QueuePolicy::DropNewest);
-    executor.reset_dropped_tasks();
-    const double executor_drop_newest_ns = measure(
-        [&executor, &prebuilt_task](std::size_t count) {
-            for (std::size_t i = 0; i < count; ++i) {
-                executor.add_task(prebuilt_task);
-            }
-        },
-        [&executor](std::size_t expected) {
-            executor.wait();
-            if (g_completed.load(std::memory_order_relaxed) != expected ||
-                executor.dropped_tasks() != 0) {
-                std::cerr << "TaskExecutor DropNewest completion mismatch\n";
-                std::exit(6);
-            }
-            g_completed.store(0, std::memory_order_relaxed);
-        }, warmup, total, repeats);
+              << policy_result.block_ns << '\n';
     std::cout << "case=taskexecutor_batch_drop_newest_prebuilt ns_per_call="
-              << executor_drop_newest_ns << '\n';
+              << policy_result.drop_newest_ns << '\n';
     executor.set_queue_policy(logit::QueuePolicy::Block);
 
     const double executor_roundtrip_ns = measure(
