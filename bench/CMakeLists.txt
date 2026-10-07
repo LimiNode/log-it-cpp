@@ -89,6 +89,11 @@ target_compile_features(logit_producer_profile PRIVATE cxx_std_17)
 target_link_libraries(logit_producer_profile PRIVATE log-it-cpp::log-it-cpp)
 set_target_properties(logit_producer_profile PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
+add_executable(logit_task_ownership_profile task_ownership_profile.cpp)
+target_compile_features(logit_task_ownership_profile PRIVATE cxx_std_17)
+target_link_libraries(logit_task_ownership_profile PRIVATE log-it-cpp::log-it-cpp)
+set_target_properties(logit_task_ownership_profile PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 add_executable(benchmark_validation_test benchmark_validation_test.cpp)
 target_compile_features(benchmark_validation_test PRIVATE cxx_std_17)
 set_target_properties(benchmark_validation_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
