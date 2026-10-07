@@ -322,7 +322,17 @@ Configure it with `LOGIT_TASK_OWNERSHIP_TOTAL`,
 `LOGIT_TASK_OWNERSHIP_WARMUP`, and `LOGIT_TASK_OWNERSHIP_REPEATS`. The
 round-trip case defaults to at most 1,000 samples because each sample waits
 for worker completion; use `LOGIT_TASK_OWNERSHIP_ROUNDTRIP_TOTAL` to override
-that independent sample count.
+that independent sample count. The `Block` and `DropNewest` batch rows use the
+same oversized queue and verify zero drops. Cases are paired and interleaved
+(with the order reversed on alternate repeats), and each case drains the
+executor before the next case. For the `mpsc_ring` backend, `Block` evaluates
+the additional `m_active_tasks` backpressure check while `DropNewest`
+short-circuits that Block-only check. Their difference is therefore a
+controlled policy/backpressure signal, not the exact cost of one private
+atomic, branch, or notification operation. For the `mutex_deque` backend,
+this workload does not reach the full queue condition, so switching policies
+is a control/equivalence case rather than an exercised branch difference. Both
+policies use symmetric zero-drop validation.
 
 The flush regression target uses an intentionally delayed asynchronous sink and
 asserts that `flush()` does not return before every queued message has reached
