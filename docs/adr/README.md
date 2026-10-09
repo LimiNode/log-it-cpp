@@ -31,3 +31,7 @@ explains **why the current boundary or trade-off exists**.
 - [0006 — Explicit capability for concurrent dispatch](0006-concurrent-dispatch-capability.md)
 - [0007 — Transparent compressed-file reads](0007-transparent-compressed-file-reads.md)
 - [0008 — Binary log record format research prototype](0008-binary-log-record-format-research.md)
+
+## Proposed decisions
+
+- [0009 — Versioned configuration loading contract](0009-configuration-loading-contract.md)

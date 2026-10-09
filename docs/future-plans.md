@@ -50,8 +50,9 @@ Legend:
   feature is enabled; disabled-feature and malformed-input paths remain
   failures and are covered by tests.
 - [ ] **Configuration loading** — design a versioned JSON/properties mapping to
-  the existing backend configuration. Treat file watching/hot reload as a
-  follow-up, not part of the first configuration API.
+  the existing backend configuration. The proposed contract is recorded in
+  [ADR 0009](adr/0009-configuration-loading-contract.md). Treat file
+  watching/hot reload as a follow-up, not part of the first configuration API.
 - [ ] **Extended filtering** — evaluate source/file, message, tag/MDC, and
   range filters; define their cost and ordering before adding public API.
 - [x] **Benchmark follow-up** — formatted and passthrough public-macro scenarios,
@@ -80,4 +81,4 @@ decisions or compatibility changes; keep this file focused on status and next
 steps. Record measurements with their environment instead of turning one local
 run into a universal performance claim.
 
-Last reviewed: 2026-09-19.
+Last reviewed: 2026-10-10.
