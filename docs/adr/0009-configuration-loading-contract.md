@@ -29,18 +29,27 @@ The model has these top-level requirements:
   reject unsupported versions rather than silently applying a different schema.
 - `loggers` is a required array. Each entry has a stable `id`, a `type`, and
   backend options. Logger ids must be unique within one document.
-- Common options are represented once: `level`, `async`,
-  `use_dedicated_executor`, `queue_capacity`, `queue_policy`, and `formatter`.
-  A backend may reject an option that it cannot support; it must not silently
-  ignore it.
+- The semantic model distinguishes three default owners:
+  - backend-native fields use defaults from the selected backend's public C++
+    `Config` (for example `FileLogger::Config` or `MdbxLogger::Config`);
+  - formatter fields use the selected formatter's public `Config` (the v1
+    default formatter is `SimpleLogFormatter::Config`);
+  - logger-strategy fields use explicit loader/API defaults matching current
+    runtime behavior. In particular, an omitted `level` means
+    `LogLevel::LOG_LVL_TRACE`.
+- A semantic option is exposed at a shared level only when the selected backend
+  has a lossless mapping for it. Otherwise it remains backend-specific, or its
+  presence is a validation error; values are never silently ignored.
 - Backend-specific sections contain only options owned by the selected backend.
   The initial supported mapping will cover the existing public backend
   `Config` structures, including file/unique-file, console, memory, MDBX,
   OTLP, Prometheus, syslog, event log, and Windows debug configurations where
   the target platform and optional feature are available.
-- When a field is missing, the loader uses the default of the corresponding
-  C++ `Config`. Defaults are therefore owned by the C++ configuration types
-  and must not be duplicated as an independent parser default table.
+- Executor-style `queue_capacity` and `queue_policy` are therefore available
+  only for backends whose public contract uses that executor configuration.
+  Backend-native queues retain their own fields and semantics, such as MDBX or
+  OTLP `max_queue_size` and `drop_on_overflow`; v1 does not pretend these are
+  interchangeable with executor queue settings.
 - Unknown logger types, unknown fields, duplicate ids, malformed values,
   unsupported combinations, and unavailable optional backends are validation
   errors. They must produce a diagnostic containing the document path and a
@@ -50,9 +59,9 @@ The model has these top-level requirements:
   are not part of the v1 contract unless explicitly added to the schema.
 - Formatter configuration is data-only in v1 (for example pattern and JSON
   mode). Callback/function members such as `on_payload`, `on_error`, and
-  collection callbacks are not serializable. They require programmatic binding
-  after loading and are never represented as executable data in JSON or
-  properties.
+  collection callbacks are not serializable. They require a programmatic
+  binding/resolver before logger construction and are never represented as
+  executable data in JSON or properties.
 
 An illustrative JSON representation of the semantic model is:
 
@@ -63,12 +72,14 @@ An illustrative JSON representation of the semantic model is:
     {
       "id": "application-file",
       "type": "file",
-      "level": "info",
-      "async": true,
-      "queue_policy": "block",
-      "formatter": { "pattern": "%v", "json": false },
+      "strategy": {
+        "level": "info",
+        "formatter": { "pattern": "%v", "json": false }
+      },
       "backend": {
         "directory": "logs",
+        "async": true,
+        "queue_policy": "block",
         "compress_level": 1
       }
     }
@@ -86,28 +97,38 @@ The load pipeline is:
 source (JSON/properties)
     -> parser-neutral semantic model
     -> schema and value validation
-    -> backend Config construction using C++ defaults
+    -> backend and formatter Config materialization using their defaults
+    -> programmatic binding/resolution of callbacks and external resources
     -> logger instantiation
 ```
 
-Loading is an explicit operation that either returns a complete validated
-configuration/instance set or returns diagnostics without partially applying
+The conceptual API has two phases: loading/validation returns a complete plan;
+instantiation consumes that plan together with programmatic bindings and
+resources. A convenience API may compose the phases, but it must resolve all
+required bindings before constructing a logger. A callback-dependent backend
+without its required binding is a `missing_programmatic_binding` diagnostic at
+the logger path, not a successfully instantiated inert backend. Backends that
+explicitly document an inert/no-output mode may opt into that mode instead.
+
+The final operation is atomic with respect to the document: it returns a
+complete validated plan/instance set or diagnostics without partially applying
 the document. v1 does not define file watching, hot reload, transactional
 replacement of live loggers, or environment-variable interpolation.
 
 ## Consequences
 
-The contract gives JSON and properties the same behavior and keeps existing C++
-`Config` defaults authoritative. Strict validation makes deployment mistakes
-visible and gives callers actionable paths such as `loggers[1].queue_policy`.
+The contract gives JSON and properties the same behavior while keeping backend,
+formatter, and strategy defaults explicit. Strict validation makes deployment
+mistakes visible and gives callers actionable paths such as
+`loggers[1].backend.queue_policy`.
 The model can be tested without making a particular JSON library a core
 dependency; a JSON frontend may remain optional or thin.
 
 The initial implementation must maintain an explicit mapping for each backend,
-including platform and feature availability checks. Adding a new backend or
-serializable option requires updating the schema, mapping, validation, and
-documentation together. Callbacks and other executable behavior remain an
-intentional programmatic boundary.
+including platform and feature availability checks and any required callback
+bindings. Adding a new backend or serializable option requires updating the
+schema, mapping, validation, and documentation together. Callbacks and other
+executable behavior remain an intentional programmatic boundary.
 
 ## Alternatives considered
 
