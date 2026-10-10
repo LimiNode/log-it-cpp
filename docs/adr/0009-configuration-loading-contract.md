@@ -50,6 +50,12 @@ The model has these top-level requirements:
   Backend-native queues retain their own fields and semantics, such as MDBX or
   OTLP `max_queue_size` and `drop_on_overflow`; v1 does not pretend these are
   interchangeable with executor queue settings.
+- For an executor-style backend, explicitly supplied `queue_capacity` or
+  `queue_policy` requires an effective dedicated-executor configuration. If
+  `use_dedicated_executor` is false or absent, those fields produce an
+  `unsupported_combination` validation diagnostic rather than being silently
+  ignored. A logger document does not implicitly configure the shared global
+  `TaskExecutor`; a future global-executor scope would be a separate contract.
 - Unknown logger types, unknown fields, duplicate ids, malformed values,
   unsupported combinations, and unavailable optional backends are validation
   errors. They must produce a diagnostic containing the document path and a
@@ -79,6 +85,8 @@ An illustrative JSON representation of the semantic model is:
       "backend": {
         "directory": "logs",
         "async": true,
+        "use_dedicated_executor": true,
+        "queue_capacity": 8192,
         "queue_policy": "block",
         "compress_level": 1
       }
