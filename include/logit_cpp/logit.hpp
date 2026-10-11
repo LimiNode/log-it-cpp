@@ -12,6 +12,7 @@
 #include "logit/config.hpp"
 #include "logit/enums.hpp"
 #include "logit/configuration.hpp"
+#include "logit/configuration_builtins.hpp"
 #include "logit/utils.hpp"
 #include "logit/formatter.hpp"
 #include "logit/loggers.hpp"

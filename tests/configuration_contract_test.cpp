@@ -173,6 +173,71 @@ void test_materializer_is_not_called_after_validation_failure() {
     assert(materializer.materialize_calls == 0);
 }
 
+void test_builtin_materializer_applies_file_defaults() {
+    logit::ConfigurationDocument document;
+    document.schema_version = 1;
+    logit::ConfigurationLoggerSpec logger;
+    logger.id = "file-defaults";
+    logger.type = "file";
+    document.loggers.push_back(logger);
+
+    logit::BuiltinConfigurationMaterializer materializer;
+    logit::ConfigurationPlan plan;
+    logit::ConfigurationDiagnostics diagnostics;
+    assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+    assert(diagnostics.empty());
+
+    std::string directory;
+    std::uint64_t queue_capacity = 1;
+    bool async = false;
+    assert(plan.loggers[0].backend.at("directory").get_string(directory));
+    assert(directory == "logs");
+    assert(plan.loggers[0].backend.at("async").get_boolean(async));
+    assert(async);
+    assert(plan.loggers[0].backend.at("queue_capacity").get_unsigned(queue_capacity));
+    assert(queue_capacity == 0);
+}
+
+void test_builtin_materializer_rejects_unknown_field() {
+    logit::ConfigurationDocument document;
+    document.schema_version = 1;
+    logit::ConfigurationLoggerSpec logger;
+    logger.id = "memory-invalid";
+    logger.type = "memory";
+    logger.backend["not_a_memory_option"] = logit::ConfigurationValue::make_boolean(true);
+    document.loggers.push_back(logger);
+
+    logit::BuiltinConfigurationMaterializer materializer;
+    logit::ConfigurationPlan plan;
+    logit::ConfigurationDiagnostics diagnostics;
+    assert(!logit::materialize_configuration(document, materializer, plan, diagnostics));
+    assert(diagnostics.has_code(logit::ConfigurationErrorCode::UnknownField));
+}
+
+void test_builtin_materializer_handles_optional_backends_explicitly() {
+    logit::ConfigurationDocument document;
+    document.schema_version = 1;
+    logit::ConfigurationLoggerSpec logger;
+    logger.id = "mdbx-or-optional";
+    logger.type = "mdbx";
+    document.loggers.push_back(logger);
+
+    logit::BuiltinConfigurationMaterializer materializer;
+    logit::ConfigurationPlan plan;
+    logit::ConfigurationDiagnostics diagnostics;
+    const bool materialized =
+        logit::materialize_configuration(document, materializer, plan, diagnostics);
+#if defined(LOGIT_WITH_MDBX)
+    assert(materialized);
+    assert(diagnostics.empty());
+    assert(plan.loggers[0].backend.at("path").type() ==
+           logit::ConfigurationValue::Type::String);
+#else
+    assert(!materialized);
+    assert(diagnostics.has_code(logit::ConfigurationErrorCode::UnavailableBackend));
+#endif
+}
+
 } // namespace
 
 int main() {
@@ -182,5 +247,8 @@ int main() {
     test_diagnostics_fail_closed();
     test_plan_is_preserved_on_late_failure();
     test_materializer_is_not_called_after_validation_failure();
+    test_builtin_materializer_applies_file_defaults();
+    test_builtin_materializer_rejects_unknown_field();
+    test_builtin_materializer_handles_optional_backends_explicitly();
     return 0;
 }
