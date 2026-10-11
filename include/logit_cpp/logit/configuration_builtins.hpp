@@ -22,29 +22,22 @@ namespace logit {
                               ConfigurationDiagnostics& diagnostics) const override {
             if (!is_known_configuration_backend(logger.type)) {
                 diagnostics.add(ConfigurationErrorCode::UnknownBackendType,
-                                "logger.type",
+                                "type",
                                 "Built-in materializer does not know this backend");
                 return false;
             }
 
             if (!backend_available(logger.type)) {
                 diagnostics.add(ConfigurationErrorCode::UnavailableBackend,
-                                "logger.type",
+                                "type",
                                 "The selected optional backend is not enabled in this build");
                 return false;
             }
 
             if (!adapter_supported(logger.type)) {
                 diagnostics.add(ConfigurationErrorCode::UnavailableBackend,
-                                "logger.type",
+                                "type",
                                 "No built-in semantic adapter is defined for this backend yet");
-                return false;
-            }
-
-            if (logger.type == "otlp_payload" || logger.type == "prometheus_payload") {
-                diagnostics.add(ConfigurationErrorCode::MissingProgrammaticBinding,
-                                "logger.backend.on_payload",
-                                "Payload export requires a programmatic on_payload binding");
                 return false;
             }
 
@@ -53,7 +46,7 @@ namespace logit {
                  it != logger.backend.end(); ++it) {
                 if (!field_allowed(logger.type, it->first)) {
                     diagnostics.add(ConfigurationErrorCode::UnknownField,
-                                    "logger.backend." + it->first,
+                                    "backend." + it->first,
                                     "Field is not part of the selected built-in backend");
                     valid = false;
                 }
@@ -66,7 +59,7 @@ namespace logit {
                 valid = validate_memory_types(logger, diagnostics) && valid;
             } else if (logger.type == "mdbx") {
                 valid = validate_mdbx_types(logger, diagnostics) && valid;
-            } else if (logger.type == "otlp_http") {
+            } else if (logger.type == "otlp_http" || logger.type == "otlp_payload") {
                 valid = validate_otlp_types(logger, diagnostics) && valid;
             } else if (logger.type == "prometheus_http" ||
                        logger.type == "prometheus_payload") {
@@ -87,6 +80,9 @@ namespace logit {
             output.strategy = logger.strategy;
             output.backend = logger.backend;
             apply_defaults(logger.type, output.backend);
+            if (logger.type == "otlp_payload" || logger.type == "prometheus_payload") {
+                output.required_bindings.push_back("on_payload");
+            }
             return true;
         }
 
@@ -170,6 +166,12 @@ namespace logit {
                        field == "drop_on_overflow" || field == "async" ||
                        field == "cancel_on_shutdown";
             }
+            if (type == "otlp_payload") {
+                return field == "format" || field == "async" ||
+                       field == "max_payload_bytes" || field == "max_batch_size" ||
+                       field == "max_queue_size" || field == "drop_on_overflow" ||
+                       field == "export_interval_ms";
+            }
             if (type == "prometheus_http") {
                 return field == "format" || field == "address" || field == "port" ||
                        field == "path" || field == "health_path" ||
@@ -196,7 +198,7 @@ namespace logit {
                                   ConfigurationDiagnostics& diagnostics) {
             if (type_is(logger.backend, name, type)) return true;
             diagnostics.add(ConfigurationErrorCode::InvalidValue,
-                            "logger.backend." + std::string(name),
+                            "backend." + std::string(name),
                             "Field has an invalid value type");
             return false;
         }
@@ -291,7 +293,11 @@ namespace logit {
             valid = validate_type(logger, "max_queue_size", ConfigurationValue::Type::UnsignedInteger, diagnostics) && valid;
             valid = validate_type(logger, "max_batch_size", ConfigurationValue::Type::UnsignedInteger, diagnostics) && valid;
             valid = validate_type(logger, "max_in_flight_requests", ConfigurationValue::Type::UnsignedInteger, diagnostics) && valid;
-            valid = validate_type(logger, "export_interval_ms", ConfigurationValue::Type::SignedInteger, diagnostics) && valid;
+            valid = validate_type(logger, "export_interval_ms",
+                                  logger.type == "otlp_payload"
+                                      ? ConfigurationValue::Type::UnsignedInteger
+                                      : ConfigurationValue::Type::SignedInteger,
+                                  diagnostics) && valid;
             valid = validate_type(logger, "request_timeout_sec", ConfigurationValue::Type::SignedInteger, diagnostics) && valid;
             valid = validate_type(logger, "retry_attempts", ConfigurationValue::Type::SignedInteger, diagnostics) && valid;
             valid = validate_type(logger, "retry_delay_ms", ConfigurationValue::Type::SignedInteger, diagnostics) && valid;
@@ -314,7 +320,7 @@ namespace logit {
             if (!it->second.get_string(value) ||
                 (value != first && value != second && value != third && value != fourth)) {
                 diagnostics.add(ConfigurationErrorCode::InvalidValue,
-                                "logger.backend." + std::string(name),
+                                "backend." + std::string(name),
                                 "Field has an unsupported named value");
                 return false;
             }
@@ -330,7 +336,7 @@ namespace logit {
             if (!it->second.get_string(value) ||
                 (value != first && value != second && value != third)) {
                 diagnostics.add(ConfigurationErrorCode::InvalidValue,
-                                "logger.backend." + std::string(name),
+                                "backend." + std::string(name),
                                 "Field has an unsupported named value");
                 return false;
             }
@@ -357,7 +363,7 @@ namespace logit {
             if (it == logger.backend.end()) return true;
             if (it->second.type() != ConfigurationValue::Type::Object) {
                 diagnostics.add(ConfigurationErrorCode::InvalidValue,
-                                "logger.backend.format",
+                                "backend.format",
                                 "format must be an object");
                 return false;
             }
@@ -374,13 +380,13 @@ namespace logit {
                     field->first == "include_arg_names" || field->first == "include_args";
                 if (!string_field && !bool_field) {
                     diagnostics.add(ConfigurationErrorCode::UnknownField,
-                                    "logger.backend.format." + field->first,
+                                    "backend.format." + field->first,
                                     "Field is not part of OtlpJsonFormatConfig");
                     valid = false;
                 } else if ((string_field && field->second.type() != ConfigurationValue::Type::String) ||
                            (bool_field && field->second.type() != ConfigurationValue::Type::Boolean)) {
                     diagnostics.add(ConfigurationErrorCode::InvalidValue,
-                                    "logger.backend.format." + field->first,
+                                    "backend.format." + field->first,
                                     "Field has an invalid value type");
                     valid = false;
                 }
@@ -394,7 +400,7 @@ namespace logit {
             if (it == logger.backend.end()) return true;
             if (it->second.type() != ConfigurationValue::Type::Object) {
                 diagnostics.add(ConfigurationErrorCode::InvalidValue,
-                                "logger.backend.format",
+                                "backend.format",
                                 "format must be an object");
                 return false;
             }
@@ -413,14 +419,14 @@ namespace logit {
                 const bool labels_field = field->first == "const_labels";
                 if (!string_field && !bool_field && !labels_field) {
                     diagnostics.add(ConfigurationErrorCode::UnknownField,
-                                    "logger.backend.format." + field->first,
+                                    "backend.format." + field->first,
                                     "Field is not part of PrometheusTextFormatConfig");
                     valid = false;
                 } else if ((string_field && field->second.type() != ConfigurationValue::Type::String) ||
                            (bool_field && field->second.type() != ConfigurationValue::Type::Boolean) ||
                            (labels_field && field->second.type() != ConfigurationValue::Type::Array)) {
                     diagnostics.add(ConfigurationErrorCode::InvalidValue,
-                                    "logger.backend.format." + field->first,
+                                    "backend.format." + field->first,
                                     "Field has an invalid value type");
                     valid = false;
                 }
@@ -431,18 +437,28 @@ namespace logit {
                         std::map<std::string, ConfigurationValue> label;
                         if (!labels[index].get_object(label)) {
                             diagnostics.add(ConfigurationErrorCode::InvalidValue,
-                                            "logger.backend.format.const_labels[" +
+                                            "backend.format.const_labels[" +
                                                 std::to_string(index) + "]",
                                             "Each constant label must be an object");
                             valid = false;
                             continue;
+                        }
+                        for (std::map<std::string, ConfigurationValue>::const_iterator member = label.begin();
+                             member != label.end(); ++member) {
+                            if (member->first != "name" && member->first != "value") {
+                                diagnostics.add(ConfigurationErrorCode::UnknownField,
+                                                "backend.format.const_labels[" +
+                                                    std::to_string(index) + "]." + member->first,
+                                                "Field is not part of PrometheusLabel");
+                                valid = false;
+                            }
                         }
                         if (label.find("name") == label.end() ||
                             label.find("value") == label.end() ||
                             label["name"].type() != ConfigurationValue::Type::String ||
                             label["value"].type() != ConfigurationValue::Type::String) {
                             diagnostics.add(ConfigurationErrorCode::InvalidValue,
-                                            "logger.backend.format.const_labels[" +
+                                            "backend.format.const_labels[" +
                                                 std::to_string(index) + "]",
                                             "Constant labels require string name and value");
                             valid = false;
@@ -456,6 +472,24 @@ namespace logit {
         static void set_default(ConfigurationFieldMap& fields, const char* name,
                                 const ConfigurationValue& value) {
             if (!has(fields, name)) fields[name] = value;
+        }
+
+        static void merge_object_defaults(ConfigurationFieldMap& fields, const char* name,
+                                          const ConfigurationFieldMap& defaults) {
+            ConfigurationFieldMap::iterator it = fields.find(name);
+            if (it == fields.end()) {
+                fields[name] = ConfigurationValue::make_object(defaults);
+                return;
+            }
+            ConfigurationFieldMap observed;
+            if (!it->second.get_object(observed)) return;
+            for (ConfigurationFieldMap::const_iterator field = defaults.begin();
+                 field != defaults.end(); ++field) {
+                if (observed.find(field->first) == observed.end()) {
+                    observed[field->first] = field->second;
+                }
+            }
+            it->second = ConfigurationValue::make_object(observed);
         }
 
         static void apply_defaults(const std::string& type, ConfigurationFieldMap& fields) {
@@ -512,7 +546,7 @@ namespace logit {
                 format["include_arg_names"] = ConfigurationValue::make_boolean(false);
                 format["include_args"] = ConfigurationValue::make_boolean(true);
                 format["args_prefix"] = ConfigurationValue::make_string("logit.arg.");
-                set_default(fields, "format", ConfigurationValue::make_object(format));
+                merge_object_defaults(fields, "format", format);
                 set_default(fields, "host", ConfigurationValue::make_string("http://localhost:4318"));
                 set_default(fields, "path", ConfigurationValue::make_string("/v1/logs"));
                 set_default(fields, "max_queue_size", ConfigurationValue::make_unsigned(8192));
@@ -528,6 +562,25 @@ namespace logit {
                 set_default(fields, "drop_on_overflow", ConfigurationValue::make_boolean(true));
                 set_default(fields, "async", ConfigurationValue::make_boolean(true));
                 set_default(fields, "cancel_on_shutdown", ConfigurationValue::make_boolean(false));
+            } else if (type == "otlp_payload") {
+                ConfigurationFieldMap format;
+                format["service_name"] = ConfigurationValue::make_string("logit-app");
+                format["service_namespace"] = ConfigurationValue::make_string("");
+                format["service_instance_id"] = ConfigurationValue::make_string("");
+                format["deployment_environment"] = ConfigurationValue::make_string("");
+                format["include_source"] = ConfigurationValue::make_boolean(true);
+                format["include_thread_id"] = ConfigurationValue::make_boolean(true);
+                format["include_format"] = ConfigurationValue::make_boolean(true);
+                format["include_arg_names"] = ConfigurationValue::make_boolean(false);
+                format["include_args"] = ConfigurationValue::make_boolean(true);
+                format["args_prefix"] = ConfigurationValue::make_string("logit.arg.");
+                merge_object_defaults(fields, "format", format);
+                set_default(fields, "async", ConfigurationValue::make_boolean(true));
+                set_default(fields, "max_payload_bytes", ConfigurationValue::make_unsigned(1024 * 1024));
+                set_default(fields, "max_batch_size", ConfigurationValue::make_unsigned(256));
+                set_default(fields, "max_queue_size", ConfigurationValue::make_unsigned(1024));
+                set_default(fields, "drop_on_overflow", ConfigurationValue::make_boolean(true));
+                set_default(fields, "export_interval_ms", ConfigurationValue::make_unsigned(100));
             } else if (type == "prometheus_http") {
                 ConfigurationFieldMap format;
                 format["include_help"] = ConfigurationValue::make_boolean(true);
@@ -542,13 +595,30 @@ namespace logit {
                 format["instance_label_name"] = ConfigurationValue::make_string("instance");
                 format["instance_label_value"] = ConfigurationValue::make_string("");
                 format["include_build_info"] = ConfigurationValue::make_boolean(true);
-                set_default(fields, "format", ConfigurationValue::make_object(format));
+                merge_object_defaults(fields, "format", format);
                 set_default(fields, "address", ConfigurationValue::make_string("0.0.0.0"));
                 set_default(fields, "port", ConfigurationValue::make_unsigned(9090));
                 set_default(fields, "path", ConfigurationValue::make_string("/metrics"));
                 set_default(fields, "health_path", ConfigurationValue::make_string("/health"));
                 set_default(fields, "enable_health_endpoint", ConfigurationValue::make_boolean(true));
                 set_default(fields, "start_immediately", ConfigurationValue::make_boolean(true));
+            } else if (type == "prometheus_payload") {
+                ConfigurationFieldMap format;
+                format["include_help"] = ConfigurationValue::make_boolean(true);
+                format["include_type"] = ConfigurationValue::make_boolean(true);
+                format["include_timestamp"] = ConfigurationValue::make_boolean(false);
+                format["metric_prefix"] = ConfigurationValue::make_string("logit_");
+                format["const_labels"] = ConfigurationValue::make_array(
+                    std::vector<ConfigurationValue>());
+                format["include_logger_label"] = ConfigurationValue::make_boolean(true);
+                format["logger_label_name"] = ConfigurationValue::make_string("logger");
+                format["include_instance_label"] = ConfigurationValue::make_boolean(false);
+                format["instance_label_name"] = ConfigurationValue::make_string("instance");
+                format["instance_label_value"] = ConfigurationValue::make_string("");
+                format["include_build_info"] = ConfigurationValue::make_boolean(true);
+                merge_object_defaults(fields, "format", format);
+                set_default(fields, "emit_on_log", ConfigurationValue::make_boolean(false));
+                set_default(fields, "emit_on_wait", ConfigurationValue::make_boolean(true));
             }
         }
     };

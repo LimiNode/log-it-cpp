@@ -87,6 +87,17 @@ namespace logit {
             return false;
         }
 
+        void append_rebased(const ConfigurationDiagnostics& source,
+                            const std::string& prefix) {
+            for (std::vector<ConfigurationDiagnostic>::const_iterator it = source.m_items.begin();
+                 it != source.m_items.end(); ++it) {
+                const std::string path = it->path.empty()
+                    ? prefix
+                    : prefix + "." + it->path;
+                add(it->code, path, it->message);
+            }
+        }
+
     private:
         std::vector<ConfigurationDiagnostic> m_items;
     };
@@ -242,6 +253,7 @@ namespace logit {
         std::string type;
         ConfigurationStrategySpec strategy;
         ConfigurationFieldMap backend;
+        std::vector<std::string> required_bindings;
     };
 
     /// \struct ConfigurationPlan
@@ -425,13 +437,17 @@ namespace logit {
         }
 
         for (std::size_t index = 0; index < document.loggers.size(); ++index) {
-            const std::size_t diagnostic_count = diagnostics.size();
-            const bool valid = materializer.validate_backend(document.loggers[index], diagnostics);
-            if (!valid || diagnostics.size() != diagnostic_count) {
-                if (diagnostics.size() == diagnostic_count) {
+            ConfigurationDiagnostics local_diagnostics;
+            const bool valid = materializer.validate_backend(document.loggers[index],
+                                                              local_diagnostics);
+            if (!valid || !local_diagnostics.empty()) {
+                const std::string prefix = "loggers[" + std::to_string(index) + "]";
+                if (local_diagnostics.empty()) {
                     diagnostics.add(ConfigurationErrorCode::BackendValidationFailed,
-                                    "loggers[" + std::to_string(index) + "].backend",
+                                    prefix + ".backend",
                                     "Backend materializer rejected the logger configuration");
+                } else {
+                    diagnostics.append_rebased(local_diagnostics, prefix);
                 }
                 return false;
             }
@@ -442,14 +458,17 @@ namespace logit {
         candidate.loggers.reserve(document.loggers.size());
         for (std::size_t index = 0; index < document.loggers.size(); ++index) {
             ConfigurationMaterializedLogger output;
-            const std::size_t diagnostic_count = diagnostics.size();
+            ConfigurationDiagnostics local_diagnostics;
             const bool materialized = materializer.materialize_backend(
-                document.loggers[index], output, diagnostics);
-            if (!materialized || diagnostics.size() != diagnostic_count) {
-                if (diagnostics.size() == diagnostic_count) {
+                document.loggers[index], output, local_diagnostics);
+            if (!materialized || !local_diagnostics.empty()) {
+                const std::string prefix = "loggers[" + std::to_string(index) + "]";
+                if (local_diagnostics.empty()) {
                     diagnostics.add(ConfigurationErrorCode::MaterializationFailed,
-                                    "loggers[" + std::to_string(index) + "]",
+                                    prefix,
                                     "Backend materializer could not produce a logger plan");
+                } else {
+                    diagnostics.append_rebased(local_diagnostics, prefix);
                 }
                 return false;
             }
