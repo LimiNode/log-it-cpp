@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -91,7 +92,7 @@ namespace logit {
     };
 
     /// \class ConfigurationValue
-    /// \brief Parser-neutral scalar value used by backend field maps.
+    /// \brief Parser-neutral scalar or nested value used by backend field maps.
     class ConfigurationValue {
     public:
         enum class Type {
@@ -99,7 +100,9 @@ namespace logit {
             Boolean,
             SignedInteger,
             UnsignedInteger,
-            String
+            String,
+            Array,
+            Object
         };
 
         ConfigurationValue() : m_type(Type::Null), m_bool(false), m_signed(0), m_unsigned(0) {}
@@ -132,6 +135,21 @@ namespace logit {
             return result;
         }
 
+        static ConfigurationValue make_array(const std::vector<ConfigurationValue>& value) {
+            ConfigurationValue result;
+            result.m_type = Type::Array;
+            result.m_array.reset(new std::vector<ConfigurationValue>(value));
+            return result;
+        }
+
+        static ConfigurationValue make_object(
+                const std::map<std::string, ConfigurationValue>& value) {
+            ConfigurationValue result;
+            result.m_type = Type::Object;
+            result.m_object.reset(new std::map<std::string, ConfigurationValue>(value));
+            return result;
+        }
+
         Type type() const { return m_type; }
 
         bool get_boolean(bool& value) const {
@@ -158,12 +176,26 @@ namespace logit {
             return true;
         }
 
+        bool get_array(std::vector<ConfigurationValue>& value) const {
+            if (m_type != Type::Array || !m_array) return false;
+            value = *m_array;
+            return true;
+        }
+
+        bool get_object(std::map<std::string, ConfigurationValue>& value) const {
+            if (m_type != Type::Object || !m_object) return false;
+            value = *m_object;
+            return true;
+        }
+
     private:
         Type m_type;
         bool m_bool;
         std::int64_t m_signed;
         std::uint64_t m_unsigned;
         std::string m_string;
+        std::shared_ptr<std::vector<ConfigurationValue>> m_array;
+        std::shared_ptr<std::map<std::string, ConfigurationValue>> m_object;
     };
 
     typedef std::map<std::string, ConfigurationValue> ConfigurationFieldMap;
@@ -226,6 +258,10 @@ namespace logit {
         virtual ~ConfigurationMaterializer() {}
 
         /// \brief Validate backend fields and required bindings without side effects.
+        ///
+        /// Returning true with a diagnostic is still a failed phase. Adapters
+        /// must add only error diagnostics; warnings are not part of this v1
+        /// contract.
         virtual bool validate_backend(const ConfigurationLoggerSpec& logger,
                                       ConfigurationDiagnostics& diagnostics) const = 0;
 
@@ -390,7 +426,8 @@ namespace logit {
 
         for (std::size_t index = 0; index < document.loggers.size(); ++index) {
             const std::size_t diagnostic_count = diagnostics.size();
-            if (!materializer.validate_backend(document.loggers[index], diagnostics)) {
+            const bool valid = materializer.validate_backend(document.loggers[index], diagnostics);
+            if (!valid || diagnostics.size() != diagnostic_count) {
                 if (diagnostics.size() == diagnostic_count) {
                     diagnostics.add(ConfigurationErrorCode::BackendValidationFailed,
                                     "loggers[" + std::to_string(index) + "].backend",
@@ -406,7 +443,9 @@ namespace logit {
         for (std::size_t index = 0; index < document.loggers.size(); ++index) {
             ConfigurationMaterializedLogger output;
             const std::size_t diagnostic_count = diagnostics.size();
-            if (!materializer.materialize_backend(document.loggers[index], output, diagnostics)) {
+            const bool materialized = materializer.materialize_backend(
+                document.loggers[index], output, diagnostics);
+            if (!materialized || diagnostics.size() != diagnostic_count) {
                 if (diagnostics.size() == diagnostic_count) {
                     diagnostics.add(ConfigurationErrorCode::MaterializationFailed,
                                     "loggers[" + std::to_string(index) + "]",

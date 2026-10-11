@@ -1,5 +1,7 @@
 #include <cassert>
+#include <map>
 #include <string>
+#include <vector>
 
 #include <logit.hpp>
 
@@ -8,10 +10,18 @@ namespace {
 struct RecordingMaterializer : logit::ConfigurationMaterializer {
     mutable int validate_calls = 0;
     mutable int materialize_calls = 0;
+    bool add_validation_diagnostic = false;
+    bool add_materialization_diagnostic = false;
+    int fail_materialization_at = -1;
 
     bool validate_backend(const logit::ConfigurationLoggerSpec& logger,
                           logit::ConfigurationDiagnostics& diagnostics) const override {
         ++validate_calls;
+        if (add_validation_diagnostic) {
+            diagnostics.add(logit::ConfigurationErrorCode::UnavailableBackend,
+                            "loggers[0].type",
+                            "test validation diagnostic");
+        }
         if (logger.type == "file" && logger.backend.find("directory") == logger.backend.end()) {
             diagnostics.add(logit::ConfigurationErrorCode::UnknownField,
                             "loggers[0].backend",
@@ -23,8 +33,16 @@ struct RecordingMaterializer : logit::ConfigurationMaterializer {
 
     bool materialize_backend(const logit::ConfigurationLoggerSpec& logger,
                              logit::ConfigurationMaterializedLogger& output,
-                             logit::ConfigurationDiagnostics&) const override {
+                             logit::ConfigurationDiagnostics& diagnostics) const override {
         ++materialize_calls;
+        if (add_materialization_diagnostic) {
+            diagnostics.add(logit::ConfigurationErrorCode::MissingProgrammaticBinding,
+                            "loggers[0].binding",
+                            "test materialization diagnostic");
+        }
+        if (fail_materialization_at == materialize_calls) {
+            return false;
+        }
         output.id = logger.id;
         output.type = logger.type;
         output.strategy = logger.strategy;
@@ -85,6 +103,64 @@ void test_structural_diagnostics() {
     assert(diagnostics.has_code(logit::ConfigurationErrorCode::UnsupportedCombination));
 }
 
+void test_nested_values_are_representable() {
+    std::vector<logit::ConfigurationValue> routes;
+    routes.push_back(logit::ConfigurationValue::make_object(
+        std::map<std::string, logit::ConfigurationValue>{{
+            "min_level", logit::ConfigurationValue::make_string("info")
+        }}));
+    const logit::ConfigurationValue value = logit::ConfigurationValue::make_array(routes);
+    std::vector<logit::ConfigurationValue> observed;
+    assert(value.get_array(observed));
+    assert(observed.size() == 1);
+    std::map<std::string, logit::ConfigurationValue> observed_route;
+    assert(observed[0].get_object(observed_route));
+    assert(observed_route["min_level"].type() ==
+           logit::ConfigurationValue::Type::String);
+}
+
+void test_diagnostics_fail_closed() {
+    const logit::ConfigurationDocument document = valid_document();
+
+    RecordingMaterializer validation_diagnostic;
+    validation_diagnostic.add_validation_diagnostic = true;
+    logit::ConfigurationPlan plan;
+    logit::ConfigurationDiagnostics diagnostics;
+    assert(!logit::materialize_configuration(document,
+                                              validation_diagnostic,
+                                              plan,
+                                              diagnostics));
+    assert(validation_diagnostic.materialize_calls == 0);
+    assert(!diagnostics.empty());
+
+    RecordingMaterializer materialization_diagnostic;
+    materialization_diagnostic.add_materialization_diagnostic = true;
+    assert(!logit::materialize_configuration(document,
+                                              materialization_diagnostic,
+                                              plan,
+                                              diagnostics));
+    assert(!diagnostics.empty());
+}
+
+void test_plan_is_preserved_on_late_failure() {
+    logit::ConfigurationDocument document = valid_document();
+    document.loggers.push_back(document.loggers[0]);
+    document.loggers[1].id = "file-secondary";
+
+    RecordingMaterializer materializer;
+    materializer.fail_materialization_at = 2;
+    logit::ConfigurationPlan plan;
+    plan.schema_version = 77;
+    logit::ConfigurationMaterializedLogger sentinel;
+    sentinel.id = "existing";
+    plan.loggers.push_back(sentinel);
+    logit::ConfigurationDiagnostics diagnostics;
+    assert(!logit::materialize_configuration(document, materializer, plan, diagnostics));
+    assert(plan.schema_version == 77);
+    assert(plan.loggers.size() == 1);
+    assert(plan.loggers[0].id == "existing");
+}
+
 void test_materializer_is_not_called_after_validation_failure() {
     logit::ConfigurationDocument document = valid_document();
     document.loggers[0].backend.erase("use_dedicated_executor");
@@ -102,6 +178,9 @@ void test_materializer_is_not_called_after_validation_failure() {
 int main() {
     test_validation_and_materialization();
     test_structural_diagnostics();
+    test_nested_values_are_representable();
+    test_diagnostics_fail_closed();
+    test_plan_is_preserved_on_late_failure();
     test_materializer_is_not_called_after_validation_failure();
     return 0;
 }
