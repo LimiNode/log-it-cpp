@@ -166,5 +166,6 @@ should follow a stable static-load contract rather than constrain it in advance.
 ## References
 
 - [Roadmap: Configuration loading](../future-plans.md)
+- [Parser-neutral model header](../../include/logit_cpp/logit/configuration.hpp)
 - [ADR 0002: Shared and dedicated asynchronous executors](0002-async-executor-model.md)
 - [ADR 0008: Binary log record format research prototype](0008-binary-log-record-format-research.md)

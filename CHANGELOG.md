@@ -10,6 +10,10 @@ All notable changes to this project will be documented in this file.
   corresponding compression feature is enabled.
 - Added a non-public binary log record format and reader research prototype;
   no production binary backend is enabled yet.
+- Added the parser-neutral configuration model, diagnostics, structural
+  validation, and side-effect-free materialization contract for Configuration
+  Loading v1. JSON/properties parsing and logger instantiation remain separate
+  follow-up layers.
 
 ### Fixed
 

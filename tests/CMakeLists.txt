@@ -16,6 +16,7 @@ else()
         backend_shutdown_terminal_test.cpp
         compiled_level_runtime_caveat_test.cpp
         compiled_level_test.cpp
+        configuration_contract_test.cpp
         console_logger_dedicated_config_test.cpp
         console_logger_stream_test.cpp
         crash_logger_test.cpp
