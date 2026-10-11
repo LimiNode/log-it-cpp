@@ -311,6 +311,7 @@ void test_optional_format_defaults_merge_recursively() {
         logger.type = "prometheus_http";
 #else
         logger.type = "prometheus_payload";
+        logger.backend["emit_on_log"] = logit::ConfigurationValue::make_boolean(true);
 #endif
         std::map<std::string, logit::ConfigurationValue> format;
         format["metric_prefix"] = logit::ConfigurationValue::make_string("app_");
@@ -329,6 +330,14 @@ void test_optional_format_defaults_merge_recursively() {
         assert(metric_prefix == "app_");
         assert(observed["include_help"].get_boolean(include_help));
         assert(include_help);
+#if !defined(LOGIT_WITH_PROMETHEUS_SERVER)
+        bool emit_on_log = false;
+        bool emit_on_wait = false;
+        assert(plan.loggers[0].backend["emit_on_log"].get_boolean(emit_on_log));
+        assert(plan.loggers[0].backend["emit_on_wait"].get_boolean(emit_on_wait));
+        assert(emit_on_log);
+        assert(emit_on_wait);
+#endif
 
         std::map<std::string, logit::ConfigurationValue> invalid_label;
         invalid_label["name"] = logit::ConfigurationValue::make_string("env");

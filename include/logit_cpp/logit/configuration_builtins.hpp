@@ -178,7 +178,8 @@ namespace logit {
                        field == "enable_health_endpoint" || field == "start_immediately";
             }
             if (type == "prometheus_payload") {
-                return field == "format";
+                return field == "format" || field == "emit_on_log" ||
+                       field == "emit_on_wait";
             }
             return false;
         }
@@ -353,6 +354,9 @@ namespace logit {
                 valid = validate_type(logger, "health_path", ConfigurationValue::Type::String, diagnostics) && valid;
                 valid = validate_type(logger, "enable_health_endpoint", ConfigurationValue::Type::Boolean, diagnostics) && valid;
                 valid = validate_type(logger, "start_immediately", ConfigurationValue::Type::Boolean, diagnostics) && valid;
+            } else if (logger.type == "prometheus_payload") {
+                valid = validate_type(logger, "emit_on_log", ConfigurationValue::Type::Boolean, diagnostics) && valid;
+                valid = validate_type(logger, "emit_on_wait", ConfigurationValue::Type::Boolean, diagnostics) && valid;
             }
             return valid;
         }

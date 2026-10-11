@@ -273,11 +273,16 @@ namespace logit {
         ///
         /// Returning true with a diagnostic is still a failed phase. Adapters
         /// must add only error diagnostics; warnings are not part of this v1
-        /// contract.
+        /// contract. Diagnostic paths are relative to the current logger root
+        /// (for example `backend.foo`, `type`, or `binding`); the document
+        /// layer prefixes them with `loggers[N]`.
         virtual bool validate_backend(const ConfigurationLoggerSpec& logger,
                                       ConfigurationDiagnostics& diagnostics) const = 0;
 
         /// \brief Materialize a DTO after all document validation has succeeded.
+        ///
+        /// Diagnostic paths follow the same relative-to-logger-root rule as
+        /// `validate_backend()`; the document layer adds the logger index.
         virtual bool materialize_backend(const ConfigurationLoggerSpec& logger,
                                          ConfigurationMaterializedLogger& output,
                                          ConfigurationDiagnostics& diagnostics) const = 0;
