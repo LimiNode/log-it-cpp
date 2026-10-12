@@ -14,6 +14,8 @@ All notable changes to this project will be documented in this file.
   validation, and side-effect-free materialization contract for Configuration
   Loading v1. JSON/properties parsing and logger instantiation remain separate
   follow-up layers.
+- Added side-effect-free built-in configuration validation and default
+  materialization for file, memory, MDBX, OTLP, and Prometheus plans.
 
 ### Fixed
 

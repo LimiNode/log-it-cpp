@@ -12,14 +12,16 @@ struct RecordingMaterializer : logit::ConfigurationMaterializer {
     mutable int materialize_calls = 0;
     bool add_validation_diagnostic = false;
     bool add_materialization_diagnostic = false;
+    int validation_diagnostic_at = -1;
     int fail_materialization_at = -1;
 
     bool validate_backend(const logit::ConfigurationLoggerSpec& logger,
                           logit::ConfigurationDiagnostics& diagnostics) const override {
         ++validate_calls;
-        if (add_validation_diagnostic) {
+        if (add_validation_diagnostic &&
+            (validation_diagnostic_at < 0 || validate_calls == validation_diagnostic_at)) {
             diagnostics.add(logit::ConfigurationErrorCode::UnavailableBackend,
-                            "loggers[0].type",
+                            "type",
                             "test validation diagnostic");
         }
         if (logger.type == "file" && logger.backend.find("directory") == logger.backend.end()) {
@@ -37,7 +39,7 @@ struct RecordingMaterializer : logit::ConfigurationMaterializer {
         ++materialize_calls;
         if (add_materialization_diagnostic) {
             diagnostics.add(logit::ConfigurationErrorCode::MissingProgrammaticBinding,
-                            "loggers[0].binding",
+                            "binding",
                             "test materialization diagnostic");
         }
         if (fail_materialization_at == materialize_calls) {
@@ -173,6 +175,187 @@ void test_materializer_is_not_called_after_validation_failure() {
     assert(materializer.materialize_calls == 0);
 }
 
+void test_builtin_materializer_applies_file_defaults() {
+    logit::ConfigurationDocument document;
+    document.schema_version = 1;
+    logit::ConfigurationLoggerSpec logger;
+    logger.id = "file-defaults";
+    logger.type = "file";
+    document.loggers.push_back(logger);
+
+    logit::BuiltinConfigurationMaterializer materializer;
+    logit::ConfigurationPlan plan;
+    logit::ConfigurationDiagnostics diagnostics;
+    assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+    assert(diagnostics.empty());
+
+    std::string directory;
+    std::uint64_t queue_capacity = 1;
+    bool async = false;
+    assert(plan.loggers[0].backend.at("directory").get_string(directory));
+    assert(directory == "logs");
+    assert(plan.loggers[0].backend.at("async").get_boolean(async));
+    assert(async);
+    assert(plan.loggers[0].backend.at("queue_capacity").get_unsigned(queue_capacity));
+    assert(queue_capacity == 0);
+}
+
+void test_builtin_materializer_rejects_unknown_field() {
+    logit::ConfigurationDocument document;
+    document.schema_version = 1;
+    logit::ConfigurationLoggerSpec logger;
+    logger.id = "memory-invalid";
+    logger.type = "memory";
+    logger.backend["not_a_memory_option"] = logit::ConfigurationValue::make_boolean(true);
+    document.loggers.push_back(logger);
+
+    logit::BuiltinConfigurationMaterializer materializer;
+    logit::ConfigurationPlan plan;
+    logit::ConfigurationDiagnostics diagnostics;
+    assert(!logit::materialize_configuration(document, materializer, plan, diagnostics));
+    assert(diagnostics.has_code(logit::ConfigurationErrorCode::UnknownField));
+}
+
+void test_builtin_materializer_handles_optional_backends_explicitly() {
+    logit::ConfigurationDocument document;
+    document.schema_version = 1;
+    logit::ConfigurationLoggerSpec logger;
+    logger.id = "mdbx-or-optional";
+    logger.type = "mdbx";
+    document.loggers.push_back(logger);
+
+    logit::BuiltinConfigurationMaterializer materializer;
+    logit::ConfigurationPlan plan;
+    logit::ConfigurationDiagnostics diagnostics;
+    const bool materialized =
+        logit::materialize_configuration(document, materializer, plan, diagnostics);
+#if defined(LOGIT_WITH_MDBX)
+    assert(materialized);
+    assert(diagnostics.empty());
+    assert(plan.loggers[0].backend.at("path").type() ==
+           logit::ConfigurationValue::Type::String);
+#else
+    assert(!materialized);
+    assert(diagnostics.has_code(logit::ConfigurationErrorCode::UnavailableBackend));
+#endif
+}
+
+void test_materializer_diagnostics_are_rebased_to_logger_index() {
+    logit::ConfigurationDocument document = valid_document();
+    document.loggers.push_back(document.loggers[0]);
+    document.loggers[1].id = "file-secondary";
+
+    RecordingMaterializer materializer;
+    materializer.add_validation_diagnostic = true;
+    materializer.validation_diagnostic_at = 2;
+    logit::ConfigurationPlan plan;
+    logit::ConfigurationDiagnostics diagnostics;
+    assert(!logit::materialize_configuration(document, materializer, plan, diagnostics));
+    assert(diagnostics.size() == 1);
+    assert(diagnostics.items()[0].path == "loggers[1].type");
+}
+
+void test_callback_backends_record_required_bindings_when_available() {
+#if defined(LOGIT_WITH_OTLP)
+    logit::ConfigurationDocument document;
+    document.schema_version = 1;
+    logit::ConfigurationLoggerSpec logger;
+    logger.id = "otlp-payload";
+    logger.type = "otlp_payload";
+    document.loggers.push_back(logger);
+
+    logit::BuiltinConfigurationMaterializer materializer;
+    logit::ConfigurationPlan plan;
+    logit::ConfigurationDiagnostics diagnostics;
+    assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+    assert(diagnostics.empty());
+    assert(plan.loggers[0].required_bindings.size() == 1);
+    assert(plan.loggers[0].required_bindings[0] == "on_payload");
+#endif
+}
+
+void test_optional_format_defaults_merge_recursively() {
+#if defined(LOGIT_WITH_OTLP)
+    {
+        logit::ConfigurationDocument document;
+        document.schema_version = 1;
+        logit::ConfigurationLoggerSpec logger;
+        logger.id = "otlp-partial-format";
+        logger.type = "otlp_http";
+        std::map<std::string, logit::ConfigurationValue> format;
+        format["service_name"] = logit::ConfigurationValue::make_string("orders");
+        logger.backend["format"] = logit::ConfigurationValue::make_object(format);
+        document.loggers.push_back(logger);
+
+        logit::BuiltinConfigurationMaterializer materializer;
+        logit::ConfigurationPlan plan;
+        logit::ConfigurationDiagnostics diagnostics;
+        assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+        std::map<std::string, logit::ConfigurationValue> observed;
+        assert(plan.loggers[0].backend["format"].get_object(observed));
+        std::string service_name;
+        bool include_source = false;
+        assert(observed["service_name"].get_string(service_name));
+        assert(service_name == "orders");
+        assert(observed["include_source"].get_boolean(include_source));
+        assert(include_source);
+    }
+#endif
+#if defined(LOGIT_WITH_PROMETHEUS) || defined(LOGIT_WITH_PROMETHEUS_SERVER)
+    {
+        logit::ConfigurationDocument document;
+        document.schema_version = 1;
+        logit::ConfigurationLoggerSpec logger;
+        logger.id = "prometheus-partial-format";
+#if defined(LOGIT_WITH_PROMETHEUS_SERVER)
+        logger.type = "prometheus_http";
+#else
+        logger.type = "prometheus_payload";
+        logger.backend["emit_on_log"] = logit::ConfigurationValue::make_boolean(true);
+#endif
+        std::map<std::string, logit::ConfigurationValue> format;
+        format["metric_prefix"] = logit::ConfigurationValue::make_string("app_");
+        logger.backend["format"] = logit::ConfigurationValue::make_object(format);
+        document.loggers.push_back(logger);
+
+        logit::BuiltinConfigurationMaterializer materializer;
+        logit::ConfigurationPlan plan;
+        logit::ConfigurationDiagnostics diagnostics;
+        assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+        std::map<std::string, logit::ConfigurationValue> observed;
+        assert(plan.loggers[0].backend["format"].get_object(observed));
+        std::string metric_prefix;
+        bool include_help = false;
+        assert(observed["metric_prefix"].get_string(metric_prefix));
+        assert(metric_prefix == "app_");
+        assert(observed["include_help"].get_boolean(include_help));
+        assert(include_help);
+#if !defined(LOGIT_WITH_PROMETHEUS_SERVER)
+        bool emit_on_log = false;
+        bool emit_on_wait = false;
+        assert(plan.loggers[0].backend["emit_on_log"].get_boolean(emit_on_log));
+        assert(plan.loggers[0].backend["emit_on_wait"].get_boolean(emit_on_wait));
+        assert(emit_on_log);
+        assert(emit_on_wait);
+#endif
+
+        std::map<std::string, logit::ConfigurationValue> invalid_label;
+        invalid_label["name"] = logit::ConfigurationValue::make_string("env");
+        invalid_label["value"] = logit::ConfigurationValue::make_string("prod");
+        invalid_label["typo"] = logit::ConfigurationValue::make_unsigned(1);
+        std::vector<logit::ConfigurationValue> labels;
+        labels.push_back(logit::ConfigurationValue::make_object(invalid_label));
+        document.loggers[0].backend["format"] =
+            logit::ConfigurationValue::make_object(
+                std::map<std::string, logit::ConfigurationValue>{
+                    {"const_labels", logit::ConfigurationValue::make_array(labels)}});
+        diagnostics = logit::ConfigurationDiagnostics();
+        assert(!logit::materialize_configuration(document, materializer, plan, diagnostics));
+        assert(diagnostics.has_code(logit::ConfigurationErrorCode::UnknownField));
+    }
+#endif
+}
+
 } // namespace
 
 int main() {
@@ -182,5 +365,11 @@ int main() {
     test_diagnostics_fail_closed();
     test_plan_is_preserved_on_late_failure();
     test_materializer_is_not_called_after_validation_failure();
+    test_builtin_materializer_applies_file_defaults();
+    test_builtin_materializer_rejects_unknown_field();
+    test_builtin_materializer_handles_optional_backends_explicitly();
+    test_materializer_diagnostics_are_rebased_to_logger_index();
+    test_callback_backends_record_required_bindings_when_available();
+    test_optional_format_defaults_merge_recursively();
     return 0;
 }
