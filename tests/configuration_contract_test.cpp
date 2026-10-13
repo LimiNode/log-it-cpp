@@ -56,14 +56,24 @@ struct RecordingMaterializer : logit::ConfigurationMaterializer {
 
 struct RecordingBindingResolver : logit::ConfigurationBindingResolver {
     bool provide_binding = true;
+    bool provide_null_binding = false;
+    bool provide_wrong_type = false;
+    int missing_at = -1;
     mutable int calls = 0;
 
     bool resolve(const logit::ConfigurationMaterializedLogger& logger,
                  logit::ConfigurationBindingSet& bindings,
                  logit::ConfigurationDiagnostics&) const override {
         ++calls;
-        if (provide_binding && !logger.required_bindings.empty()) {
-            bindings.set("on_payload", std::shared_ptr<int>(new int(1)));
+        if (provide_binding && !logger.required_bindings.empty() &&
+            (missing_at < 0 || calls != missing_at)) {
+            if (provide_null_binding) {
+                bindings.set("on_payload", std::shared_ptr<int>());
+            } else if (provide_wrong_type) {
+                bindings.set("on_payload", std::shared_ptr<std::string>(new std::string("wrong")));
+            } else {
+                bindings.set("on_payload", std::shared_ptr<int>(new int(1)));
+            }
         }
         return true;
     }
@@ -415,14 +425,38 @@ void test_runtime_binding_and_instantiation_are_atomic() {
     assert(loggers[0] == sentinel);
 
     resolver.provide_binding = true;
+    resolver.provide_null_binding = true;
+    factory.calls = 0;
+    assert(!logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+    assert(diagnostics.has_code(logit::ConfigurationErrorCode::MissingProgrammaticBinding));
+    assert(factory.calls == 0);
+
+    resolver.provide_null_binding = false;
+    resolver.provide_wrong_type = true;
+    logit::ConfigurationBindingSet bindings;
+    bindings.set("value", std::shared_ptr<int>(new int(1)));
+    assert(bindings.get<int>("value"));
+    assert(!bindings.get<std::string>("value"));
+    resolver.provide_wrong_type = false;
+
+    resolver.provide_binding = true;
+    factory.calls = 0;
     logit::ConfigurationMaterializedLogger second = first;
     second.id = "second";
     plan.loggers.push_back(second);
+    resolver.calls = 0;
+    resolver.missing_at = 2;
+    assert(!logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+    assert(diagnostics.has_code(logit::ConfigurationErrorCode::MissingProgrammaticBinding));
+    assert(factory.calls == 0);
+    assert(loggers.size() == 1);
+    assert(loggers[0] == sentinel);
+
+    resolver.provide_binding = true;
+    resolver.missing_at = -1;
     factory.fail_at = 2;
     assert(!logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
     assert(diagnostics.has_code(logit::ConfigurationErrorCode::InstantiationFailed));
-    assert(loggers.size() == 1);
-    assert(loggers[0] == sentinel);
 }
 
 } // namespace

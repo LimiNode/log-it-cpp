@@ -11,12 +11,13 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <typeindex>
 #include <vector>
 
 namespace logit {
 
     /// \class ConfigurationBindingSet
-    /// \brief Typed-erased programmatic resources resolved for one logger.
+    /// \brief Type-erased programmatic resources resolved for one logger.
     ///
     /// Bindings deliberately remain outside the parser-neutral document. A
     /// resolver and its factory agree on the concrete type associated with each
@@ -26,23 +27,36 @@ namespace logit {
         bool empty() const { return m_values.empty(); }
 
         bool contains(const std::string& name) const {
-            return m_values.find(name) != m_values.end();
+            std::map<std::string, Entry>::const_iterator it = m_values.find(name);
+            return it != m_values.end() && static_cast<bool>(it->second.value);
         }
 
         template <typename T>
         void set(const std::string& name, const std::shared_ptr<T>& value) {
-            m_values[name] = value;
+            m_values[name] = Entry(value, std::type_index(typeid(T)));
         }
 
         template <typename T>
         std::shared_ptr<T> get(const std::string& name) const {
-            std::map<std::string, std::shared_ptr<void>>::const_iterator it = m_values.find(name);
-            if (it == m_values.end()) return std::shared_ptr<T>();
-            return std::static_pointer_cast<T>(it->second);
+            std::map<std::string, Entry>::const_iterator it = m_values.find(name);
+            if (it == m_values.end() || !it->second.value ||
+                it->second.type != std::type_index(typeid(T))) {
+                return std::shared_ptr<T>();
+            }
+            return std::static_pointer_cast<T>(it->second.value);
         }
 
     private:
-        std::map<std::string, std::shared_ptr<void>> m_values;
+        struct Entry {
+            Entry() : value(), type(typeid(void)) {}
+            Entry(const std::shared_ptr<void>& value, const std::type_index& type)
+                : value(value), type(type) {}
+
+            std::shared_ptr<void> value;
+            std::type_index type;
+        };
+
+        std::map<std::string, Entry> m_values;
     };
 
     /// \class ConfigurationBindingResolver
@@ -62,6 +76,8 @@ namespace logit {
 
     /// \class ConfigurationLoggerFactory
     /// \brief Creates one runtime logger after bindings have been resolved.
+    /// Factory side effects are owned by the caller and are not transactional;
+    /// only publication of the caller-visible logger vector is atomic.
     class ConfigurationLoggerFactory {
     public:
         virtual ~ConfigurationLoggerFactory() {}
@@ -77,7 +93,13 @@ namespace logit {
             ConfigurationDiagnostics& diagnostics) const = 0;
     };
 
-    /// \brief Resolve bindings and instantiate a complete logger set atomically.
+    /// \brief Resolve bindings and publish a complete logger set atomically.
+    ///
+    /// The caller-visible logger vector is updated only after every binding has
+    /// resolved and every factory call has returned a logger. Factories may
+    /// still perform external side effects while constructing instances; those
+    /// effects are not transactional and are not rolled back if a later factory
+    /// fails.
     inline bool instantiate_configuration(
         const ConfigurationPlan& plan,
         const ConfigurationBindingResolver& resolver,
@@ -85,9 +107,9 @@ namespace logit {
         std::vector<std::shared_ptr<ILogger>>& loggers,
         ConfigurationDiagnostics& diagnostics) {
         diagnostics = ConfigurationDiagnostics();
-        std::vector<std::shared_ptr<ILogger>> candidate;
-        candidate.reserve(plan.loggers.size());
-
+        std::vector<ConfigurationBindingSet> resolved_bindings;
+        resolved_bindings.reserve(plan.loggers.size());
+        bool bindings_ok = true;
         for (std::size_t index = 0; index < plan.loggers.size(); ++index) {
             const ConfigurationMaterializedLogger& entry = plan.loggers[index];
             ConfigurationBindingSet bindings;
@@ -108,6 +130,7 @@ namespace logit {
 
             const std::string prefix = "loggers[" + std::to_string(index) + "]";
             if (!resolved || !local_diagnostics.empty() || missing_binding) {
+                bindings_ok = false;
                 if (local_diagnostics.empty()) {
                     diagnostics.add(ConfigurationErrorCode::BindingResolutionFailed,
                                     prefix + ".binding",
@@ -115,12 +138,21 @@ namespace logit {
                 } else {
                     diagnostics.append_rebased(local_diagnostics, prefix);
                 }
-                return false;
             }
+            resolved_bindings.push_back(bindings);
+        }
+
+        if (!bindings_ok) return false;
+
+        std::vector<std::shared_ptr<ILogger>> candidate;
+        candidate.reserve(plan.loggers.size());
+        for (std::size_t index = 0; index < plan.loggers.size(); ++index) {
+            const ConfigurationMaterializedLogger& entry = plan.loggers[index];
+            const std::string prefix = "loggers[" + std::to_string(index) + "]";
 
             ConfigurationDiagnostics factory_diagnostics;
             std::shared_ptr<ILogger> runtime_logger =
-                factory.instantiate(entry, bindings, factory_diagnostics);
+                factory.instantiate(entry, resolved_bindings[index], factory_diagnostics);
             if (!runtime_logger || !factory_diagnostics.empty()) {
                 if (factory_diagnostics.empty()) {
                     diagnostics.add(ConfigurationErrorCode::InstantiationFailed,
