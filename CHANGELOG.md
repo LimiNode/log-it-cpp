@@ -16,6 +16,9 @@ All notable changes to this project will be documented in this file.
   follow-up layers.
 - Added side-effect-free built-in configuration validation and default
   materialization for file, memory, MDBX, OTLP, and Prometheus plans.
+- Added a binding/resolution and atomic runtime-instantiation contract for
+  materialized configuration plans; parser frontends and hot reload remain
+  outside this layer.
 
 ### Fixed
 

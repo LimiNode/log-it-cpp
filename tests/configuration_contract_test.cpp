@@ -1,5 +1,6 @@
 #include <cassert>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -50,6 +51,36 @@ struct RecordingMaterializer : logit::ConfigurationMaterializer {
         output.strategy = logger.strategy;
         output.backend = logger.backend;
         return true;
+    }
+};
+
+struct RecordingBindingResolver : logit::ConfigurationBindingResolver {
+    bool provide_binding = true;
+    mutable int calls = 0;
+
+    bool resolve(const logit::ConfigurationMaterializedLogger& logger,
+                 logit::ConfigurationBindingSet& bindings,
+                 logit::ConfigurationDiagnostics&) const override {
+        ++calls;
+        if (provide_binding && !logger.required_bindings.empty()) {
+            bindings.set("on_payload", std::shared_ptr<int>(new int(1)));
+        }
+        return true;
+    }
+};
+
+struct RecordingLoggerFactory : logit::ConfigurationLoggerFactory {
+    mutable int calls = 0;
+    int fail_at = -1;
+
+    std::shared_ptr<logit::ILogger> instantiate(
+        const logit::ConfigurationMaterializedLogger&,
+        const logit::ConfigurationBindingSet& bindings,
+        logit::ConfigurationDiagnostics&) const override {
+        ++calls;
+        (void)bindings.get<int>("on_payload");
+        if (fail_at == calls) return std::shared_ptr<logit::ILogger>();
+        return std::shared_ptr<logit::ILogger>(new logit::MemoryLogger());
     }
 };
 
@@ -356,6 +387,44 @@ void test_optional_format_defaults_merge_recursively() {
 #endif
 }
 
+void test_runtime_binding_and_instantiation_are_atomic() {
+    logit::ConfigurationPlan plan;
+    plan.schema_version = 1;
+    logit::ConfigurationMaterializedLogger first;
+    first.id = "callback-entry";
+    first.required_bindings.push_back("on_payload");
+    plan.loggers.push_back(first);
+
+    RecordingBindingResolver resolver;
+    RecordingLoggerFactory factory;
+    std::vector<std::shared_ptr<logit::ILogger>> loggers;
+    std::shared_ptr<logit::ILogger> sentinel(new logit::MemoryLogger());
+    loggers.push_back(sentinel);
+    logit::ConfigurationDiagnostics diagnostics;
+    assert(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+    assert(diagnostics.empty());
+    assert(loggers.size() == 1);
+    assert(loggers[0] != sentinel);
+
+    resolver.provide_binding = false;
+    loggers.clear();
+    loggers.push_back(sentinel);
+    assert(!logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+    assert(diagnostics.items()[0].path == "loggers[0].binding.on_payload");
+    assert(loggers.size() == 1);
+    assert(loggers[0] == sentinel);
+
+    resolver.provide_binding = true;
+    logit::ConfigurationMaterializedLogger second = first;
+    second.id = "second";
+    plan.loggers.push_back(second);
+    factory.fail_at = 2;
+    assert(!logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+    assert(diagnostics.has_code(logit::ConfigurationErrorCode::InstantiationFailed));
+    assert(loggers.size() == 1);
+    assert(loggers[0] == sentinel);
+}
+
 } // namespace
 
 int main() {
@@ -371,5 +440,6 @@ int main() {
     test_materializer_diagnostics_are_rebased_to_logger_index();
     test_callback_backends_record_required_bindings_when_available();
     test_optional_format_defaults_merge_recursively();
+    test_runtime_binding_and_instantiation_are_atomic();
     return 0;
 }
