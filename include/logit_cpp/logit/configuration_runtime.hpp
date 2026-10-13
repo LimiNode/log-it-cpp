@@ -78,6 +78,10 @@ namespace logit {
     /// \brief Creates one runtime logger after bindings have been resolved.
     /// Factory side effects are owned by the caller and are not transactional;
     /// only publication of the caller-visible logger vector is atomic.
+    /// A factory owns the concrete binding types it expects and must retrieve
+    /// required values through `ConfigurationBindingSet::get<T>()`. If a
+    /// required value has the wrong type, the factory must fail closed by
+    /// adding a diagnostic or returning an empty logger pointer.
     class ConfigurationLoggerFactory {
     public:
         virtual ~ConfigurationLoggerFactory() {}

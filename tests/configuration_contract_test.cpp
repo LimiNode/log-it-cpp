@@ -86,9 +86,14 @@ struct RecordingLoggerFactory : logit::ConfigurationLoggerFactory {
     std::shared_ptr<logit::ILogger> instantiate(
         const logit::ConfigurationMaterializedLogger&,
         const logit::ConfigurationBindingSet& bindings,
-        logit::ConfigurationDiagnostics&) const override {
+        logit::ConfigurationDiagnostics& diagnostics) const override {
         ++calls;
-        (void)bindings.get<int>("on_payload");
+        if (!bindings.get<int>("on_payload")) {
+            diagnostics.add(logit::ConfigurationErrorCode::InstantiationFailed,
+                            "binding.on_payload",
+                            "Test factory rejected a binding with the wrong type");
+            return std::shared_ptr<logit::ILogger>();
+        }
         if (fail_at == calls) return std::shared_ptr<logit::ILogger>();
         return std::shared_ptr<logit::ILogger>(new logit::MemoryLogger());
     }
@@ -437,6 +442,18 @@ void test_runtime_binding_and_instantiation_are_atomic() {
     bindings.set("value", std::shared_ptr<int>(new int(1)));
     assert(bindings.get<int>("value"));
     assert(!bindings.get<std::string>("value"));
+    resolver.provide_wrong_type = false;
+
+    resolver.provide_binding = true;
+    resolver.provide_wrong_type = true;
+    factory.calls = 0;
+    loggers.clear();
+    loggers.push_back(sentinel);
+    assert(!logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+    assert(diagnostics.has_code(logit::ConfigurationErrorCode::InstantiationFailed));
+    assert(factory.calls == 1);
+    assert(loggers.size() == 1);
+    assert(loggers[0] == sentinel);
     resolver.provide_wrong_type = false;
 
     resolver.provide_binding = true;
