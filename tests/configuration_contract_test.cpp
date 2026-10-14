@@ -1,4 +1,5 @@
 #include <cassert>
+#include <functional>
 #include <map>
 #include <memory>
 #include <string>
@@ -74,6 +75,19 @@ struct RecordingBindingResolver : logit::ConfigurationBindingResolver {
             } else {
                 bindings.set("on_payload", std::shared_ptr<int>(new int(1)));
             }
+        }
+        return true;
+    }
+};
+
+struct PayloadBindingResolver : logit::ConfigurationBindingResolver {
+    bool resolve(const logit::ConfigurationMaterializedLogger& logger,
+                 logit::ConfigurationBindingSet& bindings,
+                 logit::ConfigurationDiagnostics&) const override {
+        if (!logger.required_bindings.empty()) {
+            std::function<void(std::string)> callback = [](std::string) {};
+            bindings.set("on_payload",
+                         std::shared_ptr<std::function<void(std::string)>>(new std::function<void(std::string)>(callback)));
         }
         return true;
     }
@@ -476,6 +490,116 @@ void test_runtime_binding_and_instantiation_are_atomic() {
     assert(diagnostics.has_code(logit::ConfigurationErrorCode::InstantiationFailed));
 }
 
+void test_builtin_runtime_factory_consumes_materialized_plan() {
+    logit::ConfigurationDocument document;
+    document.schema_version = 1;
+    logit::ConfigurationLoggerSpec logger;
+    logger.id = "memory-runtime";
+    logger.type = "memory";
+    document.loggers.push_back(logger);
+
+    logit::BuiltinConfigurationMaterializer materializer;
+    logit::ConfigurationPlan plan;
+    logit::ConfigurationDiagnostics diagnostics;
+    assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+
+    RecordingBindingResolver resolver;
+    logit::BuiltinConfigurationLoggerFactory factory;
+    std::vector<std::shared_ptr<logit::ILogger>> loggers;
+    assert(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+    assert(diagnostics.empty());
+    assert(loggers.size() == 1);
+    assert(std::dynamic_pointer_cast<logit::MemoryLogger>(loggers[0]));
+}
+
+void test_builtin_runtime_factory_supports_payload_backends() {
+#if defined(LOGIT_WITH_OTLP)
+    {
+        logit::ConfigurationDocument document;
+        document.schema_version = 1;
+        logit::ConfigurationLoggerSpec logger;
+        logger.id = "otlp-payload-runtime";
+        logger.type = "otlp_payload";
+        logger.backend["async"] = logit::ConfigurationValue::make_boolean(false);
+        document.loggers.push_back(logger);
+
+        logit::BuiltinConfigurationMaterializer materializer;
+        logit::ConfigurationPlan plan;
+        logit::ConfigurationDiagnostics diagnostics;
+        assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+        PayloadBindingResolver resolver;
+        logit::BuiltinConfigurationLoggerFactory factory;
+        std::vector<std::shared_ptr<logit::ILogger>> loggers;
+        assert(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+        assert(loggers.size() == 1);
+        assert(std::dynamic_pointer_cast<logit::OtlpPayloadLogger>(loggers[0]));
+    }
+    {
+        logit::ConfigurationDocument document;
+        document.schema_version = 1;
+        logit::ConfigurationLoggerSpec logger;
+        logger.id = "otlp-http-runtime";
+        logger.type = "otlp_http";
+        logger.backend["async"] = logit::ConfigurationValue::make_boolean(false);
+        document.loggers.push_back(logger);
+
+        logit::BuiltinConfigurationMaterializer materializer;
+        logit::ConfigurationPlan plan;
+        logit::ConfigurationDiagnostics diagnostics;
+        assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+        RecordingBindingResolver resolver;
+        logit::BuiltinConfigurationLoggerFactory factory;
+        std::vector<std::shared_ptr<logit::ILogger>> loggers;
+        assert(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+        assert(loggers.size() == 1);
+        assert(std::dynamic_pointer_cast<logit::OtlpHttpLogger>(loggers[0]));
+    }
+#endif
+#if defined(LOGIT_WITH_PROMETHEUS)
+    {
+        logit::ConfigurationDocument document;
+        document.schema_version = 1;
+        logit::ConfigurationLoggerSpec logger;
+        logger.id = "prometheus-payload-runtime";
+        logger.type = "prometheus_payload";
+        document.loggers.push_back(logger);
+
+        logit::BuiltinConfigurationMaterializer materializer;
+        logit::ConfigurationPlan plan;
+        logit::ConfigurationDiagnostics diagnostics;
+        assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+        PayloadBindingResolver resolver;
+        logit::BuiltinConfigurationLoggerFactory factory;
+        std::vector<std::shared_ptr<logit::ILogger>> loggers;
+        assert(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+        assert(loggers.size() == 1);
+        assert(std::dynamic_pointer_cast<logit::PrometheusPayloadLogger>(loggers[0]));
+    }
+#endif
+#if defined(LOGIT_WITH_PROMETHEUS_SERVER)
+    {
+        logit::ConfigurationDocument document;
+        document.schema_version = 1;
+        logit::ConfigurationLoggerSpec logger;
+        logger.id = "prometheus-http-runtime";
+        logger.type = "prometheus_http";
+        logger.backend["start_immediately"] = logit::ConfigurationValue::make_boolean(false);
+        document.loggers.push_back(logger);
+
+        logit::BuiltinConfigurationMaterializer materializer;
+        logit::ConfigurationPlan plan;
+        logit::ConfigurationDiagnostics diagnostics;
+        assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+        RecordingBindingResolver resolver;
+        logit::BuiltinConfigurationLoggerFactory factory;
+        std::vector<std::shared_ptr<logit::ILogger>> loggers;
+        assert(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+        assert(loggers.size() == 1);
+        assert(std::dynamic_pointer_cast<logit::PrometheusHttpServerLogger>(loggers[0]));
+    }
+#endif
+}
+
 } // namespace
 
 int main() {
@@ -492,5 +616,7 @@ int main() {
     test_callback_backends_record_required_bindings_when_available();
     test_optional_format_defaults_merge_recursively();
     test_runtime_binding_and_instantiation_are_atomic();
+    test_builtin_runtime_factory_consumes_materialized_plan();
+    test_builtin_runtime_factory_supports_payload_backends();
     return 0;
 }
