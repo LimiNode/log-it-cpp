@@ -30,7 +30,9 @@ namespace logit {
         MissingProgrammaticBinding,
         UnknownField,
         BackendValidationFailed,
-        MaterializationFailed
+        MaterializationFailed,
+        BindingResolutionFailed,
+        InstantiationFailed
     };
 
     inline const char* configuration_error_code_name(ConfigurationErrorCode code) {
@@ -47,6 +49,8 @@ namespace logit {
             case ConfigurationErrorCode::UnknownField: return "unknown_field";
             case ConfigurationErrorCode::BackendValidationFailed: return "backend_validation_failed";
             case ConfigurationErrorCode::MaterializationFailed: return "materialization_failed";
+            case ConfigurationErrorCode::BindingResolutionFailed: return "binding_resolution_failed";
+            case ConfigurationErrorCode::InstantiationFailed: return "instantiation_failed";
         }
         return "unknown_configuration_error";
     }

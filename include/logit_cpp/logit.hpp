@@ -16,6 +16,7 @@
 #include "logit/utils.hpp"
 #include "logit/formatter.hpp"
 #include "logit/loggers.hpp"
+#include "logit/configuration_runtime.hpp"
 #include "logit/Logger.hpp"
 #include "logit/log_macros.hpp"
 
