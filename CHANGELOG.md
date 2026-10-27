@@ -19,6 +19,8 @@ All notable changes to this project will be documented in this file.
 - Added a binding/resolution and atomic caller-visible publication contract for
   materialized runtime logger plans; factory side effects are not transactional,
   and parser frontends and hot reload remain outside this layer.
+- Added a built-in runtime factory that converts materialized file, memory,
+  OTLP, and Prometheus plans into logger instances using typed bindings.
 
 ### Fixed
 
