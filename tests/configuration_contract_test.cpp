@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstdio>
 #include <functional>
 #include <map>
 #include <memory>
@@ -513,6 +514,35 @@ void test_builtin_runtime_factory_consumes_materialized_plan() {
 }
 
 void test_builtin_runtime_factory_supports_payload_backends() {
+#if defined(LOGIT_WITH_MDBX)
+    {
+        const std::string path = "configuration_runtime_mdbx_test.mdbx";
+        std::remove(path.c_str());
+        std::remove((path + "-lck").c_str());
+        logit::ConfigurationDocument document;
+        document.schema_version = 1;
+        logit::ConfigurationLoggerSpec logger;
+        logger.id = "mdbx-runtime";
+        logger.type = "mdbx";
+        logger.backend["path"] = logit::ConfigurationValue::make_string(path);
+        logger.backend["async"] = logit::ConfigurationValue::make_boolean(false);
+        document.loggers.push_back(logger);
+
+        logit::BuiltinConfigurationMaterializer materializer;
+        logit::ConfigurationPlan plan;
+        logit::ConfigurationDiagnostics diagnostics;
+        assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+        RecordingBindingResolver resolver;
+        logit::BuiltinConfigurationLoggerFactory factory;
+        std::vector<std::shared_ptr<logit::ILogger>> loggers;
+        assert(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+        assert(loggers.size() == 1);
+        assert(std::dynamic_pointer_cast<logit::MdbxLogger>(loggers[0]));
+        loggers.clear();
+        std::remove(path.c_str());
+        std::remove((path + "-lck").c_str());
+    }
+#endif
 #if defined(LOGIT_WITH_OTLP)
     {
         logit::ConfigurationDocument document;
