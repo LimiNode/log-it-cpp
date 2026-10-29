@@ -31,6 +31,14 @@ namespace logit {
             return it != m_values.end() && static_cast<bool>(it->second.value);
         }
 
+        /// \brief Returns whether a binding name was supplied, regardless of its type.
+        ///
+        /// This is useful for optional bindings: a factory can distinguish an
+        /// absent callback from a present callback with an incompatible type.
+        bool contains_name(const std::string& name) const {
+            return m_values.find(name) != m_values.end();
+        }
+
         template <typename T>
         void set(const std::string& name, const std::shared_ptr<T>& value) {
             m_values[name] = Entry(value, std::type_index(typeid(T)));

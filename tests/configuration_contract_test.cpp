@@ -94,6 +94,27 @@ struct PayloadBindingResolver : logit::ConfigurationBindingResolver {
     }
 };
 
+struct OptionalErrorBindingResolver : logit::ConfigurationBindingResolver {
+    bool provide_error = false;
+    bool provide_wrong_type = false;
+
+    bool resolve(const logit::ConfigurationMaterializedLogger&,
+                 logit::ConfigurationBindingSet& bindings,
+                 logit::ConfigurationDiagnostics&) const override {
+        if (provide_error) {
+            if (provide_wrong_type) {
+                bindings.set("on_error", std::shared_ptr<int>(new int(1)));
+            } else {
+                std::function<void(const std::string&)> callback = [](const std::string&) {};
+                bindings.set("on_error",
+                             std::shared_ptr<std::function<void(const std::string&)>>(
+                                 new std::function<void(const std::string&)>(callback)));
+            }
+        }
+        return true;
+    }
+};
+
 struct RecordingLoggerFactory : logit::ConfigurationLoggerFactory {
     mutable int calls = 0;
     int fail_at = -1;
@@ -539,9 +560,47 @@ void test_builtin_runtime_factory_supports_payload_backends() {
         assert(loggers.size() == 1);
         assert(std::dynamic_pointer_cast<logit::MdbxLogger>(loggers[0]));
         loggers.clear();
+
+        OptionalErrorBindingResolver optional_resolver;
+        optional_resolver.provide_error = true;
+        assert(logit::instantiate_configuration(plan, optional_resolver, factory, loggers, diagnostics));
+        assert(loggers.size() == 1);
+        assert(std::dynamic_pointer_cast<logit::MdbxLogger>(loggers[0]));
+        loggers.clear();
+
+        optional_resolver.provide_wrong_type = true;
+        std::shared_ptr<logit::ILogger> sentinel(new logit::MemoryLogger());
+        loggers.push_back(sentinel);
+        assert(!logit::instantiate_configuration(plan, optional_resolver, factory, loggers, diagnostics));
+        assert(diagnostics.has_code(logit::ConfigurationErrorCode::InstantiationFailed));
+        assert(loggers.size() == 1);
+        assert(loggers[0] == sentinel);
+
         std::remove(path.c_str());
         std::remove((path + "-lck").c_str());
     }
+
+#if !defined(LOGIT_HAS_ZLIB) || !defined(LOGIT_HAS_ZSTD)
+    {
+        logit::ConfigurationDocument document;
+        document.schema_version = 1;
+        logit::ConfigurationLoggerSpec logger;
+        logger.id = "mdbx-unavailable-compression";
+        logger.type = "mdbx";
+#if !defined(LOGIT_HAS_ZLIB)
+        logger.backend["payload_compression"] = logit::ConfigurationValue::make_string("gzip");
+#else
+        logger.backend["payload_compression"] = logit::ConfigurationValue::make_string("zstd");
+#endif
+        document.loggers.push_back(logger);
+        logit::BuiltinConfigurationMaterializer materializer;
+        logit::ConfigurationPlan plan;
+        logit::ConfigurationDiagnostics diagnostics;
+        assert(!logit::materialize_configuration(document, materializer, plan, diagnostics));
+        assert(diagnostics.has_code(logit::ConfigurationErrorCode::UnavailableBackend));
+        assert(diagnostics.items()[0].path == "loggers[0].backend.payload_compression");
+    }
+#endif
 #endif
 #if defined(LOGIT_WITH_OTLP)
     {

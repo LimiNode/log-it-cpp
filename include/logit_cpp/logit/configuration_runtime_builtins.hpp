@@ -198,6 +198,7 @@ namespace configuration_runtime_detail {
 
 #ifdef LOGIT_WITH_MDBX
     inline bool read_mdbx_config(const ConfigurationMaterializedLogger& logger,
+                                 const ConfigurationBindingSet& bindings,
                                  MdbxLogger::Config& config,
                                  ConfigurationDiagnostics& diagnostics) {
         bool valid = true;
@@ -229,6 +230,18 @@ namespace configuration_runtime_detail {
             valid = false;
         }
         if (read_signed(logger, "payload_compression_level", signed_value, diagnostics)) config.payload_compression_level = static_cast<int>(signed_value); else valid = false;
+        if (bindings.contains_name("on_error")) {
+            std::shared_ptr<std::function<void(const std::string&)> > callback =
+                bindings.get<std::function<void(const std::string&)> >("on_error");
+            if (!callback) {
+                diagnostics.add(ConfigurationErrorCode::InstantiationFailed,
+                                "binding.on_error",
+                                "MDBX on_error binding has an incompatible type");
+                valid = false;
+            } else {
+                config.on_error = *callback;
+            }
+        }
         return valid;
     }
 #endif
@@ -390,7 +403,7 @@ namespace configuration_runtime_detail {
 #ifdef LOGIT_WITH_MDBX
                 if (logger.type == "mdbx") {
                     MdbxLogger::Config config;
-                    if (!configuration_runtime_detail::read_mdbx_config(logger, config, diagnostics)) return std::shared_ptr<ILogger>();
+                    if (!configuration_runtime_detail::read_mdbx_config(logger, bindings, config, diagnostics)) return std::shared_ptr<ILogger>();
                     return std::shared_ptr<ILogger>(new MdbxLogger(config));
                 }
 #endif
