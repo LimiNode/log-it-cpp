@@ -70,6 +70,7 @@ Detailed guides and documentation map:
 - [`docs/quickstart.md`](docs/quickstart.md) — quick start and documentation map.
 - [`docs/installation.md`](docs/installation.md) — CMake, vendored, installed-package, and package-manager setup.
 - [`docs/backends.md`](docs/backends.md) — backend, platform, dependency, and packaging matrix.
+- [`docs/configuration-loading.md`](docs/configuration-loading.md) — parser-neutral configuration pipeline and optional JSON frontend.
 - [`docs/benchmarks.md`](docs/benchmarks.md) — benchmark methodology and historical snapshot.
 - [`docs/comparison.md`](docs/comparison.md) — comparison with spdlog, Quill, Boost.Log, glog, and IceCream-Cpp.
 

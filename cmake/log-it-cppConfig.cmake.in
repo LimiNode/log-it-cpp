@@ -9,6 +9,10 @@ if(@LOGIT_WITH_FMT@ AND NOT TARGET fmt::fmt)
     find_dependency(fmt CONFIG)
 endif()
 
+if(@LOGIT_WITH_JSON_CONFIG@ AND NOT TARGET nlohmann_json::nlohmann_json)
+    find_dependency(nlohmann_json 3.11 CONFIG)
+endif()
+
 if(@LOGIT_WITH_OTLP@ AND NOT TARGET kurlyk)
     find_dependency(kurlyk CONFIG)
 endif()
