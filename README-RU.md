@@ -54,6 +54,7 @@ scope-замер.
 - [`docs/quickstart.md`](docs/quickstart.md) — краткий старт и карта документации.
 - [`docs/installation.md`](docs/installation.md) — установка через CMake, vendored и installed package сценарии.
 - [`docs/backends.md`](docs/backends.md) — матрица бэкендов, платформ, зависимостей и packaging.
+- [`docs/configuration-loading-RU.md`](docs/configuration-loading-RU.md) — parser-neutral pipeline конфигурации и optional JSON frontend.
 - [`docs/benchmarks.md`](docs/benchmarks.md) — методика benchmark и исторический snapshot.
 - [`docs/comparison-RU.md`](docs/comparison-RU.md) — сравнение со spdlog, Quill, Boost.Log, glog и IceCream-Cpp.
 

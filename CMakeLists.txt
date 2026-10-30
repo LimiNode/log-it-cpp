@@ -13,6 +13,7 @@ option(LOGIT_WITH_OTLP "Enable OTLP/HTTP log export via optional kurlyk dependen
 option(LOGIT_WITH_PROMETHEUS "Enable Prometheus text payload support" OFF)
 option(LOGIT_WITH_PROMETHEUS_SERVER "Enable Prometheus HTTP server backend" OFF)
 option(LOGIT_WITH_MDBX "Enable MDBX structured log storage backend" OFF)
+option(LOGIT_WITH_JSON_CONFIG "Enable the optional nlohmann::json configuration frontend" OFF)
 option(LOGIT_USE_SUBMODULES "Allow bundled optional dependency fallback" OFF)
 option(LOGIT_WITH_SYSLOG "Enable POSIX syslog backend" ON)
 option(LOGIT_WITH_WIN_EVENT_LOG "Enable Windows Event Log backend" ON)
@@ -101,6 +102,25 @@ if(LOGIT_WITH_FMT)
     endif()
     target_compile_definitions(log-it-cpp INTERFACE LOGIT_WITH_FMT=1)
     target_link_libraries(log-it-cpp INTERFACE fmt::fmt)
+endif()
+
+# ---------- JSON configuration frontend ----------
+if(LOGIT_WITH_JSON_CONFIG)
+    if(NOT TARGET nlohmann_json::nlohmann_json)
+        find_package(nlohmann_json 3.11 QUIET CONFIG)
+    endif()
+    if(NOT TARGET nlohmann_json::nlohmann_json AND LOGIT_USE_SUBMODULES)
+        if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/kurlyk/external/json/CMakeLists.txt")
+            set(JSON_BuildTests OFF CACHE BOOL "Disable bundled nlohmann/json tests" FORCE)
+            add_subdirectory(external/kurlyk/external/json EXCLUDE_FROM_ALL)
+        endif()
+    endif()
+    if(NOT TARGET nlohmann_json::nlohmann_json)
+        message(FATAL_ERROR
+            "nlohmann_json not found. Install nlohmann_json or enable LOGIT_USE_SUBMODULES with the kurlyk submodule present.")
+    endif()
+    target_compile_definitions(log-it-cpp INTERFACE LOGIT_WITH_JSON_CONFIG=1)
+    target_link_libraries(log-it-cpp INTERFACE nlohmann_json::nlohmann_json)
 endif()
 
 # ---------- OTLP/HTTP (kurlyk) ----------
@@ -329,6 +349,18 @@ if(LOGIT_WITH_FMT AND TARGET fmt::fmt)
     endif()
 endif()
 
+if(LOGIT_WITH_JSON_CONFIG AND TARGET nlohmann_json::nlohmann_json)
+    get_target_property(_nlohmann_json_imported nlohmann_json::nlohmann_json IMPORTED)
+    if(NOT _nlohmann_json_imported)
+        set(_logit_install_export_supported OFF)
+        install(CODE [[
+            message(FATAL_ERROR
+                "log-it-cpp: Installing with bundled nlohmann_json is not supported. "
+                "Install nlohmann_json separately and use find_package(nlohmann_json), or disable LOGIT_WITH_JSON_CONFIG.")
+        ]])
+    endif()
+endif()
+
 if(LOGIT_WITH_PROMETHEUS_SERVER)
     set(_logit_install_export_supported OFF)
     install(CODE [[
@@ -392,6 +424,13 @@ write_basic_package_version_file(
       "${CMAKE_CURRENT_BINARY_DIR}/log-it-cppConfig.cmake"
       INSTALL_DESTINATION lib/cmake/log-it-cpp
   )
+
+  set(LOGIT_PC_REQUIRES "time-shield >= 2.0.0, time-shield < 2.1.0")
+  set(LOGIT_PC_CFLAGS "")
+  if(LOGIT_WITH_JSON_CONFIG)
+      string(APPEND LOGIT_PC_REQUIRES ", nlohmann_json >= 3.11")
+      string(APPEND LOGIT_PC_CFLAGS " -DLOGIT_WITH_JSON_CONFIG=1")
+  endif()
 
   configure_file(
       cmake/log-it-cpp.pc.in

@@ -1,6 +1,14 @@
 #include <logit.hpp>
 
 int main() {
+#if defined(LOGIT_WITH_JSON_CONFIG)
+    logit::ConfigurationDocument document;
+    logit::ConfigurationDiagnostics diagnostics;
+    if (!logit::parse_configuration_json(
+            "{\"schema_version\":1,\"loggers\":[]}", document, diagnostics)) {
+        return 2;
+    }
+#endif
 #if defined(LOGIT_CONSUMER_REQUIRE_FMT)
 #  if !defined(LOGIT_WITH_FMT)
 #    error "The installed package did not propagate LOGIT_WITH_FMT"
