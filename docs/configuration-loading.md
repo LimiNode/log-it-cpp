@@ -64,10 +64,14 @@ if (!logit::parse_configuration_json(text, document, diagnostics)) {
 ```
 
 Parsing has no logger side effects and replaces `document` only after a
-complete successful conversion. Syntax errors use
-`configuration_parse_failed`; structural, type, named-value, and unknown-field
-errors retain path-aware diagnostics. JSON floating-point values are rejected
-because schema v1 has only signed and unsigned integer numeric values.
+complete successful conversion. The frontend reports JSON syntax and
+shape/conversion errors with path-aware diagnostics and uses
+`configuration_parse_failed` for syntax errors. Backend schema validation is a
+later core phase: backend unknown fields, backend types, enum/named values,
+defaults, and feature availability may be diagnosed by
+`materialize_configuration()` rather than by the JSON conversion itself. JSON
+floating-point values are rejected because schema v1 has only signed and
+unsigned integer numeric values.
 
 Call `materialize_configuration()` and `instantiate_configuration()` explicitly
 for the later phases. The frontend does not read files, apply frontend-specific

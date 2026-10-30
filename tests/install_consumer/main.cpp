@@ -1,5 +1,9 @@
 #include <logit.hpp>
 
+#if defined(LOGIT_CONSUMER_REQUIRE_JSON_CONFIG) && !defined(LOGIT_WITH_JSON_CONFIG)
+#  error "The installed package did not propagate LOGIT_WITH_JSON_CONFIG"
+#endif
+
 int main() {
 #if defined(LOGIT_WITH_JSON_CONFIG)
     logit::ConfigurationDocument document;

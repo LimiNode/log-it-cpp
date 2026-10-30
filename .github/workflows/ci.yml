@@ -51,6 +51,7 @@ jobs:
         run: >-
           cmake -S tests/install_consumer -B build-json-consumer
           -DCMAKE_PREFIX_PATH=${{ github.workspace }}/install-json-config
+          -DLOGIT_CONSUMER_REQUIRE_JSON_CONFIG=ON
           -DCMAKE_CXX_STANDARD=11
       - name: Build and run optional JSON installed-package consumer
         if: matrix.std == 11
@@ -61,7 +62,9 @@ jobs:
         if: matrix.std == 11
         env:
           PKG_CONFIG_PATH: ${{ github.workspace }}/install-json-config/share/pkgconfig:${{ github.workspace }}/install-json-config/lib/pkgconfig
-        run: cmake -S tests/pkgconfig_consumer -B build-json-pkgconfig
+        run: >-
+          cmake -S tests/pkgconfig_consumer -B build-json-pkgconfig
+          -DLOGIT_CONSUMER_REQUIRE_JSON_CONFIG=ON
       - name: Build and run optional JSON pkg-config consumer
         if: matrix.std == 11
         run: |

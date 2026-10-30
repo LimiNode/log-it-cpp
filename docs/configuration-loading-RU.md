@@ -60,9 +60,12 @@ if (!logit::parse_configuration_json(text, document, diagnostics)) {
 ```
 
 Разбор не создаёт logger'ы и заменяет `document` только после полного успеха.
-Синтаксические ошибки используют категорию `configuration_parse_failed`;
-структурные ошибки, неверные типы, named values и неизвестные поля получают
-path-aware diagnostics. Floating-point значения JSON отклоняются, поскольку в
+Frontend возвращает path-aware diagnostics для JSON syntax и shape/conversion
+ошибок; синтаксические ошибки используют категорию
+`configuration_parse_failed`. Backend schema validation выполняется отдельной
+core-фазой: unknown fields, backend types, enum/named values, defaults и
+feature availability могут быть диагностированы `materialize_configuration()`,
+а не JSON conversion. Floating-point значения JSON отклоняются, поскольку в
 schema v1 предусмотрены только signed и unsigned integer значения.
 
 Следующие этапы вызываются явно через `materialize_configuration()` и
