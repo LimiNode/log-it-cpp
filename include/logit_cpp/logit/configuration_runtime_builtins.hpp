@@ -196,6 +196,56 @@ namespace configuration_runtime_detail {
         return valid;
     }
 
+#ifdef LOGIT_WITH_MDBX
+    inline bool read_mdbx_config(const ConfigurationMaterializedLogger& logger,
+                                 const ConfigurationBindingSet& bindings,
+                                 MdbxLogger::Config& config,
+                                 ConfigurationDiagnostics& diagnostics) {
+        bool valid = true;
+        std::uint64_t unsigned_value = 0;
+        std::int64_t signed_value = 0;
+        std::string compression;
+        valid = read_string(logger, "path", config.path, diagnostics) && valid;
+        valid = read_string(logger, "app_name", config.app_name, diagnostics) && valid;
+        if (read_unsigned(logger, "session_id", unsigned_value, diagnostics)) config.session_id = unsigned_value; else valid = false;
+        valid = read_bool(logger, "async", config.async, diagnostics) && valid;
+        valid = read_bool(logger, "drop_on_overflow", config.drop_on_overflow, diagnostics) && valid;
+        if (read_unsigned(logger, "max_queue_size", unsigned_value, diagnostics)) config.max_queue_size = static_cast<std::size_t>(unsigned_value); else valid = false;
+        if (read_unsigned(logger, "max_batch_size", unsigned_value, diagnostics)) config.max_batch_size = static_cast<std::size_t>(unsigned_value); else valid = false;
+        if (read_signed(logger, "flush_interval_ms", signed_value, diagnostics)) config.flush_interval_ms = static_cast<int>(signed_value); else valid = false;
+        if (read_unsigned(logger, "large_payload_threshold", unsigned_value, diagnostics)) config.large_payload_threshold = static_cast<std::size_t>(unsigned_value); else valid = false;
+        if (read_unsigned(logger, "payload_preview_size", unsigned_value, diagnostics)) config.payload_preview_size = static_cast<std::size_t>(unsigned_value); else valid = false;
+        valid = read_bool(logger, "store_large_payloads_separately", config.store_large_payloads_separately, diagnostics) && valid;
+        if (read_string(logger, "payload_compression", compression, diagnostics)) {
+            if (compression == "none") config.payload_compression = MdbxPayloadCompression::None;
+            else if (compression == "gzip") config.payload_compression = MdbxPayloadCompression::Gzip;
+            else if (compression == "zstd") config.payload_compression = MdbxPayloadCompression::Zstd;
+            else {
+                diagnostics.add(ConfigurationErrorCode::InvalidValue,
+                                "backend.payload_compression",
+                                "Unknown MDBX payload compression");
+                valid = false;
+            }
+        } else {
+            valid = false;
+        }
+        if (read_signed(logger, "payload_compression_level", signed_value, diagnostics)) config.payload_compression_level = static_cast<int>(signed_value); else valid = false;
+        if (bindings.contains_name("on_error")) {
+            std::shared_ptr<std::function<void(const std::string&)> > callback =
+                bindings.get<std::function<void(const std::string&)> >("on_error");
+            if (!callback) {
+                diagnostics.add(ConfigurationErrorCode::InstantiationFailed,
+                                "binding.on_error",
+                                "MDBX on_error binding has an incompatible type");
+                valid = false;
+            } else {
+                config.on_error = *callback;
+            }
+        }
+        return valid;
+    }
+#endif
+
 #ifdef LOGIT_WITH_OTLP
     inline bool read_otlp_format(const ConfigurationMaterializedLogger& logger,
                                  OtlpJsonFormatConfig& config,
@@ -350,6 +400,13 @@ namespace configuration_runtime_detail {
                     if (!configuration_runtime_detail::read_memory_config(logger, config, diagnostics)) return std::shared_ptr<ILogger>();
                     return std::shared_ptr<ILogger>(new MemoryLogger(config));
                 }
+#ifdef LOGIT_WITH_MDBX
+                if (logger.type == "mdbx") {
+                    MdbxLogger::Config config;
+                    if (!configuration_runtime_detail::read_mdbx_config(logger, bindings, config, diagnostics)) return std::shared_ptr<ILogger>();
+                    return std::shared_ptr<ILogger>(new MdbxLogger(config));
+                }
+#endif
 #ifdef LOGIT_WITH_OTLP
                 if (logger.type == "otlp_http") {
                     OtlpHttpLogger::Config config;

@@ -21,6 +21,9 @@ All notable changes to this project will be documented in this file.
   and parser frontends and hot reload remain outside this layer.
 - Added a built-in runtime factory that converts materialized file, memory,
   OTLP, and Prometheus plans into logger instances using typed bindings.
+- Added MDBX runtime factory support when the optional MDBX backend is enabled.
+- Added optional typed MDBX `on_error` binding support and build-feature-aware
+  validation for MDBX payload compression.
 
 ### Fixed
 

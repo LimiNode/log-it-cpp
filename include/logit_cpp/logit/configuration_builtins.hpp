@@ -282,6 +282,28 @@ namespace logit {
             valid = validate_type(logger, "payload_compression_level", ConfigurationValue::Type::SignedInteger, diagnostics) && valid;
             valid = validate_enum(logger, "payload_compression", "none", "gzip", "zstd",
                                   diagnostics) && valid;
+            ConfigurationFieldMap::const_iterator compression = logger.backend.find("payload_compression");
+            if (compression != logger.backend.end()) {
+                std::string value;
+                if (compression->second.get_string(value)) {
+#if !defined(LOGIT_HAS_ZLIB)
+                    if (value == "gzip") {
+                        diagnostics.add(ConfigurationErrorCode::UnavailableBackend,
+                                        "backend.payload_compression",
+                                        "MDBX gzip payload compression is unavailable in this build");
+                        valid = false;
+                    }
+#endif
+#if !defined(LOGIT_HAS_ZSTD)
+                    if (value == "zstd") {
+                        diagnostics.add(ConfigurationErrorCode::UnavailableBackend,
+                                        "backend.payload_compression",
+                                        "MDBX zstd payload compression is unavailable in this build");
+                        valid = false;
+                    }
+#endif
+                }
+            }
             return valid;
         }
 
