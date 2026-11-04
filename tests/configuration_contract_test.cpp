@@ -534,6 +534,84 @@ void test_builtin_runtime_factory_consumes_materialized_plan() {
     assert(std::dynamic_pointer_cast<logit::MemoryLogger>(loggers[0]));
 }
 
+struct EmptyBindingResolver : logit::ConfigurationBindingResolver {
+    bool resolve(const logit::ConfigurationMaterializedLogger&,
+                 logit::ConfigurationBindingSet&,
+                 logit::ConfigurationDiagnostics&) const override {
+        return true;
+    }
+};
+
+void test_prepared_runtime_applies_strategy_atomically() {
+    logit::ConfigurationDocument document;
+    document.schema_version = 1;
+
+    logit::ConfigurationLoggerSpec patterned;
+    patterned.id = "patterned";
+    patterned.type = "memory";
+    patterned.strategy.has_level = true;
+    patterned.strategy.level = logit::LogLevel::LOG_LVL_INFO;
+    patterned.strategy.has_formatter = true;
+    patterned.strategy.formatter.has_pattern = true;
+    patterned.strategy.formatter.pattern = "%l|%v";
+    document.loggers.push_back(patterned);
+
+    logit::ConfigurationLoggerSpec json;
+    json.id = "json";
+    json.type = "memory";
+    json.strategy.has_formatter = true;
+    json.strategy.formatter.has_json_format = true;
+    json.strategy.formatter.json_format = true;
+    document.loggers.push_back(json);
+
+    logit::ConfigurationLoggerSpec defaults;
+    defaults.id = "defaults";
+    defaults.type = "memory";
+    document.loggers.push_back(defaults);
+
+    logit::BuiltinConfigurationMaterializer materializer;
+    logit::ConfigurationPlan plan;
+    logit::ConfigurationDiagnostics diagnostics;
+    assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+
+    EmptyBindingResolver resolver;
+    logit::BuiltinConfigurationLoggerFactory factory;
+    logit::ConfigurationPreparedSet prepared;
+    assert(logit::prepare_configuration(plan, resolver, factory, prepared, diagnostics));
+    assert(prepared.schema_version == 1);
+    assert(prepared.loggers.size() == 3);
+    assert(prepared.loggers[0].id == "patterned");
+    assert(prepared.loggers[1].id == "json");
+    assert(prepared.loggers[2].id == "defaults");
+    assert(prepared.loggers[0].level == logit::LogLevel::LOG_LVL_INFO);
+    assert(prepared.loggers[1].level == logit::LogLevel::LOG_LVL_TRACE);
+    assert(prepared.loggers[0].formatter);
+    assert(prepared.loggers[1].formatter);
+    assert(prepared.loggers[2].formatter);
+
+    logit::LogRecord record(logit::LogLevel::LOG_LVL_INFO, 0, "test.cpp", 7,
+                            "test", "hello", "", -1, false);
+    assert(prepared.loggers[0].formatter->format(record) == "INFO|hello");
+    assert(prepared.loggers[1].formatter->format(record).find("\"format\"") != std::string::npos);
+    logit::SimpleLogFormatter default_formatter;
+    assert(prepared.loggers[2].formatter->format(record) == default_formatter.format(record));
+    assert(prepared.loggers[0].logger->get_log_level() == logit::LogLevel::LOG_LVL_INFO);
+
+    logit::ConfigurationPreparedSet sentinel;
+    logit::ConfigurationPreparedLogger existing;
+    existing.id = "existing";
+    sentinel.loggers.push_back(existing);
+    logit::ConfigurationMaterializedLogger invalid = plan.loggers[0];
+    invalid.strategy.has_formatter = true;
+    invalid.strategy.formatter.type = "unsupported";
+    plan.loggers[0] = invalid;
+    assert(!logit::prepare_configuration(plan, resolver, factory, sentinel, diagnostics));
+    assert(diagnostics.has_code(logit::ConfigurationErrorCode::InvalidValue));
+    assert(diagnostics.items()[0].path == "loggers[0].strategy.formatter.type");
+    assert(sentinel.loggers.size() == 1);
+    assert(sentinel.loggers[0].id == "existing");
+}
+
 void test_builtin_runtime_factory_supports_payload_backends() {
 #if defined(LOGIT_WITH_MDBX)
     {
@@ -706,6 +784,7 @@ int main() {
     test_optional_format_defaults_merge_recursively();
     test_runtime_binding_and_instantiation_are_atomic();
     test_builtin_runtime_factory_consumes_materialized_plan();
+    test_prepared_runtime_applies_strategy_atomically();
     test_builtin_runtime_factory_supports_payload_backends();
     return 0;
 }

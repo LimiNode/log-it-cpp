@@ -6,8 +6,11 @@
 /// \brief Binding and runtime-instantiation contract for materialized plans.
 
 #include "configuration.hpp"
+#include "formatter.hpp"
 #include "loggers.hpp"
 
+#include <cstdint>
+#include <exception>
 #include <map>
 #include <memory>
 #include <string>
@@ -105,18 +108,71 @@ namespace logit {
             ConfigurationDiagnostics& diagnostics) const = 0;
     };
 
-    /// \brief Resolve bindings and publish a complete logger set atomically.
+    /// \struct ConfigurationPreparedLogger
+    /// \brief Complete runtime pair prepared from one materialized entry.
     ///
-    /// The caller-visible logger vector is updated only after every binding has
-    /// resolved and every factory call has returned a logger. Factories may
-    /// still perform external side effects while constructing instances; those
-    /// effects are not transactional and are not rolled back if a later factory
-    /// fails.
-    inline bool instantiate_configuration(
+    /// Shared ownership matches the existing ConfigurationLoggerFactory API.
+    /// This result is intentionally not accepted by `Logger::add_logger()`,
+    /// which currently takes unique ownership; defining an atomic batch
+    /// registration and ownership transfer API is a separate boundary.
+    struct ConfigurationPreparedLogger {
+        std::string id;
+        std::shared_ptr<ILogger> logger;
+        std::shared_ptr<ILogFormatter> formatter;
+        LogLevel level = LogLevel::LOG_LVL_TRACE;
+    };
+
+    /// \struct ConfigurationPreparedSet
+    /// \brief Atomically published runtime preparation result.
+    struct ConfigurationPreparedSet {
+        std::uint32_t schema_version = 0;
+        std::vector<ConfigurationPreparedLogger> loggers;
+    };
+
+    namespace configuration_runtime_detail {
+
+        inline std::shared_ptr<ILogFormatter> make_configuration_formatter(
+                const ConfigurationMaterializedLogger& logger,
+                ConfigurationDiagnostics& diagnostics) {
+            try {
+                SimpleLogFormatter::Config config;
+                if (logger.strategy.has_formatter) {
+                    const ConfigurationFormatterSpec& formatter = logger.strategy.formatter;
+                    if (formatter.type != "simple") {
+                        diagnostics.add(ConfigurationErrorCode::InvalidValue,
+                                        "strategy.formatter.type",
+                                        "Only the simple formatter is supported in schema v1");
+                        return std::shared_ptr<ILogFormatter>();
+                    }
+                    if (formatter.has_pattern) config.pattern = formatter.pattern;
+                    if (formatter.has_json_format) config.json_format = formatter.json_format;
+                }
+                return std::shared_ptr<ILogFormatter>(
+                        new SimpleLogFormatter(config.pattern, config.json_format));
+            } catch (const std::exception& error) {
+                diagnostics.add(ConfigurationErrorCode::InstantiationFailed,
+                                "strategy.formatter.pattern",
+                                std::string("Formatter construction failed: ") + error.what());
+            } catch (...) {
+                diagnostics.add(ConfigurationErrorCode::InstantiationFailed,
+                                "strategy.formatter.pattern",
+                                "Formatter construction failed");
+            }
+            return std::shared_ptr<ILogFormatter>();
+        }
+
+    } // namespace configuration_runtime_detail
+
+    /// \brief Resolve bindings and prepare complete logger/formatter pairs.
+    ///
+    /// The caller-visible prepared set is updated only after every binding,
+    /// backend factory call, formatter construction, and level assignment has
+    /// succeeded. Factory side effects remain non-transactional.
+    inline bool prepare_configuration(
         const ConfigurationPlan& plan,
         const ConfigurationBindingResolver& resolver,
         const ConfigurationLoggerFactory& factory,
-        std::vector<std::shared_ptr<ILogger>>& loggers,
+        ConfigurationPreparedSet& output,
         ConfigurationDiagnostics& diagnostics) {
         diagnostics = ConfigurationDiagnostics();
         std::vector<ConfigurationBindingSet> resolved_bindings;
@@ -127,7 +183,6 @@ namespace logit {
             ConfigurationBindingSet bindings;
             ConfigurationDiagnostics local_diagnostics;
             const bool resolved = resolver.resolve(entry, bindings, local_diagnostics);
-
             bool missing_binding = false;
             for (std::vector<std::string>::const_iterator required =
                      entry.required_bindings.begin();
@@ -153,29 +208,88 @@ namespace logit {
             }
             resolved_bindings.push_back(bindings);
         }
-
         if (!bindings_ok) return false;
 
-        std::vector<std::shared_ptr<ILogger>> candidate;
-        candidate.reserve(plan.loggers.size());
+        ConfigurationPreparedSet candidate;
+        candidate.schema_version = plan.schema_version;
+        candidate.loggers.reserve(plan.loggers.size());
         for (std::size_t index = 0; index < plan.loggers.size(); ++index) {
             const ConfigurationMaterializedLogger& entry = plan.loggers[index];
             const std::string prefix = "loggers[" + std::to_string(index) + "]";
-
-            ConfigurationDiagnostics factory_diagnostics;
+            ConfigurationDiagnostics local_diagnostics;
             std::shared_ptr<ILogger> runtime_logger =
-                factory.instantiate(entry, resolved_bindings[index], factory_diagnostics);
-            if (!runtime_logger || !factory_diagnostics.empty()) {
-                if (factory_diagnostics.empty()) {
+                factory.instantiate(entry, resolved_bindings[index], local_diagnostics);
+            if (!runtime_logger || !local_diagnostics.empty()) {
+                if (local_diagnostics.empty()) {
                     diagnostics.add(ConfigurationErrorCode::InstantiationFailed,
                                     prefix,
                                     "Logger factory could not instantiate the plan entry");
                 } else {
-                    diagnostics.append_rebased(factory_diagnostics, prefix);
+                    diagnostics.append_rebased(local_diagnostics, prefix);
                 }
                 return false;
             }
-            candidate.push_back(runtime_logger);
+
+            std::shared_ptr<ILogFormatter> formatter =
+                configuration_runtime_detail::make_configuration_formatter(entry, local_diagnostics);
+            if (!formatter) {
+                if (local_diagnostics.empty()) {
+                    diagnostics.add(ConfigurationErrorCode::InstantiationFailed,
+                                    prefix + ".strategy.formatter.pattern",
+                                    "Formatter could not be prepared");
+                } else {
+                    diagnostics.append_rebased(local_diagnostics, prefix);
+                }
+                return false;
+            }
+
+            const LogLevel level = entry.strategy.has_level
+                ? entry.strategy.level : LogLevel::LOG_LVL_TRACE;
+            try {
+                runtime_logger->set_log_level(level);
+            } catch (const std::exception& error) {
+                diagnostics.add(ConfigurationErrorCode::InstantiationFailed,
+                                prefix + ".strategy.level",
+                                std::string("Logger level assignment failed: ") + error.what());
+                return false;
+            } catch (...) {
+                diagnostics.add(ConfigurationErrorCode::InstantiationFailed,
+                                prefix + ".strategy.level",
+                                "Logger level assignment failed");
+                return false;
+            }
+
+            ConfigurationPreparedLogger prepared;
+            prepared.id = entry.id;
+            prepared.logger = runtime_logger;
+            prepared.formatter = formatter;
+            prepared.level = level;
+            candidate.loggers.push_back(prepared);
+        }
+        output = candidate;
+        return true;
+    }
+
+    /// \brief Resolve bindings and publish a complete logger set atomically.
+    ///
+    /// The caller-visible logger vector is updated only after every binding has
+    /// resolved and every factory call has returned a logger. Factories may
+    /// still perform external side effects while constructing instances; those
+    /// effects are not transactional and are not rolled back if a later factory
+    /// fails.
+    inline bool instantiate_configuration(
+        const ConfigurationPlan& plan,
+        const ConfigurationBindingResolver& resolver,
+        const ConfigurationLoggerFactory& factory,
+        std::vector<std::shared_ptr<ILogger>>& loggers,
+        ConfigurationDiagnostics& diagnostics) {
+        ConfigurationPreparedSet prepared;
+        if (!prepare_configuration(plan, resolver, factory, prepared, diagnostics)) return false;
+        std::vector<std::shared_ptr<ILogger>> candidate;
+        candidate.reserve(prepared.loggers.size());
+        for (std::vector<ConfigurationPreparedLogger>::const_iterator it =
+                 prepared.loggers.begin(); it != prepared.loggers.end(); ++it) {
+            candidate.push_back(it->logger);
         }
 
         loggers = candidate;
