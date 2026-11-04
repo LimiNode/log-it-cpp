@@ -5,6 +5,14 @@
 
 namespace {
 
+struct EmptyBindingResolver : logit::ConfigurationBindingResolver {
+    bool resolve(const logit::ConfigurationMaterializedLogger&,
+                 logit::ConfigurationBindingSet&,
+                 logit::ConfigurationDiagnostics&) const override {
+        return true;
+    }
+};
+
 void test_valid_json_maps_and_materializes() {
     const std::string input = R"json({
         "schema_version": 1,
@@ -136,6 +144,38 @@ void test_frontend_rejects_unknown_strategy_and_named_values() {
     assert(diagnostics.has_code(logit::ConfigurationErrorCode::InvalidValue));
 }
 
+void test_json_reaches_prepared_runtime_strategy() {
+    const std::string input = R"json({
+        "schema_version": 1,
+        "loggers": [{
+            "id": "json-memory",
+            "type": "memory",
+            "strategy": {
+                "level": "info",
+                "formatter": {"pattern": "%l|%v"}
+            },
+            "backend": {}
+        }]
+    })json";
+    logit::ConfigurationDocument document;
+    logit::ConfigurationDiagnostics diagnostics;
+    assert(logit::parse_configuration_json(input, document, diagnostics));
+    logit::BuiltinConfigurationMaterializer materializer;
+    logit::ConfigurationPlan plan;
+    assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+    logit::ConfigurationPreparedSet prepared;
+    EmptyBindingResolver resolver;
+    logit::BuiltinConfigurationLoggerFactory factory;
+    assert(logit::prepare_configuration(plan, resolver, factory, prepared, diagnostics));
+    assert(prepared.loggers.size() == 1);
+    assert(prepared.loggers[0].id == "json-memory");
+    assert(prepared.loggers[0].level == logit::LogLevel::LOG_LVL_INFO);
+    logit::LogRecord record(logit::LogLevel::LOG_LVL_INFO, 0, "json.cpp", 1,
+                            "test", "payload", "", -1, false);
+    assert(prepared.loggers[0].formatter->format(record) == "INFO|payload");
+    assert(prepared.loggers[0].logger->get_log_level() == logit::LogLevel::LOG_LVL_INFO);
+}
+
 } // namespace
 
 int main() {
@@ -144,5 +184,6 @@ int main() {
     test_parsed_and_programmatic_json_use_schema_integer_types();
     test_frontend_rejects_invalid_input_atomically();
     test_frontend_rejects_unknown_strategy_and_named_values();
+    test_json_reaches_prepared_runtime_strategy();
     return 0;
 }
