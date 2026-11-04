@@ -32,7 +32,8 @@ namespace logit {
         BackendValidationFailed,
         MaterializationFailed,
         BindingResolutionFailed,
-        InstantiationFailed
+        InstantiationFailed,
+        ConfigurationParseFailed
     };
 
     inline const char* configuration_error_code_name(ConfigurationErrorCode code) {
@@ -51,6 +52,7 @@ namespace logit {
             case ConfigurationErrorCode::MaterializationFailed: return "materialization_failed";
             case ConfigurationErrorCode::BindingResolutionFailed: return "binding_resolution_failed";
             case ConfigurationErrorCode::InstantiationFailed: return "instantiation_failed";
+            case ConfigurationErrorCode::ConfigurationParseFailed: return "configuration_parse_failed";
         }
         return "unknown_configuration_error";
     }
@@ -307,6 +309,30 @@ namespace logit {
                type == "otlp_payload" ||
                type == "prometheus_http" ||
                type == "prometheus_payload";
+    }
+
+    /// \brief Return the schema-v1 integer representation for a backend field.
+    ///
+    /// Text frontends use this shared mapping because JSON/properties integers
+    /// do not carry the signed/unsigned C++ type required by ConfigurationValue.
+    inline bool configuration_backend_field_uses_signed_integer(
+            const std::string& type, const std::string& field) {
+        if (type == "file") {
+            return field == "auto_delete_days" || field == "compress_level";
+        }
+        if (type == "unique_file") return field == "auto_delete_days";
+        if (type == "memory") return field == "max_age_ms";
+        if (type == "mdbx") {
+            return field == "flush_interval_ms" ||
+                   field == "payload_compression_level";
+        }
+        if (type == "otlp_http") {
+            return field == "export_interval_ms" ||
+                   field == "request_timeout_sec" ||
+                   field == "retry_attempts" || field == "retry_delay_ms" ||
+                   field == "compression_level";
+        }
+        return false;
     }
 
     inline bool configuration_log_level_is_valid(LogLevel level) {

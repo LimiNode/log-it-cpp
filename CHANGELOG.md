@@ -24,6 +24,8 @@ All notable changes to this project will be documented in this file.
 - Added MDBX runtime factory support when the optional MDBX backend is enabled.
 - Added optional typed MDBX `on_error` binding support and build-feature-aware
   validation for MDBX payload compression.
+- Added an optional nlohmann::json frontend that maps JSON text or values into
+  the parser-neutral configuration model without performing runtime side effects.
 
 ### Fixed
 
