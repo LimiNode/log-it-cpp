@@ -35,3 +35,4 @@ explains **why the current boundary or trade-off exists**.
 ## Proposed decisions
 
 - [0009 — Versioned configuration loading contract](0009-configuration-loading-contract.md)
+- [0010 — Atomic registration of prepared configuration batches](0010-atomic-configuration-registration.md)
