@@ -27,9 +27,10 @@ The future registration operation will accept a complete prepared set and an
 explicit registration-options object. It will:
 
 1. validate the entire batch before publication;
-2. build all new strategies and registration metadata while holding the
-   registry write lock (or before taking it when no live state is inspected);
-3. check `m_shutdown` before preparation and again before publication;
+2. build all new strategies and candidate registry/ID-map snapshots before
+   mutating live state;
+3. check `m_shutdown` before preparation and again under the registry write
+   lock before publication;
 4. publish one immutable strategy-list snapshot with one release-store;
 5. return a stable mapping from each configuration `id` to its runtime index.
 
@@ -46,6 +47,21 @@ The runtime index of an appended entry is its position in the published
 registry after the existing strategies. The returned ID/index mapping is the
 only supported way for a configuration caller to address a logger; vector
 order and backend type are not inferred from the ID.
+
+All potentially throwing validation, allocation, strategy construction, and
+ID-map work must finish before mutating `m_loggers`. Under its write lock, the
+implementation prepares a complete candidate list and immutable snapshot,
+then uses non-throwing swaps for the mutable registry and ID map before the
+single release-store of the snapshot. No failure may leave the mutable registry
+and published snapshot describing different batches. An empty batch is a
+successful no-op with an empty returned mapping.
+
+Shutdown and batch registration must share a linearization boundary. The
+future `shutdown()` path must set `m_shutdown` and capture the registry under
+the same write lock used by registration. If shutdown wins, registration
+fails without publishing. If registration wins, shutdown sees and shuts down
+the entire appended batch. The existing fast-path `m_shutdown` check remains
+an early exit, not the sole race guard.
 
 ### Ownership boundary
 
@@ -82,6 +98,21 @@ existing `Logger::shutdown()` and strategy lifetime rules.
   effects, file watching, or hot reload.
 - Configuration IDs require a small registry-side metadata map; they are not
   retrofitted onto legacy unnamed registrations.
+
+## Regression matrix for implementation
+
+| Case | Required result |
+| --- | --- |
+| Two-entry batch succeeds | One snapshot publication; both IDs map to consecutive runtime indices after existing strategies. |
+| Invalid second entry or duplicate ID | No new strategy or ID is visible; existing registry and caller output remain unchanged. |
+| Repeated batch | Duplicate configured IDs fail; no implicit replacement or idempotent success. |
+| Legacy `add_logger()` before and after a batch | Existing API remains valid; unnamed indices remain stable and configured ID mapping remains unambiguous. |
+| Prepared set destroyed after registration | Backend and formatter remain alive through registry ownership. |
+| `single_mode` option and enabled state | Targeted/general routing and default enabled state match ordinary strategy behavior. |
+| Concurrent dispatch during registration | Each dispatch sees either the old or complete new snapshot, never a partial batch. |
+| Registration versus shutdown | Exactly one wins the registry lock; no published backend escapes shutdown. |
+| Factory/formatter failure before registration | No registration call or live mutation occurs. |
+| C++11/C++17 and feature-disabled builds | Public `add_logger()` remains source-compatible; registration uses no newer language features or optional parser dependency. |
 
 ## Alternatives considered
 
