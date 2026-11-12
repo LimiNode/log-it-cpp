@@ -645,6 +645,11 @@ void test_prepared_runtime_applies_strategy_atomically() {
     require(prepared.loggers[2].formatter->format(record) == default_formatter.format(record));
     require(prepared.loggers[0].logger->get_log_level() == logit::LogLevel::LOG_LVL_INFO);
 
+    const logit::ConfigurationPreparedLogger retained = prepared.loggers[0];
+    prepared.loggers.clear();
+    require(retained.logger->get_log_level() == logit::LogLevel::LOG_LVL_INFO);
+    require(retained.formatter->format(record) == "INFO|hello");
+
     logit::ConfigurationPreparedSet sentinel;
     logit::ConfigurationPreparedLogger existing;
     existing.id = "existing";
