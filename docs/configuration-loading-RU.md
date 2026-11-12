@@ -70,5 +70,19 @@ schema v1 предусмотрены только signed и unsigned integer з�
 
 Следующие этапы вызываются явно через `materialize_configuration()` и
 `instantiate_configuration()`. Frontend не читает файлы, не вводит собственные
-defaults, не разрешает callback'и и не создаёт logger'ы. Properties input и hot
-reload пока не реализованы.
+defaults, не разрешает callback'и и не создаёт logger'ы. `instantiate_configuration()`
+остаётся compatibility API для backend-instantiation: factory сама владеет
+level logger'а и не создаёт formatter из materialized strategy. Для атомарного
+применения strategy используйте `prepare_configuration()`: он создаёт formatter
+и назначает explicit level или default `TRACE`. Properties input и hot reload
+пока не реализованы.
+
+Для подготовки runtime-пар доступен `prepare_configuration()`. Он возвращает
+`ConfigurationPreparedSet`: стабильный ID logger'а, конкретные `ILogger`,
+`ILogFormatter` и применённый `LogLevel`. При отсутствии level используется
+`TRACE`; formatter schema v1 имеет тип `simple`, defaults публичного
+`SimpleLogFormatter::Config`, а затем применяет явные pattern и JSON overrides.
+Prepared result использует shared ownership в соответствии с существующим
+factory API. `Logger::add_logger()` пока принимает unique ownership, поэтому
+регистрация остаётся отдельной границей; подготовка не изменяет глобальный
+singleton поэлементно.

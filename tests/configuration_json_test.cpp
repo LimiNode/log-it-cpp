@@ -1,9 +1,29 @@
-#include <cassert>
+#include <cstdio>
+#include <cstdlib>
 #include <string>
 
 #include <logit.hpp>
 
 namespace {
+
+void require_impl(bool condition, const char* expression,
+                  const char* file, int line) {
+    if (!condition) {
+        std::fprintf(stderr, "%s:%d: requirement failed: %s\n", file, line, expression);
+        std::abort();
+    }
+}
+
+#define require(condition) \
+    require_impl(static_cast<bool>(condition), #condition, __FILE__, __LINE__)
+
+struct EmptyBindingResolver : logit::ConfigurationBindingResolver {
+    bool resolve(const logit::ConfigurationMaterializedLogger&,
+                 logit::ConfigurationBindingSet&,
+                 logit::ConfigurationDiagnostics&) const override {
+        return true;
+    }
+};
 
 void test_valid_json_maps_and_materializes() {
     const std::string input = R"json({
@@ -28,22 +48,22 @@ void test_valid_json_maps_and_materializes() {
 
     logit::ConfigurationDocument document;
     logit::ConfigurationDiagnostics diagnostics;
-    assert(logit::parse_configuration_json(input, document, diagnostics));
-    assert(diagnostics.empty());
-    assert(document.schema_version == 1);
-    assert(document.loggers.size() == 1);
-    assert(document.loggers[0].id == "application-file");
-    assert(document.loggers[0].strategy.has_level);
-    assert(document.loggers[0].strategy.level == logit::LogLevel::LOG_LVL_INFO);
-    assert(document.loggers[0].strategy.has_formatter);
-    assert(document.loggers[0].strategy.formatter.has_pattern);
-    assert(document.loggers[0].strategy.formatter.pattern == "%v");
+    require(logit::parse_configuration_json(input, document, diagnostics));
+    require(diagnostics.empty());
+    require(document.schema_version == 1);
+    require(document.loggers.size() == 1);
+    require(document.loggers[0].id == "application-file");
+    require(document.loggers[0].strategy.has_level);
+    require(document.loggers[0].strategy.level == logit::LogLevel::LOG_LVL_INFO);
+    require(document.loggers[0].strategy.has_formatter);
+    require(document.loggers[0].strategy.formatter.has_pattern);
+    require(document.loggers[0].strategy.formatter.pattern == "%v");
 
     logit::BuiltinConfigurationMaterializer materializer;
     logit::ConfigurationPlan plan;
-    assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
-    assert(diagnostics.empty());
-    assert(plan.loggers.size() == 1);
+    require(logit::materialize_configuration(document, materializer, plan, diagnostics));
+    require(diagnostics.empty());
+    require(plan.loggers.size() == 1);
 }
 
 void test_nested_backend_values_are_preserved() {
@@ -62,12 +82,12 @@ void test_nested_backend_values_are_preserved() {
 
     logit::ConfigurationDocument document;
     logit::ConfigurationDiagnostics diagnostics;
-    assert(logit::parse_configuration_json(input, document, diagnostics));
+    require(logit::parse_configuration_json(input, document, diagnostics));
     logit::ConfigurationFieldMap custom;
-    assert(document.loggers[0].backend["custom"].get_object(custom));
+    require(document.loggers[0].backend["custom"].get_object(custom));
     std::vector<logit::ConfigurationValue> labels;
-    assert(custom["labels"].get_array(labels));
-    assert(labels.size() == 1);
+    require(custom["labels"].get_array(labels));
+    require(labels.size() == 1);
 }
 
 void test_parsed_and_programmatic_json_use_schema_integer_types() {
@@ -81,14 +101,14 @@ void test_parsed_and_programmatic_json_use_schema_integer_types() {
     };
     logit::ConfigurationDocument document;
     logit::ConfigurationDiagnostics diagnostics;
-    assert(logit::parse_configuration_json(input, document, diagnostics));
-    assert(document.loggers[0].backend["max_records"].type() ==
+    require(logit::parse_configuration_json(input, document, diagnostics));
+    require(document.loggers[0].backend["max_records"].type() ==
            logit::ConfigurationValue::Type::UnsignedInteger);
-    assert(document.loggers[0].backend["max_age_ms"].type() ==
+    require(document.loggers[0].backend["max_age_ms"].type() ==
            logit::ConfigurationValue::Type::SignedInteger);
     logit::BuiltinConfigurationMaterializer materializer;
     logit::ConfigurationPlan plan;
-    assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+    require(logit::materialize_configuration(document, materializer, plan, diagnostics));
 }
 
 void test_frontend_rejects_invalid_input_atomically() {
@@ -99,10 +119,10 @@ void test_frontend_rejects_invalid_input_atomically() {
     output.loggers.push_back(existing);
     logit::ConfigurationDiagnostics diagnostics;
 
-    assert(!logit::parse_configuration_json("{", output, diagnostics));
-    assert(diagnostics.has_code(logit::ConfigurationErrorCode::ConfigurationParseFailed));
-    assert(output.schema_version == 77);
-    assert(output.loggers.size() == 1);
+    require(!logit::parse_configuration_json("{", output, diagnostics));
+    require(diagnostics.has_code(logit::ConfigurationErrorCode::ConfigurationParseFailed));
+    require(output.schema_version == 77);
+    require(output.loggers.size() == 1);
 
     const std::string invalid = R"json({
         "schema_version": 1,
@@ -113,11 +133,11 @@ void test_frontend_rejects_invalid_input_atomically() {
             "backend": {"max_records": 1.5}
         }]
     })json";
-    assert(!logit::parse_configuration_json(invalid, output, diagnostics));
-    assert(diagnostics.has_code(logit::ConfigurationErrorCode::UnknownField));
-    assert(diagnostics.has_code(logit::ConfigurationErrorCode::InvalidValue));
-    assert(output.schema_version == 77);
-    assert(output.loggers.size() == 1);
+    require(!logit::parse_configuration_json(invalid, output, diagnostics));
+    require(diagnostics.has_code(logit::ConfigurationErrorCode::UnknownField));
+    require(diagnostics.has_code(logit::ConfigurationErrorCode::InvalidValue));
+    require(output.schema_version == 77);
+    require(output.loggers.size() == 1);
 }
 
 void test_frontend_rejects_unknown_strategy_and_named_values() {
@@ -131,9 +151,41 @@ void test_frontend_rejects_unknown_strategy_and_named_values() {
     })json";
     logit::ConfigurationDocument document;
     logit::ConfigurationDiagnostics diagnostics;
-    assert(!logit::parse_configuration_json(input, document, diagnostics));
-    assert(diagnostics.has_code(logit::ConfigurationErrorCode::UnknownField));
-    assert(diagnostics.has_code(logit::ConfigurationErrorCode::InvalidValue));
+    require(!logit::parse_configuration_json(input, document, diagnostics));
+    require(diagnostics.has_code(logit::ConfigurationErrorCode::UnknownField));
+    require(diagnostics.has_code(logit::ConfigurationErrorCode::InvalidValue));
+}
+
+void test_json_reaches_prepared_runtime_strategy() {
+    const std::string input = R"json({
+        "schema_version": 1,
+        "loggers": [{
+            "id": "json-memory",
+            "type": "memory",
+            "strategy": {
+                "level": "info",
+                "formatter": {"pattern": "%l|%v"}
+            },
+            "backend": {}
+        }]
+    })json";
+    logit::ConfigurationDocument document;
+    logit::ConfigurationDiagnostics diagnostics;
+    require(logit::parse_configuration_json(input, document, diagnostics));
+    logit::BuiltinConfigurationMaterializer materializer;
+    logit::ConfigurationPlan plan;
+    require(logit::materialize_configuration(document, materializer, plan, diagnostics));
+    logit::ConfigurationPreparedSet prepared;
+    EmptyBindingResolver resolver;
+    logit::BuiltinConfigurationLoggerFactory factory;
+    require(logit::prepare_configuration(plan, resolver, factory, prepared, diagnostics));
+    require(prepared.loggers.size() == 1);
+    require(prepared.loggers[0].id == "json-memory");
+    require(prepared.loggers[0].level == logit::LogLevel::LOG_LVL_INFO);
+    logit::LogRecord record(logit::LogLevel::LOG_LVL_INFO, 0, "json.cpp", 1,
+                            "test", "payload", "", -1, false);
+    require(prepared.loggers[0].formatter->format(record) == "INFO|payload");
+    require(prepared.loggers[0].logger->get_log_level() == logit::LogLevel::LOG_LVL_INFO);
 }
 
 } // namespace
@@ -144,5 +196,6 @@ int main() {
     test_parsed_and_programmatic_json_use_schema_integer_types();
     test_frontend_rejects_invalid_input_atomically();
     test_frontend_rejects_unknown_strategy_and_named_values();
+    test_json_reaches_prepared_runtime_strategy();
     return 0;
 }

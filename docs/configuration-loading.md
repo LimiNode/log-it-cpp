@@ -75,5 +75,20 @@ unsigned integer numeric values.
 
 Call `materialize_configuration()` and `instantiate_configuration()` explicitly
 for the later phases. The frontend does not read files, apply frontend-specific
-defaults, resolve callbacks, or construct loggers. Properties input and hot
-reload remain outside the current implementation.
+defaults, resolve callbacks, or construct loggers. `instantiate_configuration()`
+is the compatibility backend-instantiation API: the factory remains responsible
+for the logger's level and accepts the materialized formatter fields without
+constructing a formatter. Use `prepare_configuration()` when the schema
+strategy must be applied atomically; it constructs the formatter and assigns the
+explicit level or the `TRACE` default. Properties input and hot reload remain
+outside the current implementation.
+
+Runtime preparation is available through `prepare_configuration()`. It returns
+a `ConfigurationPreparedSet` containing each stable logger ID, the concrete
+`ILogger`, its `ILogFormatter`, and the applied `LogLevel`. Omitted levels use
+`TRACE`; schema-v1 formatters use `simple` with the public
+`SimpleLogFormatter::Config` defaults, then apply explicit pattern and JSON
+overrides. The prepared result uses shared ownership to match the existing
+factory API. `Logger::add_logger()` currently accepts unique ownership and is
+therefore a separate registration boundary; preparation does not mutate the
+global singleton incrementally.
