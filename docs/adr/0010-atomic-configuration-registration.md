@@ -140,7 +140,7 @@ shutdown, ID collisions, and rollback. It is not implicit hot reload.
 
 ## References
 
-- [Configuration runtime preparation](../configuration-loading.md)
+- [ADR 0009: Versioned configuration loading contract](0009-configuration-loading-contract.md)
 - [ADR 0003: Immutable logger registry snapshots](0003-immutable-registry-snapshots.md)
 - [Logger registry implementation](../../include/logit_cpp/logit/Logger.hpp)
 - [Prepared runtime types](../../include/logit_cpp/logit/configuration_runtime.hpp)
