@@ -1,5 +1,5 @@
-#include <cassert>
 #include <cstdio>
+#include <cstdlib>
 #include <functional>
 #include <map>
 #include <memory>
@@ -9,6 +9,17 @@
 #include <logit.hpp>
 
 namespace {
+
+void require_impl(bool condition, const char* expression,
+                  const char* file, int line) {
+    if (!condition) {
+        std::fprintf(stderr, "%s:%d: requirement failed: %s\n", file, line, expression);
+        std::abort();
+    }
+}
+
+#define require(condition) \
+    require_impl(static_cast<bool>(condition), #condition, __FILE__, __LINE__)
 
 struct RecordingMaterializer : logit::ConfigurationMaterializer {
     mutable int validate_calls = 0;
@@ -158,20 +169,20 @@ logit::ConfigurationDocument valid_document() {
 void test_validation_and_materialization() {
     const logit::ConfigurationDocument document = valid_document();
     const logit::ConfigurationDiagnostics diagnostics = logit::validate_configuration(document);
-    assert(diagnostics.empty());
+    require(diagnostics.empty());
 
     RecordingMaterializer materializer;
     logit::ConfigurationPlan plan;
     logit::ConfigurationDiagnostics materialization_diagnostics;
-    assert(logit::materialize_configuration(document,
+    require(logit::materialize_configuration(document,
                                              materializer,
                                              plan,
                                              materialization_diagnostics));
-    assert(materialization_diagnostics.empty());
-    assert(materializer.validate_calls == 1);
-    assert(materializer.materialize_calls == 1);
-    assert(plan.loggers.size() == 1);
-    assert(plan.loggers[0].id == "file-main");
+    require(materialization_diagnostics.empty());
+    require(materializer.validate_calls == 1);
+    require(materializer.materialize_calls == 1);
+    require(plan.loggers.size() == 1);
+    require(plan.loggers[0].id == "file-main");
 }
 
 void test_structural_diagnostics() {
@@ -182,9 +193,9 @@ void test_structural_diagnostics() {
     logit::ConfigurationLoggerSpec duplicate = document.loggers[0];
     document.loggers.push_back(duplicate);
     const logit::ConfigurationDiagnostics diagnostics = logit::validate_configuration(document);
-    assert(diagnostics.has_code(logit::ConfigurationErrorCode::UnsupportedSchemaVersion));
-    assert(diagnostics.has_code(logit::ConfigurationErrorCode::DuplicateLoggerId));
-    assert(diagnostics.has_code(logit::ConfigurationErrorCode::UnsupportedCombination));
+    require(diagnostics.has_code(logit::ConfigurationErrorCode::UnsupportedSchemaVersion));
+    require(diagnostics.has_code(logit::ConfigurationErrorCode::DuplicateLoggerId));
+    require(diagnostics.has_code(logit::ConfigurationErrorCode::UnsupportedCombination));
 }
 
 void test_nested_values_are_representable() {
@@ -195,11 +206,11 @@ void test_nested_values_are_representable() {
         }}));
     const logit::ConfigurationValue value = logit::ConfigurationValue::make_array(routes);
     std::vector<logit::ConfigurationValue> observed;
-    assert(value.get_array(observed));
-    assert(observed.size() == 1);
+    require(value.get_array(observed));
+    require(observed.size() == 1);
     std::map<std::string, logit::ConfigurationValue> observed_route;
-    assert(observed[0].get_object(observed_route));
-    assert(observed_route["min_level"].type() ==
+    require(observed[0].get_object(observed_route));
+    require(observed_route["min_level"].type() ==
            logit::ConfigurationValue::Type::String);
 }
 
@@ -210,20 +221,20 @@ void test_diagnostics_fail_closed() {
     validation_diagnostic.add_validation_diagnostic = true;
     logit::ConfigurationPlan plan;
     logit::ConfigurationDiagnostics diagnostics;
-    assert(!logit::materialize_configuration(document,
+    require(!logit::materialize_configuration(document,
                                               validation_diagnostic,
                                               plan,
                                               diagnostics));
-    assert(validation_diagnostic.materialize_calls == 0);
-    assert(!diagnostics.empty());
+    require(validation_diagnostic.materialize_calls == 0);
+    require(!diagnostics.empty());
 
     RecordingMaterializer materialization_diagnostic;
     materialization_diagnostic.add_materialization_diagnostic = true;
-    assert(!logit::materialize_configuration(document,
+    require(!logit::materialize_configuration(document,
                                               materialization_diagnostic,
                                               plan,
                                               diagnostics));
-    assert(!diagnostics.empty());
+    require(!diagnostics.empty());
 }
 
 void test_plan_is_preserved_on_late_failure() {
@@ -239,10 +250,10 @@ void test_plan_is_preserved_on_late_failure() {
     sentinel.id = "existing";
     plan.loggers.push_back(sentinel);
     logit::ConfigurationDiagnostics diagnostics;
-    assert(!logit::materialize_configuration(document, materializer, plan, diagnostics));
-    assert(plan.schema_version == 77);
-    assert(plan.loggers.size() == 1);
-    assert(plan.loggers[0].id == "existing");
+    require(!logit::materialize_configuration(document, materializer, plan, diagnostics));
+    require(plan.schema_version == 77);
+    require(plan.loggers.size() == 1);
+    require(plan.loggers[0].id == "existing");
 }
 
 void test_materializer_is_not_called_after_validation_failure() {
@@ -252,9 +263,9 @@ void test_materializer_is_not_called_after_validation_failure() {
     RecordingMaterializer materializer;
     logit::ConfigurationPlan plan;
     logit::ConfigurationDiagnostics diagnostics;
-    assert(!logit::materialize_configuration(document, materializer, plan, diagnostics));
-    assert(materializer.validate_calls == 0);
-    assert(materializer.materialize_calls == 0);
+    require(!logit::materialize_configuration(document, materializer, plan, diagnostics));
+    require(materializer.validate_calls == 0);
+    require(materializer.materialize_calls == 0);
 }
 
 void test_builtin_materializer_applies_file_defaults() {
@@ -268,18 +279,18 @@ void test_builtin_materializer_applies_file_defaults() {
     logit::BuiltinConfigurationMaterializer materializer;
     logit::ConfigurationPlan plan;
     logit::ConfigurationDiagnostics diagnostics;
-    assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
-    assert(diagnostics.empty());
+    require(logit::materialize_configuration(document, materializer, plan, diagnostics));
+    require(diagnostics.empty());
 
     std::string directory;
     std::uint64_t queue_capacity = 1;
     bool async = false;
-    assert(plan.loggers[0].backend.at("directory").get_string(directory));
-    assert(directory == "logs");
-    assert(plan.loggers[0].backend.at("async").get_boolean(async));
-    assert(async);
-    assert(plan.loggers[0].backend.at("queue_capacity").get_unsigned(queue_capacity));
-    assert(queue_capacity == 0);
+    require(plan.loggers[0].backend.at("directory").get_string(directory));
+    require(directory == "logs");
+    require(plan.loggers[0].backend.at("async").get_boolean(async));
+    require(async);
+    require(plan.loggers[0].backend.at("queue_capacity").get_unsigned(queue_capacity));
+    require(queue_capacity == 0);
 }
 
 void test_builtin_materializer_rejects_unknown_field() {
@@ -294,8 +305,8 @@ void test_builtin_materializer_rejects_unknown_field() {
     logit::BuiltinConfigurationMaterializer materializer;
     logit::ConfigurationPlan plan;
     logit::ConfigurationDiagnostics diagnostics;
-    assert(!logit::materialize_configuration(document, materializer, plan, diagnostics));
-    assert(diagnostics.has_code(logit::ConfigurationErrorCode::UnknownField));
+    require(!logit::materialize_configuration(document, materializer, plan, diagnostics));
+    require(diagnostics.has_code(logit::ConfigurationErrorCode::UnknownField));
 }
 
 void test_builtin_materializer_handles_optional_backends_explicitly() {
@@ -312,13 +323,13 @@ void test_builtin_materializer_handles_optional_backends_explicitly() {
     const bool materialized =
         logit::materialize_configuration(document, materializer, plan, diagnostics);
 #if defined(LOGIT_WITH_MDBX)
-    assert(materialized);
-    assert(diagnostics.empty());
-    assert(plan.loggers[0].backend.at("path").type() ==
+    require(materialized);
+    require(diagnostics.empty());
+    require(plan.loggers[0].backend.at("path").type() ==
            logit::ConfigurationValue::Type::String);
 #else
-    assert(!materialized);
-    assert(diagnostics.has_code(logit::ConfigurationErrorCode::UnavailableBackend));
+    require(!materialized);
+    require(diagnostics.has_code(logit::ConfigurationErrorCode::UnavailableBackend));
 #endif
 }
 
@@ -332,9 +343,9 @@ void test_materializer_diagnostics_are_rebased_to_logger_index() {
     materializer.validation_diagnostic_at = 2;
     logit::ConfigurationPlan plan;
     logit::ConfigurationDiagnostics diagnostics;
-    assert(!logit::materialize_configuration(document, materializer, plan, diagnostics));
-    assert(diagnostics.size() == 1);
-    assert(diagnostics.items()[0].path == "loggers[1].type");
+    require(!logit::materialize_configuration(document, materializer, plan, diagnostics));
+    require(diagnostics.size() == 1);
+    require(diagnostics.items()[0].path == "loggers[1].type");
 }
 
 void test_callback_backends_record_required_bindings_when_available() {
@@ -349,10 +360,10 @@ void test_callback_backends_record_required_bindings_when_available() {
     logit::BuiltinConfigurationMaterializer materializer;
     logit::ConfigurationPlan plan;
     logit::ConfigurationDiagnostics diagnostics;
-    assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
-    assert(diagnostics.empty());
-    assert(plan.loggers[0].required_bindings.size() == 1);
-    assert(plan.loggers[0].required_bindings[0] == "on_payload");
+    require(logit::materialize_configuration(document, materializer, plan, diagnostics));
+    require(diagnostics.empty());
+    require(plan.loggers[0].required_bindings.size() == 1);
+    require(plan.loggers[0].required_bindings[0] == "on_payload");
 #endif
 }
 
@@ -372,15 +383,15 @@ void test_optional_format_defaults_merge_recursively() {
         logit::BuiltinConfigurationMaterializer materializer;
         logit::ConfigurationPlan plan;
         logit::ConfigurationDiagnostics diagnostics;
-        assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+        require(logit::materialize_configuration(document, materializer, plan, diagnostics));
         std::map<std::string, logit::ConfigurationValue> observed;
-        assert(plan.loggers[0].backend["format"].get_object(observed));
+        require(plan.loggers[0].backend["format"].get_object(observed));
         std::string service_name;
         bool include_source = false;
-        assert(observed["service_name"].get_string(service_name));
-        assert(service_name == "orders");
-        assert(observed["include_source"].get_boolean(include_source));
-        assert(include_source);
+        require(observed["service_name"].get_string(service_name));
+        require(service_name == "orders");
+        require(observed["include_source"].get_boolean(include_source));
+        require(include_source);
     }
 #endif
 #if defined(LOGIT_WITH_PROMETHEUS) || defined(LOGIT_WITH_PROMETHEUS_SERVER)
@@ -403,22 +414,22 @@ void test_optional_format_defaults_merge_recursively() {
         logit::BuiltinConfigurationMaterializer materializer;
         logit::ConfigurationPlan plan;
         logit::ConfigurationDiagnostics diagnostics;
-        assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+        require(logit::materialize_configuration(document, materializer, plan, diagnostics));
         std::map<std::string, logit::ConfigurationValue> observed;
-        assert(plan.loggers[0].backend["format"].get_object(observed));
+        require(plan.loggers[0].backend["format"].get_object(observed));
         std::string metric_prefix;
         bool include_help = false;
-        assert(observed["metric_prefix"].get_string(metric_prefix));
-        assert(metric_prefix == "app_");
-        assert(observed["include_help"].get_boolean(include_help));
-        assert(include_help);
+        require(observed["metric_prefix"].get_string(metric_prefix));
+        require(metric_prefix == "app_");
+        require(observed["include_help"].get_boolean(include_help));
+        require(include_help);
 #if !defined(LOGIT_WITH_PROMETHEUS_SERVER)
         bool emit_on_log = false;
         bool emit_on_wait = false;
-        assert(plan.loggers[0].backend["emit_on_log"].get_boolean(emit_on_log));
-        assert(plan.loggers[0].backend["emit_on_wait"].get_boolean(emit_on_wait));
-        assert(emit_on_log);
-        assert(emit_on_wait);
+        require(plan.loggers[0].backend["emit_on_log"].get_boolean(emit_on_log));
+        require(plan.loggers[0].backend["emit_on_wait"].get_boolean(emit_on_wait));
+        require(emit_on_log);
+        require(emit_on_wait);
 #endif
 
         std::map<std::string, logit::ConfigurationValue> invalid_label;
@@ -432,8 +443,8 @@ void test_optional_format_defaults_merge_recursively() {
                 std::map<std::string, logit::ConfigurationValue>{
                     {"const_labels", logit::ConfigurationValue::make_array(labels)}});
         diagnostics = logit::ConfigurationDiagnostics();
-        assert(!logit::materialize_configuration(document, materializer, plan, diagnostics));
-        assert(diagnostics.has_code(logit::ConfigurationErrorCode::UnknownField));
+        require(!logit::materialize_configuration(document, materializer, plan, diagnostics));
+        require(diagnostics.has_code(logit::ConfigurationErrorCode::UnknownField));
     }
 #endif
 }
@@ -452,32 +463,32 @@ void test_runtime_binding_and_instantiation_are_atomic() {
     std::shared_ptr<logit::ILogger> sentinel(new logit::MemoryLogger());
     loggers.push_back(sentinel);
     logit::ConfigurationDiagnostics diagnostics;
-    assert(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
-    assert(diagnostics.empty());
-    assert(loggers.size() == 1);
-    assert(loggers[0] != sentinel);
+    require(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+    require(diagnostics.empty());
+    require(loggers.size() == 1);
+    require(loggers[0] != sentinel);
 
     resolver.provide_binding = false;
     loggers.clear();
     loggers.push_back(sentinel);
-    assert(!logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
-    assert(diagnostics.items()[0].path == "loggers[0].binding.on_payload");
-    assert(loggers.size() == 1);
-    assert(loggers[0] == sentinel);
+    require(!logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+    require(diagnostics.items()[0].path == "loggers[0].binding.on_payload");
+    require(loggers.size() == 1);
+    require(loggers[0] == sentinel);
 
     resolver.provide_binding = true;
     resolver.provide_null_binding = true;
     factory.calls = 0;
-    assert(!logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
-    assert(diagnostics.has_code(logit::ConfigurationErrorCode::MissingProgrammaticBinding));
-    assert(factory.calls == 0);
+    require(!logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+    require(diagnostics.has_code(logit::ConfigurationErrorCode::MissingProgrammaticBinding));
+    require(factory.calls == 0);
 
     resolver.provide_null_binding = false;
     resolver.provide_wrong_type = true;
     logit::ConfigurationBindingSet bindings;
     bindings.set("value", std::shared_ptr<int>(new int(1)));
-    assert(bindings.get<int>("value"));
-    assert(!bindings.get<std::string>("value"));
+    require(bindings.get<int>("value"));
+    require(!bindings.get<std::string>("value"));
     resolver.provide_wrong_type = false;
 
     resolver.provide_binding = true;
@@ -485,11 +496,11 @@ void test_runtime_binding_and_instantiation_are_atomic() {
     factory.calls = 0;
     loggers.clear();
     loggers.push_back(sentinel);
-    assert(!logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
-    assert(diagnostics.has_code(logit::ConfigurationErrorCode::InstantiationFailed));
-    assert(factory.calls == 1);
-    assert(loggers.size() == 1);
-    assert(loggers[0] == sentinel);
+    require(!logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+    require(diagnostics.has_code(logit::ConfigurationErrorCode::InstantiationFailed));
+    require(factory.calls == 1);
+    require(loggers.size() == 1);
+    require(loggers[0] == sentinel);
     resolver.provide_wrong_type = false;
 
     resolver.provide_binding = true;
@@ -499,17 +510,17 @@ void test_runtime_binding_and_instantiation_are_atomic() {
     plan.loggers.push_back(second);
     resolver.calls = 0;
     resolver.missing_at = 2;
-    assert(!logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
-    assert(diagnostics.has_code(logit::ConfigurationErrorCode::MissingProgrammaticBinding));
-    assert(factory.calls == 0);
-    assert(loggers.size() == 1);
-    assert(loggers[0] == sentinel);
+    require(!logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+    require(diagnostics.has_code(logit::ConfigurationErrorCode::MissingProgrammaticBinding));
+    require(factory.calls == 0);
+    require(loggers.size() == 1);
+    require(loggers[0] == sentinel);
 
     resolver.provide_binding = true;
     resolver.missing_at = -1;
     factory.fail_at = 2;
-    assert(!logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
-    assert(diagnostics.has_code(logit::ConfigurationErrorCode::InstantiationFailed));
+    require(!logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+    require(diagnostics.has_code(logit::ConfigurationErrorCode::InstantiationFailed));
 }
 
 void test_builtin_runtime_factory_consumes_materialized_plan() {
@@ -523,15 +534,15 @@ void test_builtin_runtime_factory_consumes_materialized_plan() {
     logit::BuiltinConfigurationMaterializer materializer;
     logit::ConfigurationPlan plan;
     logit::ConfigurationDiagnostics diagnostics;
-    assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+    require(logit::materialize_configuration(document, materializer, plan, diagnostics));
 
     RecordingBindingResolver resolver;
     logit::BuiltinConfigurationLoggerFactory factory;
     std::vector<std::shared_ptr<logit::ILogger>> loggers;
-    assert(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
-    assert(diagnostics.empty());
-    assert(loggers.size() == 1);
-    assert(std::dynamic_pointer_cast<logit::MemoryLogger>(loggers[0]));
+    require(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+    require(diagnostics.empty());
+    require(loggers.size() == 1);
+    require(std::dynamic_pointer_cast<logit::MemoryLogger>(loggers[0]));
 }
 
 struct EmptyBindingResolver : logit::ConfigurationBindingResolver {
@@ -541,6 +552,43 @@ struct EmptyBindingResolver : logit::ConfigurationBindingResolver {
         return true;
     }
 };
+
+struct PreconfiguredLoggerFactory : logit::ConfigurationLoggerFactory {
+    std::shared_ptr<logit::ILogger> instantiate(
+        const logit::ConfigurationMaterializedLogger&,
+        const logit::ConfigurationBindingSet&,
+        logit::ConfigurationDiagnostics&) const override {
+        std::shared_ptr<logit::MemoryLogger> logger(new logit::MemoryLogger());
+        logger->set_log_level(logit::LogLevel::LOG_LVL_ERROR);
+        return logger;
+    }
+};
+
+void test_legacy_instantiation_preserves_factory_contract() {
+    logit::ConfigurationPlan plan;
+    plan.schema_version = 1;
+    logit::ConfigurationMaterializedLogger entry;
+    entry.id = "legacy";
+    entry.type = "custom";
+    entry.strategy.has_level = true;
+    entry.strategy.level = logit::LogLevel::LOG_LVL_INFO;
+    entry.strategy.has_formatter = true;
+    entry.strategy.formatter.type = "unsupported";
+    plan.loggers.push_back(entry);
+
+    EmptyBindingResolver resolver;
+    PreconfiguredLoggerFactory factory;
+    logit::ConfigurationDiagnostics diagnostics;
+    std::vector<std::shared_ptr<logit::ILogger> > loggers;
+    require(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+    require(diagnostics.empty());
+    require(loggers.size() == 1);
+    require(loggers[0]->get_log_level() == logit::LogLevel::LOG_LVL_ERROR);
+
+    logit::ConfigurationPreparedSet prepared;
+    require(!logit::prepare_configuration(plan, resolver, factory, prepared, diagnostics));
+    require(diagnostics.has_code(logit::ConfigurationErrorCode::InvalidValue));
+}
 
 void test_prepared_runtime_applies_strategy_atomically() {
     logit::ConfigurationDocument document;
@@ -572,30 +620,30 @@ void test_prepared_runtime_applies_strategy_atomically() {
     logit::BuiltinConfigurationMaterializer materializer;
     logit::ConfigurationPlan plan;
     logit::ConfigurationDiagnostics diagnostics;
-    assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+    require(logit::materialize_configuration(document, materializer, plan, diagnostics));
 
     EmptyBindingResolver resolver;
     logit::BuiltinConfigurationLoggerFactory factory;
     logit::ConfigurationPreparedSet prepared;
-    assert(logit::prepare_configuration(plan, resolver, factory, prepared, diagnostics));
-    assert(prepared.schema_version == 1);
-    assert(prepared.loggers.size() == 3);
-    assert(prepared.loggers[0].id == "patterned");
-    assert(prepared.loggers[1].id == "json");
-    assert(prepared.loggers[2].id == "defaults");
-    assert(prepared.loggers[0].level == logit::LogLevel::LOG_LVL_INFO);
-    assert(prepared.loggers[1].level == logit::LogLevel::LOG_LVL_TRACE);
-    assert(prepared.loggers[0].formatter);
-    assert(prepared.loggers[1].formatter);
-    assert(prepared.loggers[2].formatter);
+    require(logit::prepare_configuration(plan, resolver, factory, prepared, diagnostics));
+    require(prepared.schema_version == 1);
+    require(prepared.loggers.size() == 3);
+    require(prepared.loggers[0].id == "patterned");
+    require(prepared.loggers[1].id == "json");
+    require(prepared.loggers[2].id == "defaults");
+    require(prepared.loggers[0].level == logit::LogLevel::LOG_LVL_INFO);
+    require(prepared.loggers[1].level == logit::LogLevel::LOG_LVL_TRACE);
+    require(prepared.loggers[0].formatter);
+    require(prepared.loggers[1].formatter);
+    require(prepared.loggers[2].formatter);
 
     logit::LogRecord record(logit::LogLevel::LOG_LVL_INFO, 0, "test.cpp", 7,
                             "test", "hello", "", -1, false);
-    assert(prepared.loggers[0].formatter->format(record) == "INFO|hello");
-    assert(prepared.loggers[1].formatter->format(record).find("\"format\"") != std::string::npos);
+    require(prepared.loggers[0].formatter->format(record) == "INFO|hello");
+    require(prepared.loggers[1].formatter->format(record).find("\"format\"") != std::string::npos);
     logit::SimpleLogFormatter default_formatter;
-    assert(prepared.loggers[2].formatter->format(record) == default_formatter.format(record));
-    assert(prepared.loggers[0].logger->get_log_level() == logit::LogLevel::LOG_LVL_INFO);
+    require(prepared.loggers[2].formatter->format(record) == default_formatter.format(record));
+    require(prepared.loggers[0].logger->get_log_level() == logit::LogLevel::LOG_LVL_INFO);
 
     logit::ConfigurationPreparedSet sentinel;
     logit::ConfigurationPreparedLogger existing;
@@ -605,11 +653,11 @@ void test_prepared_runtime_applies_strategy_atomically() {
     invalid.strategy.has_formatter = true;
     invalid.strategy.formatter.type = "unsupported";
     plan.loggers[0] = invalid;
-    assert(!logit::prepare_configuration(plan, resolver, factory, sentinel, diagnostics));
-    assert(diagnostics.has_code(logit::ConfigurationErrorCode::InvalidValue));
-    assert(diagnostics.items()[0].path == "loggers[0].strategy.formatter.type");
-    assert(sentinel.loggers.size() == 1);
-    assert(sentinel.loggers[0].id == "existing");
+    require(!logit::prepare_configuration(plan, resolver, factory, sentinel, diagnostics));
+    require(diagnostics.has_code(logit::ConfigurationErrorCode::InvalidValue));
+    require(diagnostics.items()[0].path == "loggers[0].strategy.formatter.type");
+    require(sentinel.loggers.size() == 1);
+    require(sentinel.loggers[0].id == "existing");
 }
 
 void test_builtin_runtime_factory_supports_payload_backends() {
@@ -630,29 +678,29 @@ void test_builtin_runtime_factory_supports_payload_backends() {
         logit::BuiltinConfigurationMaterializer materializer;
         logit::ConfigurationPlan plan;
         logit::ConfigurationDiagnostics diagnostics;
-        assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+        require(logit::materialize_configuration(document, materializer, plan, diagnostics));
         RecordingBindingResolver resolver;
         logit::BuiltinConfigurationLoggerFactory factory;
         std::vector<std::shared_ptr<logit::ILogger>> loggers;
-        assert(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
-        assert(loggers.size() == 1);
-        assert(std::dynamic_pointer_cast<logit::MdbxLogger>(loggers[0]));
+        require(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+        require(loggers.size() == 1);
+        require(std::dynamic_pointer_cast<logit::MdbxLogger>(loggers[0]));
         loggers.clear();
 
         OptionalErrorBindingResolver optional_resolver;
         optional_resolver.provide_error = true;
-        assert(logit::instantiate_configuration(plan, optional_resolver, factory, loggers, diagnostics));
-        assert(loggers.size() == 1);
-        assert(std::dynamic_pointer_cast<logit::MdbxLogger>(loggers[0]));
+        require(logit::instantiate_configuration(plan, optional_resolver, factory, loggers, diagnostics));
+        require(loggers.size() == 1);
+        require(std::dynamic_pointer_cast<logit::MdbxLogger>(loggers[0]));
         loggers.clear();
 
         optional_resolver.provide_wrong_type = true;
         std::shared_ptr<logit::ILogger> sentinel(new logit::MemoryLogger());
         loggers.push_back(sentinel);
-        assert(!logit::instantiate_configuration(plan, optional_resolver, factory, loggers, diagnostics));
-        assert(diagnostics.has_code(logit::ConfigurationErrorCode::InstantiationFailed));
-        assert(loggers.size() == 1);
-        assert(loggers[0] == sentinel);
+        require(!logit::instantiate_configuration(plan, optional_resolver, factory, loggers, diagnostics));
+        require(diagnostics.has_code(logit::ConfigurationErrorCode::InstantiationFailed));
+        require(loggers.size() == 1);
+        require(loggers[0] == sentinel);
 
         std::remove(path.c_str());
         std::remove((path + "-lck").c_str());
@@ -674,9 +722,9 @@ void test_builtin_runtime_factory_supports_payload_backends() {
         logit::BuiltinConfigurationMaterializer materializer;
         logit::ConfigurationPlan plan;
         logit::ConfigurationDiagnostics diagnostics;
-        assert(!logit::materialize_configuration(document, materializer, plan, diagnostics));
-        assert(diagnostics.has_code(logit::ConfigurationErrorCode::UnavailableBackend));
-        assert(diagnostics.items()[0].path == "loggers[0].backend.payload_compression");
+        require(!logit::materialize_configuration(document, materializer, plan, diagnostics));
+        require(diagnostics.has_code(logit::ConfigurationErrorCode::UnavailableBackend));
+        require(diagnostics.items()[0].path == "loggers[0].backend.payload_compression");
     }
 #endif
 #endif
@@ -693,13 +741,13 @@ void test_builtin_runtime_factory_supports_payload_backends() {
         logit::BuiltinConfigurationMaterializer materializer;
         logit::ConfigurationPlan plan;
         logit::ConfigurationDiagnostics diagnostics;
-        assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+        require(logit::materialize_configuration(document, materializer, plan, diagnostics));
         PayloadBindingResolver resolver;
         logit::BuiltinConfigurationLoggerFactory factory;
         std::vector<std::shared_ptr<logit::ILogger>> loggers;
-        assert(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
-        assert(loggers.size() == 1);
-        assert(std::dynamic_pointer_cast<logit::OtlpPayloadLogger>(loggers[0]));
+        require(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+        require(loggers.size() == 1);
+        require(std::dynamic_pointer_cast<logit::OtlpPayloadLogger>(loggers[0]));
     }
     {
         logit::ConfigurationDocument document;
@@ -713,13 +761,13 @@ void test_builtin_runtime_factory_supports_payload_backends() {
         logit::BuiltinConfigurationMaterializer materializer;
         logit::ConfigurationPlan plan;
         logit::ConfigurationDiagnostics diagnostics;
-        assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+        require(logit::materialize_configuration(document, materializer, plan, diagnostics));
         RecordingBindingResolver resolver;
         logit::BuiltinConfigurationLoggerFactory factory;
         std::vector<std::shared_ptr<logit::ILogger>> loggers;
-        assert(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
-        assert(loggers.size() == 1);
-        assert(std::dynamic_pointer_cast<logit::OtlpHttpLogger>(loggers[0]));
+        require(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+        require(loggers.size() == 1);
+        require(std::dynamic_pointer_cast<logit::OtlpHttpLogger>(loggers[0]));
     }
 #endif
 #if defined(LOGIT_WITH_PROMETHEUS)
@@ -734,13 +782,13 @@ void test_builtin_runtime_factory_supports_payload_backends() {
         logit::BuiltinConfigurationMaterializer materializer;
         logit::ConfigurationPlan plan;
         logit::ConfigurationDiagnostics diagnostics;
-        assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+        require(logit::materialize_configuration(document, materializer, plan, diagnostics));
         PayloadBindingResolver resolver;
         logit::BuiltinConfigurationLoggerFactory factory;
         std::vector<std::shared_ptr<logit::ILogger>> loggers;
-        assert(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
-        assert(loggers.size() == 1);
-        assert(std::dynamic_pointer_cast<logit::PrometheusPayloadLogger>(loggers[0]));
+        require(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+        require(loggers.size() == 1);
+        require(std::dynamic_pointer_cast<logit::PrometheusPayloadLogger>(loggers[0]));
     }
 #endif
 #if defined(LOGIT_WITH_PROMETHEUS_SERVER)
@@ -756,13 +804,13 @@ void test_builtin_runtime_factory_supports_payload_backends() {
         logit::BuiltinConfigurationMaterializer materializer;
         logit::ConfigurationPlan plan;
         logit::ConfigurationDiagnostics diagnostics;
-        assert(logit::materialize_configuration(document, materializer, plan, diagnostics));
+        require(logit::materialize_configuration(document, materializer, plan, diagnostics));
         RecordingBindingResolver resolver;
         logit::BuiltinConfigurationLoggerFactory factory;
         std::vector<std::shared_ptr<logit::ILogger>> loggers;
-        assert(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
-        assert(loggers.size() == 1);
-        assert(std::dynamic_pointer_cast<logit::PrometheusHttpServerLogger>(loggers[0]));
+        require(logit::instantiate_configuration(plan, resolver, factory, loggers, diagnostics));
+        require(loggers.size() == 1);
+        require(std::dynamic_pointer_cast<logit::PrometheusHttpServerLogger>(loggers[0]));
     }
 #endif
 }
@@ -785,6 +833,7 @@ int main() {
     test_runtime_binding_and_instantiation_are_atomic();
     test_builtin_runtime_factory_consumes_materialized_plan();
     test_prepared_runtime_applies_strategy_atomically();
+    test_legacy_instantiation_preserves_factory_contract();
     test_builtin_runtime_factory_supports_payload_backends();
     return 0;
 }

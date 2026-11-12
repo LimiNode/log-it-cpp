@@ -161,6 +161,67 @@ namespace logit {
             return std::shared_ptr<ILogFormatter>();
         }
 
+        inline bool resolve_bindings(
+            const ConfigurationPlan& plan,
+            const ConfigurationBindingResolver& resolver,
+            std::vector<ConfigurationBindingSet>& resolved_bindings,
+            ConfigurationDiagnostics& diagnostics) {
+            resolved_bindings.reserve(plan.loggers.size());
+            bool bindings_ok = true;
+            for (std::size_t index = 0; index < plan.loggers.size(); ++index) {
+                const ConfigurationMaterializedLogger& entry = plan.loggers[index];
+                ConfigurationBindingSet bindings;
+                ConfigurationDiagnostics local_diagnostics;
+                const bool resolved = resolver.resolve(entry, bindings, local_diagnostics);
+                bool missing_binding = false;
+                for (std::vector<std::string>::const_iterator required =
+                         entry.required_bindings.begin();
+                     required != entry.required_bindings.end(); ++required) {
+                    if (!bindings.contains(*required)) {
+                        local_diagnostics.add(ConfigurationErrorCode::MissingProgrammaticBinding,
+                                              "binding." + *required,
+                                              "Required programmatic binding was not resolved");
+                        missing_binding = true;
+                    }
+                }
+                const std::string prefix = "loggers[" + std::to_string(index) + "]";
+                if (!resolved || !local_diagnostics.empty() || missing_binding) {
+                    bindings_ok = false;
+                    if (local_diagnostics.empty()) {
+                        diagnostics.add(ConfigurationErrorCode::BindingResolutionFailed,
+                                        prefix + ".binding",
+                                        "Programmatic bindings could not be resolved");
+                    } else {
+                        diagnostics.append_rebased(local_diagnostics, prefix);
+                    }
+                }
+                resolved_bindings.push_back(bindings);
+            }
+            return bindings_ok;
+        }
+
+        inline std::shared_ptr<ILogger> instantiate_logger(
+            const ConfigurationMaterializedLogger& entry,
+            const ConfigurationBindingSet& bindings,
+            const ConfigurationLoggerFactory& factory,
+            const std::string& prefix,
+            ConfigurationDiagnostics& diagnostics) {
+            ConfigurationDiagnostics local_diagnostics;
+            std::shared_ptr<ILogger> runtime_logger =
+                factory.instantiate(entry, bindings, local_diagnostics);
+            if (!runtime_logger || !local_diagnostics.empty()) {
+                if (local_diagnostics.empty()) {
+                    diagnostics.add(ConfigurationErrorCode::InstantiationFailed,
+                                    prefix,
+                                    "Logger factory could not instantiate the plan entry");
+                } else {
+                    diagnostics.append_rebased(local_diagnostics, prefix);
+                }
+                return std::shared_ptr<ILogger>();
+            }
+            return runtime_logger;
+        }
+
     } // namespace configuration_runtime_detail
 
     /// \brief Resolve bindings and prepare complete logger/formatter pairs.
@@ -176,39 +237,8 @@ namespace logit {
         ConfigurationDiagnostics& diagnostics) {
         diagnostics = ConfigurationDiagnostics();
         std::vector<ConfigurationBindingSet> resolved_bindings;
-        resolved_bindings.reserve(plan.loggers.size());
-        bool bindings_ok = true;
-        for (std::size_t index = 0; index < plan.loggers.size(); ++index) {
-            const ConfigurationMaterializedLogger& entry = plan.loggers[index];
-            ConfigurationBindingSet bindings;
-            ConfigurationDiagnostics local_diagnostics;
-            const bool resolved = resolver.resolve(entry, bindings, local_diagnostics);
-            bool missing_binding = false;
-            for (std::vector<std::string>::const_iterator required =
-                     entry.required_bindings.begin();
-                 required != entry.required_bindings.end(); ++required) {
-                if (!bindings.contains(*required)) {
-                    local_diagnostics.add(ConfigurationErrorCode::MissingProgrammaticBinding,
-                                          "binding." + *required,
-                                          "Required programmatic binding was not resolved");
-                    missing_binding = true;
-                }
-            }
-
-            const std::string prefix = "loggers[" + std::to_string(index) + "]";
-            if (!resolved || !local_diagnostics.empty() || missing_binding) {
-                bindings_ok = false;
-                if (local_diagnostics.empty()) {
-                    diagnostics.add(ConfigurationErrorCode::BindingResolutionFailed,
-                                    prefix + ".binding",
-                                    "Programmatic bindings could not be resolved");
-                } else {
-                    diagnostics.append_rebased(local_diagnostics, prefix);
-                }
-            }
-            resolved_bindings.push_back(bindings);
-        }
-        if (!bindings_ok) return false;
+        if (!configuration_runtime_detail::resolve_bindings(
+                plan, resolver, resolved_bindings, diagnostics)) return false;
 
         ConfigurationPreparedSet candidate;
         candidate.schema_version = plan.schema_version;
@@ -216,20 +246,12 @@ namespace logit {
         for (std::size_t index = 0; index < plan.loggers.size(); ++index) {
             const ConfigurationMaterializedLogger& entry = plan.loggers[index];
             const std::string prefix = "loggers[" + std::to_string(index) + "]";
-            ConfigurationDiagnostics local_diagnostics;
             std::shared_ptr<ILogger> runtime_logger =
-                factory.instantiate(entry, resolved_bindings[index], local_diagnostics);
-            if (!runtime_logger || !local_diagnostics.empty()) {
-                if (local_diagnostics.empty()) {
-                    diagnostics.add(ConfigurationErrorCode::InstantiationFailed,
-                                    prefix,
-                                    "Logger factory could not instantiate the plan entry");
-                } else {
-                    diagnostics.append_rebased(local_diagnostics, prefix);
-                }
-                return false;
-            }
+                configuration_runtime_detail::instantiate_logger(
+                    entry, resolved_bindings[index], factory, prefix, diagnostics);
+            if (!runtime_logger) return false;
 
+            ConfigurationDiagnostics local_diagnostics;
             std::shared_ptr<ILogFormatter> formatter =
                 configuration_runtime_detail::make_configuration_formatter(entry, local_diagnostics);
             if (!formatter) {
@@ -272,24 +294,34 @@ namespace logit {
 
     /// \brief Resolve bindings and publish a complete logger set atomically.
     ///
-    /// The caller-visible logger vector is updated only after every binding has
-    /// resolved and every factory call has returned a logger. Factories may
-    /// still perform external side effects while constructing instances; those
-    /// effects are not transactional and are not rolled back if a later factory
-    /// fails.
+    /// This is the legacy backend-instantiation API. It deliberately preserves
+    /// the pre-runtime-preparation contract: the factory owns logger strategy
+    /// state, so this function does not construct formatters or assign levels.
+    /// Use `prepare_configuration()` when strategy-aware formatter and level
+    /// preparation is required. The caller-visible logger vector is updated
+    /// only after every binding has resolved and every factory call has
+    /// returned a logger. Factory side effects remain non-transactional.
     inline bool instantiate_configuration(
         const ConfigurationPlan& plan,
         const ConfigurationBindingResolver& resolver,
         const ConfigurationLoggerFactory& factory,
         std::vector<std::shared_ptr<ILogger>>& loggers,
         ConfigurationDiagnostics& diagnostics) {
-        ConfigurationPreparedSet prepared;
-        if (!prepare_configuration(plan, resolver, factory, prepared, diagnostics)) return false;
+        diagnostics = ConfigurationDiagnostics();
+        std::vector<ConfigurationBindingSet> resolved_bindings;
+        if (!configuration_runtime_detail::resolve_bindings(
+                plan, resolver, resolved_bindings, diagnostics)) return false;
+
         std::vector<std::shared_ptr<ILogger>> candidate;
-        candidate.reserve(prepared.loggers.size());
-        for (std::vector<ConfigurationPreparedLogger>::const_iterator it =
-                 prepared.loggers.begin(); it != prepared.loggers.end(); ++it) {
-            candidate.push_back(it->logger);
+        candidate.reserve(plan.loggers.size());
+        for (std::size_t index = 0; index < plan.loggers.size(); ++index) {
+            const ConfigurationMaterializedLogger& entry = plan.loggers[index];
+            const std::string prefix = "loggers[" + std::to_string(index) + "]";
+            std::shared_ptr<ILogger> runtime_logger =
+                configuration_runtime_detail::instantiate_logger(
+                    entry, resolved_bindings[index], factory, prefix, diagnostics);
+            if (!runtime_logger) return false;
+            candidate.push_back(runtime_logger);
         }
 
         loggers = candidate;
