@@ -13,6 +13,8 @@
 #include "config.hpp"
 #include "enums.hpp"
 #include "utils/format.hpp"
+// TimeShield's time_formatting.hpp uses std::fill without including <algorithm>.
+#include <algorithm>
 #include "utils/VariableValue.hpp"
 #include "utils/argument_utils.hpp"
 #include "utils/BufferedLogEntry.hpp"
