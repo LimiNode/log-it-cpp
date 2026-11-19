@@ -108,7 +108,12 @@ when interface subobject addresses differ. One complete object must not appear
 in different strategies, including across backend/formatter roles. Distinct
 objects sharing one control block are not aliases merely for that reason.
 Within one strategy, a combined backend/formatter object still has only one
-execution mutex and must satisfy both interface contracts. No global
+execution mutex and must satisfy both interface contracts. If both interfaces
+refer to the same complete object, their shared pointers must also share one
+ownership control block, checked in C++11 by symmetric `owner_before()`:
+`!backend.owner_before(formatter) && !formatter.owner_before(backend)`.
+Independent control blocks for that same object are rejected before publication.
+Distinct complete objects sharing one control block remain valid. No global
 object-lock registry or new hot-path synchronization is introduced in v1.
 
 The prepared set remains caller-owned after successful registration. Clearing
@@ -240,6 +245,7 @@ No implementation of the registration or shutdown changes is part of this PR.
 | Shared formatter pointer under two different IDs | Reject the whole batch; no log/format invocation or object state change during validation. |
 | Runtime object reused in a later batch | Reject even with a fresh ID; include aliasing against legacy entries and different interface subobject addresses. |
 | Distinct objects sharing one control block | Do not falsely reject solely because shared ownership has the same control block. |
+| Combined backend/formatter object in one strategy | Accept only with one shared ownership control block; reject independent control blocks for the same complete object without publication. |
 | Manually constructed prepared set | Reject unsupported schema, empty/duplicate IDs, null objects, invalid level/options, and unknown option IDs without publication. |
 | Snapshot allocation failure in batch registration | Mutable registry, ID map, dispatch snapshot, prepared input, and old result remain unchanged. |
 | Returned ID/index result allocation failure | No publication or partial mapping; old caller result remains unchanged. |
