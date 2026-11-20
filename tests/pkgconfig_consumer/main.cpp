@@ -5,6 +5,15 @@
 #endif
 
 int main() {
+    logit::ConfigurationPreparedSet prepared;
+    prepared.schema_version = 1;
+    std::shared_ptr<const logit::ConfigurationRegistrationResult> registered;
+    logit::ConfigurationDiagnostics registration_diagnostics;
+    if (!logit::Logger::get_instance().register_configuration(
+            prepared, logit::ConfigurationRegistrationOptions(), registered,
+            registration_diagnostics) || !registered || !registered->indices.empty()) {
+        return 3;
+    }
 #if defined(LOGIT_WITH_JSON_CONFIG)
     logit::ConfigurationDocument document;
     logit::ConfigurationDiagnostics diagnostics;

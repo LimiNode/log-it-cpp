@@ -33,7 +33,8 @@ namespace logit {
         MaterializationFailed,
         BindingResolutionFailed,
         InstantiationFailed,
-        ConfigurationParseFailed
+        ConfigurationParseFailed,
+        RegistrationFailed
     };
 
     inline const char* configuration_error_code_name(ConfigurationErrorCode code) {
@@ -53,6 +54,7 @@ namespace logit {
             case ConfigurationErrorCode::BindingResolutionFailed: return "binding_resolution_failed";
             case ConfigurationErrorCode::InstantiationFailed: return "instantiation_failed";
             case ConfigurationErrorCode::ConfigurationParseFailed: return "configuration_parse_failed";
+            case ConfigurationErrorCode::RegistrationFailed: return "registration_failed";
         }
         return "unknown_configuration_error";
     }

@@ -7,7 +7,8 @@ JSON value или text
     -> ConfigurationDocument
     -> validation и materialization
     -> разрешение programmatic bindings
-    -> создание runtime logger'ов
+    -> подготовка runtime-пар (ConfigurationPreparedSet)
+    -> атомарная append-only регистрация (Logger)
 ```
 
 Основная semantic model и runtime-слои не зависят от JSON-библиотеки. JSON
@@ -83,6 +84,46 @@ level logger'а и не создаёт formatter из materialized strategy. Д�
 `TRACE`; formatter schema v1 имеет тип `simple`, defaults публичного
 `SimpleLogFormatter::Config`, а затем применяет явные pattern и JSON overrides.
 Prepared result использует shared ownership в соответствии с существующим
-factory API. `Logger::add_logger()` пока принимает unique ownership, поэтому
-регистрация остаётся отдельной границей; подготовка не изменяет глобальный
-singleton поэлементно.
+factory API. Подготовка не изменяет глобальный singleton поэлементно.
+
+## Атомарная регистрация
+
+`Logger::register_configuration()` добавляет весь подготовленный batch одной
+публикацией dispatch snapshot, сохраняя существующие индексы и strategy flags:
+
+```cpp
+logit::ConfigurationPreparedSet prepared; // Successful prepare_configuration() output.
+logit::ConfigurationRegistrationOptions options;
+options["application-file"].enabled = true;
+options["application-file"].single_mode = false;
+std::shared_ptr<const logit::ConfigurationRegistrationResult> registered;
+if (logit::Logger::get_instance().register_configuration(
+        prepared, options, registered, diagnostics)) {
+    const int file_index = registered->indices.at("application-file");
+    logit::Logger::get_instance().set_logger_enabled(file_index, true);
+}
+```
+
+Перед вызовом default-constructed `prepared` из примера должен быть заполнен
+успешной подготовкой schema v1. Регистрация проверяет и вручную созданные наборы:
+ID, non-null пары, level metadata, ID опций, object aliases и предел индексов.
+Level и formatter повторно не применяются. Повторные ID отклоняются: это не
+replacement, hot reload или идемпотентная повторная регистрация. Корректный пустой
+batch возвращает пустую карту без публикации snapshot. Количество стратегий
+ограничено `INT_MAX`, последний допустимый индекс — `INT_MAX - 1`.
+
+При ошибке prepared input, живой registry и прежний result handle сохраняются;
+diagnostics заменяются при каждом вызове. Исключения allocation могут выйти только
+до commit с той же гарантией сохранения. Готовый результат передаётся без allocation.
+При гонке с shutdown либо публикуется весь batch, который увидит shutdown, либо
+регистрация завершается без изменений.
+
+Один complete backend/formatter object не может принадлежать разным стратегиям,
+включая legacy entries и предыдущие batch, независимо от concurrency capability.
+Объект с двумя интерфейсами внутри одной стратегии требует общего control block.
+Разные объекты с одним control block допустимы. Внешние shared owners сохраняют
+lifetime, но не дают права на несинхронизированные вызовы, изменение или shutdown.
+Уничтожение prepared set не удаляет зарегистрированные entries.
+`Logger::add_logger(unique_ptr, unique_ptr, bool)` сохраняет прежний интерфейс
+и также подготавливает snapshot до изменения registry. Reset/restart singleton
+не добавлен.

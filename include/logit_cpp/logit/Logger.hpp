@@ -6,6 +6,7 @@
 /// \brief Defines the Logger class for managing multiple loggers and formatters.
 
 #include "config.hpp"
+#include "configuration_registration.hpp"
 #include "loggers/ILogger.hpp"
 #include "formatter.hpp"
 #include "detail/TaskExecutor.hpp"
@@ -14,6 +15,11 @@
 #include <sstream>
 #include <atomic>
 #include <cstddef>
+#include <climits>
+#include <map>
+#include <new>
+#include <stdexcept>
+#include <utility>
 #include <vector>
 
 #if __cplusplus >= 201703L
@@ -24,6 +30,11 @@
 #endif
 
 namespace logit {
+
+    namespace detail {
+        /// \brief Private regression access without a production singleton reset API.
+        struct LoggerRegistrationTestAccess;
+    }
 
 #if LOGIT_HAS_SHARED_MUTEX
     using LoggerMutex = std::shared_mutex;
@@ -69,6 +80,8 @@ namespace logit {
             auto strategy = std::make_shared<LoggerStrategy>();
             strategy->logger = std::move(logger);
             strategy->formatter = std::move(formatter);
+            strategy->logger_identity = dynamic_cast<const void*>(strategy->logger.get());
+            strategy->formatter_identity = dynamic_cast<const void*>(strategy->formatter.get());
             strategy->single_mode = single_mode;
             strategy->enabled = true;
             strategy->concurrent_dispatch =
@@ -76,10 +89,163 @@ namespace logit {
                     strategy->logger->supports_concurrent_log() &&
                     (!strategy->formatter || strategy->formatter->supports_concurrent_format());
 
-            LoggerWriteLock lock(m_loggers_mx);
-            if (m_shutdown.load(std::memory_order_acquire)) return;
-            m_loggers.push_back(std::move(strategy));
-            publish_strategy_snapshot_locked();
+            StrategyList candidate;
+            std::shared_ptr<const StrategyList> snapshot;
+            std::shared_ptr<const StrategyList> previous_snapshot;
+            {
+                LoggerWriteLock lock(m_loggers_mx);
+                if (m_shutdown.load(std::memory_order_acquire)) return;
+                if (!registration_capacity_available(m_loggers.size(), 1)) {
+                    throw std::length_error("Logger index capacity exhausted");
+                }
+                candidate = m_loggers;
+                candidate.push_back(strategy);
+                snapshot = make_registration_snapshot(candidate);
+                previous_snapshot = std::atomic_load_explicit(
+                        &m_loggers_snapshot, std::memory_order_acquire);
+                m_loggers.swap(candidate);
+                std::atomic_store_explicit(
+                        &m_loggers_snapshot, snapshot, std::memory_order_release);
+            }
+        }
+
+        /// \brief Appends an entire prepared configuration with one snapshot publication.
+        /// \param prepared Caller-owned complete backend/formatter pairs; not mutated.
+        /// \param options Routing overrides keyed only by incoming configuration IDs.
+        /// \param output Immutable ID-to-index result, replaced only after full success.
+        /// \param diagnostics Replaced with path-aware registration diagnostics.
+        /// \return True only when every entry is registered, or a valid empty batch succeeds.
+        ///
+        /// Existing entries and indices are preserved. Object aliases between strategies
+        /// are rejected even when they advertise concurrent dispatch. Retained owners
+        /// preserve lifetime, not authority for unsynchronized external use or shutdown.
+        /// Allocation exceptions propagate before commit with registry and output unchanged.
+        bool register_configuration(
+                const ConfigurationPreparedSet& prepared,
+                const ConfigurationRegistrationOptions& options,
+                std::shared_ptr<const ConfigurationRegistrationResult>& output,
+                ConfigurationDiagnostics& diagnostics) {
+            diagnostics = ConfigurationDiagnostics();
+            if (prepared.schema_version != 1) {
+                diagnostics.add(ConfigurationErrorCode::UnsupportedSchemaVersion,
+                                "schema_version", "Only schema version 1 can be registered");
+                return false;
+            }
+
+            std::map<std::string, std::size_t> incoming_ids;
+            for (std::size_t index = 0; index < prepared.loggers.size(); ++index) {
+                const ConfigurationPreparedLogger& entry = prepared.loggers[index];
+                const std::string path = "loggers[" + std::to_string(index) + "]";
+                if (entry.id.empty()) {
+                    diagnostics.add(ConfigurationErrorCode::EmptyLoggerId,
+                                    path + ".id", "Logger ID must not be empty");
+                } else if (!incoming_ids.insert(std::make_pair(entry.id, index)).second) {
+                    diagnostics.add(ConfigurationErrorCode::DuplicateLoggerId,
+                                    path + ".id", "Logger ID occurs more than once in this batch");
+                }
+                if (!entry.logger || !entry.formatter) {
+                    diagnostics.add(ConfigurationErrorCode::InvalidValue,
+                                    path + (!entry.logger ? ".logger" : ".formatter"),
+                                    "Prepared backend and formatter must be non-null");
+                }
+                if (entry.level < LogLevel::LOG_LVL_TRACE ||
+                    entry.level > LogLevel::LOG_LVL_FATAL) {
+                    diagnostics.add(ConfigurationErrorCode::InvalidValue,
+                                    path + ".level", "Prepared level is not a declared LogLevel");
+                }
+            }
+            for (ConfigurationRegistrationOptions::const_iterator it = options.begin();
+                 it != options.end(); ++it) {
+                if (incoming_ids.find(it->first) == incoming_ids.end()) {
+                    diagnostics.add(ConfigurationErrorCode::InvalidValue,
+                                    "options." + it->first,
+                                    "Registration options must name an incoming logger ID");
+                }
+            }
+            if (!diagnostics.empty()) return false;
+
+            // Every owning candidate outlives either registry lock scope, including
+            // failed candidates and displaced result/snapshot owners with user deleters.
+            StrategyList additions;
+            StrategyList candidate;
+            std::map<std::string, int> candidate_ids;
+            std::shared_ptr<const StrategyList> snapshot;
+            std::shared_ptr<const StrategyList> previous_snapshot;
+            std::shared_ptr<ConfigurationRegistrationResult> result;
+            std::shared_ptr<const ConfigurationRegistrationResult> result_handle;
+            additions.reserve(prepared.loggers.size());
+            for (std::size_t index = 0; index < prepared.loggers.size(); ++index) {
+                const ConfigurationPreparedLogger& entry = prepared.loggers[index];
+                std::shared_ptr<LoggerStrategy> strategy = std::make_shared<LoggerStrategy>();
+                strategy->logger = entry.logger;
+                strategy->formatter = entry.formatter;
+                strategy->logger_identity = dynamic_cast<const void*>(entry.logger.get());
+                strategy->formatter_identity = dynamic_cast<const void*>(entry.formatter.get());
+                if (strategy->logger_identity == strategy->formatter_identity &&
+                    (entry.logger.owner_before(entry.formatter) ||
+                     entry.formatter.owner_before(entry.logger))) {
+                    diagnostics.add(ConfigurationErrorCode::UnsupportedCombination,
+                                    "loggers[" + std::to_string(index) + "].formatter",
+                                    "Interfaces of one complete object must share an ownership control block");
+                    return false;
+                }
+                for (std::size_t previous = 0; previous < additions.size(); ++previous) {
+                    if (registration_objects_overlap(*strategy, *additions[previous])) {
+                        diagnostics.add(ConfigurationErrorCode::RegistrationFailed,
+                                        "loggers[" + std::to_string(index) + "]",
+                                        "One runtime object cannot belong to multiple strategies");
+                        return false;
+                    }
+                }
+                ConfigurationRegistrationOptions::const_iterator option = options.find(entry.id);
+                if (option != options.end()) {
+                    strategy->enabled = option->second.enabled;
+                    strategy->single_mode = option->second.single_mode;
+                }
+                additions.push_back(strategy);
+            }
+            {
+                LoggerReadLock lock(m_loggers_mx);
+                if (!validate_registration_state(prepared, additions, diagnostics)) return false;
+            }
+            // Capability queries are virtual user code, so never run them under the
+            // registry mutex. Recheck the live state after these queries complete.
+            for (const auto& strategy : additions) {
+                strategy->concurrent_dispatch = strategy->logger->supports_concurrent_log() &&
+                        strategy->formatter->supports_concurrent_format();
+            }
+            {
+                LoggerWriteLock lock(m_loggers_mx);
+                if (!validate_registration_state(prepared, additions, diagnostics)) return false;
+                fail_registration_allocation_if_requested(RegistrationAllocationStage::Result);
+                result = std::make_shared<ConfigurationRegistrationResult>();
+                if (!additions.empty()) {
+                    candidate = m_loggers;
+                    candidate.reserve(m_loggers.size() + additions.size());
+                    candidate_ids = m_configured_ids;
+                    for (std::size_t index = 0; index < additions.size(); ++index) {
+                        const int runtime_index = static_cast<int>(m_loggers.size() + index);
+                        const std::string& id = prepared.loggers[index].id;
+                        candidate.push_back(additions[index]);
+                        candidate_ids.insert(std::make_pair(id, runtime_index));
+                        result->indices.insert(std::make_pair(id, runtime_index));
+                        fail_registration_allocation_if_requested(RegistrationAllocationStage::ResultMap);
+                    }
+                    snapshot = make_registration_snapshot(candidate);
+                    previous_snapshot = std::atomic_load_explicit(
+                            &m_loggers_snapshot, std::memory_order_acquire);
+                }
+                result_handle = result;
+                if (!additions.empty()) {
+                    m_loggers.swap(candidate);
+                    m_configured_ids.swap(candidate_ids);
+                    // Registration linearizes here; no throwing work follows.
+                    std::atomic_store_explicit(
+                            &m_loggers_snapshot, snapshot, std::memory_order_release);
+                }
+                output.swap(result_handle);
+            }
+            return true;
         }
 
         /// \brief Enables or disables a logger by index.
@@ -121,6 +287,7 @@ namespace logit {
         void set_timestamp_offset(int logger_index, int64_t offset_ms) {
             if (m_shutdown) return;
             LoggerWriteLock lock(m_loggers_mx);
+            if (m_shutdown.load(std::memory_order_acquire)) return;
             if (logger_index >= 0 && logger_index < static_cast<int>(m_loggers.size()) && m_loggers[logger_index]) {
                 std::lock_guard<std::mutex> exec_lock(m_loggers[logger_index]->exec_mx);
                 m_loggers[logger_index]->formatter->set_timestamp_offset(offset_ms);
@@ -132,6 +299,7 @@ namespace logit {
         void set_log_level(LogLevel level) {
             if (m_shutdown) return;
             LoggerReadLock lock(m_loggers_mx);
+            if (m_shutdown.load(std::memory_order_acquire)) return;
             for (auto& strategy : m_loggers) {
                 if (!strategy) continue;
                 std::lock_guard<std::mutex> exec_lock(strategy->exec_mx);
@@ -145,6 +313,7 @@ namespace logit {
         void set_log_level(int logger_index, LogLevel level) {
             if (m_shutdown) return;
             LoggerWriteLock lock(m_loggers_mx);
+            if (m_shutdown.load(std::memory_order_acquire)) return;
             if (logger_index >= 0 && logger_index < static_cast<int>(m_loggers.size()) && m_loggers[logger_index]) {
                 std::lock_guard<std::mutex> exec_lock(m_loggers[logger_index]->exec_mx);
                 m_loggers[logger_index]->logger->set_log_level(level);
@@ -524,11 +693,17 @@ namespace logit {
         /// Disables further logging, waits for asynchronous tasks to complete,
         /// and shuts down TaskExecutor.
         void shutdown() {
-            if (m_shutdown.exchange(true, std::memory_order_acq_rel)) return;
-
-            const auto snapshot = get_all_strategy_snapshots();
-            for (const auto& strategy : snapshot) {
-                if (!strategy) continue;
+            std::shared_ptr<const StrategyList> snapshot;
+            {
+                LoggerWriteLock lock(m_loggers_mx);
+                if (m_shutdown.load(std::memory_order_acquire)) return;
+                snapshot = std::atomic_load_explicit(
+                        &m_loggers_snapshot, std::memory_order_acquire);
+                // Shutdown and registry writers share this linearization boundary.
+                m_shutdown.store(true, std::memory_order_release);
+            }
+            for (const auto& strategy : *snapshot) {
+                if (!strategy || !strategy->logger) continue;
                 std::lock_guard<std::mutex> exec_lock(strategy->exec_mx);
                 strategy->logger->shutdown();
             }
@@ -537,11 +712,17 @@ namespace logit {
 
     private:
 
+        friend struct detail::LoggerRegistrationTestAccess;
+
+        enum class RegistrationAllocationStage { None, Snapshot, Result, ResultMap };
+
         /// \struct LoggerStrategy
         /// \brief Structure to hold a logger-formatter pair.
         struct LoggerStrategy {
-            std::unique_ptr<ILogger> logger;            ///< The logger instance.
-            std::unique_ptr<ILogFormatter> formatter;   ///< The formatter instance.
+            std::shared_ptr<ILogger> logger;            ///< The logger instance.
+            std::shared_ptr<ILogFormatter> formatter;   ///< The formatter instance.
+            const void* logger_identity = nullptr;     ///< Most-derived backend object address.
+            const void* formatter_identity = nullptr;  ///< Most-derived formatter object address.
             std::atomic<bool> single_mode{false};       ///< Flag indicating if the logger is in single mode.
             std::atomic<bool> enabled{true};            ///< Flag indicating if the logger is enabled.
             bool concurrent_dispatch = false;           ///< Explicit formatter/backend lock-elision capability.
@@ -597,11 +778,67 @@ namespace logit {
             return std::shared_ptr<LoggerStrategy>();
         }
 
-        void publish_strategy_snapshot_locked() {
-            const std::shared_ptr<const StrategyList> snapshot(
-                    new StrategyList(m_loggers));
-            std::atomic_store_explicit(
-                    &m_loggers_snapshot, snapshot, std::memory_order_release);
+        static bool registration_capacity_available(
+                std::size_t current_count, std::size_t batch_count) noexcept {
+            const std::size_t limit = static_cast<std::size_t>(INT_MAX);
+            return current_count <= limit && batch_count <= limit - current_count;
+        }
+
+        static bool registration_objects_overlap(
+                const LoggerStrategy& left, const LoggerStrategy& right) noexcept {
+            return (left.logger_identity &&
+                    (left.logger_identity == right.logger_identity ||
+                     left.logger_identity == right.formatter_identity)) ||
+                   (left.formatter_identity &&
+                    (left.formatter_identity == right.logger_identity ||
+                     left.formatter_identity == right.formatter_identity));
+        }
+
+        // Called only while a registry lock is held, before capability queries and
+        // again at commit. No virtual methods or user-owned cleanup run here.
+        bool validate_registration_state(
+                const ConfigurationPreparedSet& prepared,
+                const StrategyList& additions,
+                ConfigurationDiagnostics& diagnostics) const {
+            if (m_shutdown.load(std::memory_order_acquire)) {
+                diagnostics.add(ConfigurationErrorCode::RegistrationFailed,
+                                "loggers", "Logger system is shut down");
+                return false;
+            }
+            if (!registration_capacity_available(m_loggers.size(), additions.size())) {
+                diagnostics.add(ConfigurationErrorCode::RegistrationFailed,
+                                "loggers", "Logger index capacity exhausted");
+                return false;
+            }
+            for (std::size_t index = 0; index < additions.size(); ++index) {
+                if (m_configured_ids.find(prepared.loggers[index].id) != m_configured_ids.end()) {
+                    diagnostics.add(ConfigurationErrorCode::DuplicateLoggerId,
+                                    "loggers[" + std::to_string(index) + "].id",
+                                    "Logger ID is already registered");
+                    return false;
+                }
+                for (const auto& existing : m_loggers) {
+                    if (existing && registration_objects_overlap(*additions[index], *existing)) {
+                        diagnostics.add(ConfigurationErrorCode::RegistrationFailed,
+                                        "loggers[" + std::to_string(index) + "]",
+                                        "Runtime object is already registered in another strategy");
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        void fail_registration_allocation_if_requested(RegistrationAllocationStage stage) {
+            if (m_registration_allocation_failure == stage) {
+                m_registration_allocation_failure = RegistrationAllocationStage::None;
+                throw std::bad_alloc();
+            }
+        }
+
+        std::shared_ptr<const StrategyList> make_registration_snapshot(const StrategyList& candidate) {
+            fail_registration_allocation_if_requested(RegistrationAllocationStage::Snapshot);
+            return std::shared_ptr<const StrategyList>(new StrategyList(candidate));
         }
 
         std::vector<std::shared_ptr<LoggerStrategy>> get_all_strategy_snapshots() const {
@@ -610,9 +847,12 @@ namespace logit {
         }
 
         std::vector<std::shared_ptr<LoggerStrategy>> m_loggers;        ///< Container for logger-formatter pairs.
+        std::map<std::string, int> m_configured_ids; ///< Stable indices of configured entries only.
         std::shared_ptr<const StrategyList> m_loggers_snapshot; ///< Immutable read-mostly strategy list.
         mutable LoggerMutex m_loggers_mx;                        ///< Protects access to logger strategies.
         std::atomic<bool> m_shutdown = ATOMIC_VAR_INIT(false); ///< Flag indicating if shutdown was requested.
+        RegistrationAllocationStage m_registration_allocation_failure =
+                RegistrationAllocationStage::None; ///< Private cold-path allocation-failure seam.
 
         void print(const LogRecord& record) {
             log(record);

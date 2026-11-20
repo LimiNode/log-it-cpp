@@ -7,7 +7,8 @@ JSON value or text
     -> ConfigurationDocument
     -> validation and materialization
     -> programmatic binding resolution
-    -> runtime logger construction
+    -> runtime preparation (ConfigurationPreparedSet)
+    -> atomic append-only registration (Logger)
 ```
 
 The core semantic model and runtime layers do not depend on a JSON library.
@@ -89,6 +90,48 @@ a `ConfigurationPreparedSet` containing each stable logger ID, the concrete
 `TRACE`; schema-v1 formatters use `simple` with the public
 `SimpleLogFormatter::Config` defaults, then apply explicit pattern and JSON
 overrides. The prepared result uses shared ownership to match the existing
-factory API. `Logger::add_logger()` currently accepts unique ownership and is
-therefore a separate registration boundary; preparation does not mutate the
-global singleton incrementally.
+factory API. Preparation does not mutate the global singleton incrementally.
+
+## Atomic registration
+
+`Logger::register_configuration()` appends the complete prepared batch with one
+dispatch snapshot publication. Existing indices and strategy flags are preserved:
+
+```cpp
+logit::ConfigurationPreparedSet prepared; // Successful prepare_configuration() output.
+logit::ConfigurationRegistrationOptions options;
+// Optional per-ID overrides; unknown IDs are errors.
+options["application-file"].enabled = true;
+options["application-file"].single_mode = false;
+std::shared_ptr<const logit::ConfigurationRegistrationResult> registered;
+if (logit::Logger::get_instance().register_configuration(
+        prepared, options, registered, diagnostics)) {
+    const int file_index = registered->indices.at("application-file");
+    logit::Logger::get_instance().set_logger_enabled(file_index, true);
+}
+```
+
+The caller supplies a schema-v1 prepared set; the default-constructed set in
+this snippet must first be populated by a successful preparation call. The
+operation validates manually constructed sets too: IDs, non-null pairs, level
+metadata, routing-option IDs, object aliases, and index capacity. Levels and
+formatters are not reapplied during registration. Repeated IDs fail; this is
+not replacement, hot reload, or idempotent re-registration. Valid empty batches
+return an empty mapping without publishing a snapshot. Registry count is capped
+at `INT_MAX`, so the last supported index is `INT_MAX - 1`.
+
+Failures preserve the prepared input, live registry, and previous result handle;
+diagnostics are replaced on each call. Allocation exceptions may propagate only
+before commit, with the same preservation guarantee. The complete result is
+prepared before commit and handed off without allocation. A race with shutdown
+either commits the whole batch for shutdown to observe, or fails unchanged.
+
+The same complete backend/formatter object cannot appear in different strategies,
+including legacy entries and earlier batches, regardless of concurrency capability.
+A combined backend/formatter in one strategy requires shared ownership of one
+control block. Distinct objects sharing a control block are allowed. Retained
+prepared-set pointers preserve lifetime, not permission for unsynchronized direct
+invocation, mutation, or shutdown. Destroying the prepared set does not remove
+registered entries. `Logger::add_logger(unique_ptr, unique_ptr, bool)` remains
+available with its existing behavior and now also prepares its snapshot before
+mutating the registry. No singleton reset/restart API is introduced.

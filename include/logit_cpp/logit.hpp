@@ -18,6 +18,7 @@
 #include "logit/loggers.hpp"
 #include "logit/configuration_runtime.hpp"
 #include "logit/configuration_runtime_builtins.hpp"
+#include "logit/configuration_registration.hpp"
 #ifdef LOGIT_WITH_JSON_CONFIG
 #include "logit/configuration_json.hpp"
 #endif
