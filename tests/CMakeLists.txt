@@ -18,6 +18,7 @@ else()
         compiled_level_test.cpp
         configuration_contract_test.cpp
         configuration_json_test.cpp
+        configuration_registration_test.cpp
         console_logger_dedicated_config_test.cpp
         console_logger_stream_test.cpp
         crash_logger_test.cpp
@@ -174,6 +175,15 @@ else()
             endif()
         endif()
     endforeach()
+
+    add_executable(configuration_registration_shutdown_test configuration_registration_shutdown_test.cpp)
+    target_link_libraries(configuration_registration_shutdown_test PRIVATE log-it-cpp)
+    foreach(order registration-wins shutdown-wins)
+        add_test(NAME configuration_registration_${order}
+                 COMMAND configuration_registration_shutdown_test ${order})
+        set_tests_properties(configuration_registration_${order} PROPERTIES TIMEOUT 30)
+    endforeach()
+    set_tests_properties(configuration_registration_test PROPERTIES TIMEOUT 30)
 
     add_executable(logger_dispatch_concurrent_test logger_dispatch_capability_test.cpp)
     target_compile_features(logger_dispatch_concurrent_test PRIVATE cxx_std_11)

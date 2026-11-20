@@ -26,9 +26,13 @@ All notable changes to this project will be documented in this file.
   validation for MDBX payload compression.
 - Added an optional nlohmann::json frontend that maps JSON text or values into
   the parser-neutral configuration model without performing runtime side effects.
+- Added C++11 append-only atomic registration of prepared backend/formatter
+  batches with per-ID routing options and immutable ID-to-index results.
 
 ### Fixed
 
+- Fixed legacy logger registration exception safety by constructing the new
+  registry snapshot before live mutation, and serialized registration with shutdown.
 - Fixed a race in the MPSC `TaskExecutor::wait()` completion barrier that could
   allow a wait to return before the final accepted task completed.
 

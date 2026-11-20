@@ -112,9 +112,8 @@ namespace logit {
     /// \brief Complete runtime pair prepared from one materialized entry.
     ///
     /// Shared ownership matches the existing ConfigurationLoggerFactory API.
-    /// This result is intentionally not accepted by `Logger::add_logger()`,
-    /// which currently takes unique ownership; defining an atomic batch
-    /// registration and ownership transfer API is a separate boundary.
+    /// Logger::register_configuration() accepts these shared pairs as an atomic
+    /// append-only batch. Logger::add_logger() retains its unique-ownership API.
     struct ConfigurationPreparedLogger {
         std::string id;
         std::shared_ptr<ILogger> logger;

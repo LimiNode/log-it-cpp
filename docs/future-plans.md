@@ -53,8 +53,8 @@ Legend:
   the existing backend configuration. The proposed contract is recorded in
   [ADR 0009](adr/0009-configuration-loading-contract.md). The parser-neutral
   model, built-in materialization/runtime layers, and optional JSON text/value
-  frontend are delivered; atomic registration is specified separately in
-  [ADR 0010](adr/0010-atomic-configuration-registration.md), while
+  frontend and append-only atomic registration are delivered; registration
+  follows [ADR 0010](adr/0010-atomic-configuration-registration.md), while
   file-loading convenience and a properties frontend remain follow-ups. File
   watching/hot reload is not part of this API.
 - [ ] **Extended filtering** — evaluate source/file, message, tag/MDC, and
